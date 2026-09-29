@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { X } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import { getCategories, getFavoriteIds, getMinPrice } from "@/lib/queries";
@@ -115,7 +116,7 @@ export default async function JobsPage(props: PageProps<"/offres">) {
               {activeChips.map((c) => (
                 <li key={c.label}>
                   <Link href={c.href} className="chip hover:border-ink" aria-label={`Retirer le filtre ${c.label}`}>
-                    {c.label} <span aria-hidden>✕</span>
+                    {c.label} <X aria-hidden className="size-3" />
                   </Link>
                 </li>
               ))}

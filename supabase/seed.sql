@@ -1,4 +1,4 @@
--- Faso Emploi — données de démonstration
+-- Faso Emplois — données de démonstration
 -- À exécuter après la migration initiale.
 
 insert into public.categories (name, slug, position) values
@@ -71,7 +71,7 @@ cross join lateral (values
   ('missions', E'- Analyser les besoins et proposer des solutions adaptées\n- Réaliser les tâches principales du poste avec rigueur\n- Rendre compte régulièrement à votre responsable\n- Contribuer à l''amélioration continue de l''équipe', false),
   ('profil', E'Vous êtes rigoureux(se), autonome et avez le sens du service.\n\n- Formation dans le domaine\n- Bonne maîtrise du français écrit et oral', false),
   ('avantages', E'- Assurance maladie\n- Formation continue\n- Cadre de travail stimulant', false),
-  ('candidature', E'Postulez directement sur Faso Emploi avec votre CV et un court message de motivation.\n\nLes candidatures incomplètes ne seront pas étudiées.', false),
+  ('candidature', E'Postulez directement sur Faso Emplois avec votre CV et un court message de motivation.\n\nLes candidatures incomplètes ne seront pas étudiées.', false),
   ('formation', 'Bac+2 minimum dans le domaine concerné.', true)
 ) as v (kind, content, is_public);
 
@@ -106,7 +106,7 @@ insert into public.tips (slug, title, excerpt, category, reading_minutes, conten
   'Où chercher, comment relancer et comment transformer un stage en premier emploi.',
   'Recherche',
   3,
-  E'## Où chercher\n- Les offres de stage sur Faso Emploi.\n- Les services de stage de votre université.\n- Les candidatures spontanées auprès des entreprises de votre secteur.\n\n## Relancer\nSans réponse après une semaine, relancez poliment par téléphone ou par e-mail.\n\n## Transformer l''essai\nSoyez ponctuel, curieux et force de proposition. Demandez un retour à la fin du stage.'
+  E'## Où chercher\n- Les offres de stage sur Faso Emplois.\n- Les services de stage de votre université.\n- Les candidatures spontanées auprès des entreprises de votre secteur.\n\n## Relancer\nSans réponse après une semaine, relancez poliment par téléphone ou par e-mail.\n\n## Transformer l''essai\nSoyez ponctuel, curieux et force de proposition. Demandez un retour à la fin du stage.'
 ),
 (
   'reseau-professionnel',

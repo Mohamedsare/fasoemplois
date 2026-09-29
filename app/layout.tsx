@@ -27,14 +27,14 @@ export const metadata: Metadata = {
   // Base des URL absolues (Open Graph, sitemap) : le domaine de production sur Vercel
   metadataBase: new URL(siteUrl()),
   title: {
-    default: "Faso Emploi — L'emploi au Burkina Faso",
-    template: "%s · Faso Emploi",
+    default: "Faso Emplois — L'emploi au Burkina Faso",
+    template: "%s · Faso Emplois",
   },
   description,
-  applicationName: "Faso Emploi",
+  applicationName: "Faso Emplois",
   openGraph: {
     type: "website",
-    siteName: "Faso Emploi",
+    siteName: "Faso Emplois",
     locale: "fr_FR",
     description,
   },

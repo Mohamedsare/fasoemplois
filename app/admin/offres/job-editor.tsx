@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, Lock } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { saveJob } from "@/app/actions/admin";
@@ -41,6 +42,7 @@ export function JobEditor({ job, sections, companies, categories }: Props) {
   );
   const initialPublication = job ? displayStatus(job) : "brouillon";
   const [publication, setPublication] = useState<string>(initialPublication);
+  const initialStatus = DISPLAY_STATUS[initialPublication];
   const [previewAs, setPreviewAs] = useState<"visiteur" | "abonne">("visiteur");
 
   const companyName = companies.find((c) => c.id === companyId)?.name ?? "Entreprise";
@@ -49,10 +51,10 @@ export function JobEditor({ job, sections, companies, categories }: Props) {
   return (
     <form onSubmit={onSubmit} className="pb-24">
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Link href="/admin/offres" className="text-sm text-muted hover:text-ink">← Offres</Link>
+        <Link href="/admin/offres" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowLeft aria-hidden className="size-4" /> Offres</Link>
         <h1 className="text-2xl font-bold">{job ? "Modifier l'offre" : "Nouvelle offre"}</h1>
-        <span className={`ml-auto inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs ${DISPLAY_STATUS[initialPublication].className}`}>
-          {DISPLAY_STATUS[initialPublication].icon} {DISPLAY_STATUS[initialPublication].label}
+        <span className={`ml-auto inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs ${initialStatus.className}`}>
+          <initialStatus.icon aria-hidden className="size-3.5" /> {initialStatus.label}
         </span>
       </div>
       <FormAlert state={state} />
@@ -147,7 +149,7 @@ export function JobEditor({ job, sections, companies, categories }: Props) {
                 <summary className="flex cursor-pointer items-center gap-2 font-medium">
                   {SECTION_LABELS[kind]}
                   {content[kind].trim() && (
-                    <span className="chip ml-auto">{isPublic[kind] ? "Public" : "🔒 Abonnés"}</span>
+                    <span className="chip ml-auto">{isPublic[kind] ? "Public" : <><Lock aria-hidden className="size-3" /> Abonnés</>}</span>
                   )}
                 </summary>
                 <div className="mt-3 space-y-2">

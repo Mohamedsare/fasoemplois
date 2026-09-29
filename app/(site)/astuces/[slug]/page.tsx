@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -41,7 +42,7 @@ export default async function TipPage(props: PageProps<"/astuces/[slug]">) {
 
   return (
     <div className="container-page py-10">
-      <Link href="/astuces" className="text-sm text-muted hover:text-ink">← Toutes les astuces</Link>
+      <Link href="/astuces" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowLeft aria-hidden className="size-4" /> Toutes les astuces</Link>
 
       <article className="mx-auto mt-6 max-w-2xl">
         <span className="badge bg-star-400/20 text-ink">{tip.category}</span>

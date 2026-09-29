@@ -1,3 +1,4 @@
+import { ArrowLeft, FileText } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -36,7 +37,7 @@ export default async function AdminCandidatePage(props: PageProps<"/admin/candid
 
   return (
     <div className="space-y-6">
-      <Link href="/admin/candidats" className="text-sm text-muted hover:text-ink">← Candidats</Link>
+      <Link href="/admin/candidats" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowLeft aria-hidden className="size-4" /> Candidats</Link>
       <div className="card space-y-3 p-6">
         <h1 className="text-2xl font-bold">{profile.full_name || "Sans nom"}</h1>
         <p className="text-sm text-muted">
@@ -82,7 +83,7 @@ export default async function AdminCandidatePage(props: PageProps<"/admin/candid
         {files?.length ? (
           <div className="flex flex-wrap gap-2">
             {files.map((f) => (
-              <a key={f.id} href={`/cv/fichier/${f.id}`} target="_blank" rel="noreferrer" className="btn-secondary text-xs">📄 {f.name}</a>
+              <a key={f.id} href={`/cv/fichier/${f.id}`} target="_blank" rel="noreferrer" className="btn-secondary text-xs"><FileText aria-hidden className="size-4" /> {f.name}</a>
             ))}
           </div>
         ) : null}

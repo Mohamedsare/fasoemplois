@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Faso Emploi — Trouvez l'opportunité qui fera avancer votre carrière";
+export const alt = "Faso Emplois — Trouvez l'opportunité qui fera avancer votre carrière";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -38,7 +38,7 @@ export default function OpengraphImage() {
             </svg>
           </div>
           <div style={{ display: "flex", fontSize: 44, fontWeight: 700 }}>
-            Faso<span style={{ color: "#009e49" }}>Emploi</span>
+            Faso<span style={{ color: "#009e49" }}>Emplois</span>
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

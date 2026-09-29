@@ -1,5 +1,6 @@
 "use client";
 
+import { FileText } from "lucide-react";
 import { deleteCvFile, uploadCvFile } from "@/app/actions/cv";
 import { FormAlert, SubmitButton, useFormAction } from "@/components/form";
 import { formatShortDate } from "@/lib/format";
@@ -18,7 +19,7 @@ export function CvFileForm({ files }: { files: CvFile[] }) {
           {files.map((f) => (
             <li key={f.id} className="flex items-center gap-2 rounded-lg bg-surface px-3 py-2 text-sm">
               <a href={`/cv/fichier/${f.id}`} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate font-medium text-brand-700 hover:underline">
-                📄 {f.name}
+                <FileText aria-hidden className="mr-1 inline size-4 align-[-3px]" />{f.name}
               </a>
               <span className="text-xs text-muted">{formatShortDate(f.created_at)}</span>
               <form action={deleteCvFile.bind(null, f.id)}>

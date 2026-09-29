@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const code = searchParams.get("code");
-  const rawNext = searchParams.get("suivant");
+  const rawNext = searchParams.get("suivant") ?? nextFromRedirectTo(searchParams.get("redirect_to"), origin);
   const explicitNext = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
 
   // Refus ou erreur côté fournisseur (ex. l'utilisateur annule sur l'écran Google)
@@ -42,4 +42,23 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.redirect(new URL(next, origin));
+}
+
+/**
+ * Les modèles d'e-mail transmettent `redirect_to={{ .RedirectTo }}` (URL complète fournie par
+ * Supabase, ex. https://fasoemplois.tech/auth/confirm?suivant=/offres/…). On n'en garde que la
+ * destination interne, et seulement si l'URL pointe vers ce site.
+ */
+function nextFromRedirectTo(redirectTo: string | null, origin: string) {
+  if (!redirectTo) return null;
+  try {
+    const url = new URL(redirectTo, origin);
+    const host = (h: string) => h.replace(/^www\./, "");
+    if (host(url.hostname) !== host(new URL(origin).hostname)) return null;
+    const suivant = url.searchParams.get("suivant");
+    if (suivant) return suivant;
+    return url.pathname !== "/" && url.pathname !== "/auth/confirm" ? url.pathname + url.search : null;
+  } catch {
+    return null;
+  }
 }

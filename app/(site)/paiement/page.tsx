@@ -1,3 +1,4 @@
+import { Check, CornerDownLeft, Lock } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -36,7 +37,7 @@ export default async function CheckoutPage(props: PageProps<"/paiement">) {
     <div className="container-page py-10">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Paiement</h1>
-        <span className="text-xs text-muted">🔒 Paiement sécurisé</span>
+        <span className="inline-flex items-center gap-1 text-xs text-muted"><Lock aria-hidden className="size-3.5" /> Paiement sécurisé</span>
       </div>
 
       {isSimulation() && (
@@ -54,7 +55,7 @@ export default async function CheckoutPage(props: PageProps<"/paiement">) {
             <span className="text-sm text-muted"> FCFA / mois</span>
           </p>
           <ul className="space-y-1 text-sm text-muted">
-            {plan.features.map((f) => <li key={f}>✓ {f}</li>)}
+            {plan.features.map((f) => <li key={f} className="flex gap-2"><Check aria-hidden className="mt-0.5 size-4 shrink-0 text-brand-600" />{f}</li>)}
           </ul>
           <div className="flex justify-between border-t border-dashed border-ink/20 pt-3 text-sm">
             <span>Total aujourd&apos;hui</span>
@@ -62,7 +63,7 @@ export default async function CheckoutPage(props: PageProps<"/paiement">) {
           </div>
           <p className="text-xs text-muted">Valable jusqu&apos;au {formatDate(renewal)} · sans renouvellement automatique</p>
           {job && (
-            <p className="rounded-lg border border-dashed border-ink/20 px-3 py-2 text-xs">↩ Retour ensuite à : {job.title}</p>
+            <p className="rounded-lg border border-dashed border-ink/20 px-3 py-2 text-xs"><CornerDownLeft aria-hidden className="mr-1 inline size-3.5 align-[-2px]" />Retour ensuite à : {job.title}</p>
           )}
           <Link href={job ? `/abonnements/choisir?offre=${job.id}` : "/abonnements"} className="text-xs underline">
             Changer de plan
@@ -81,7 +82,7 @@ export default async function CheckoutPage(props: PageProps<"/paiement">) {
             <h2 className="text-lg font-bold">Paiement en ligne bientôt disponible</h2>
             <p className="text-sm text-muted">
               Le paiement n&apos;est pas encore ouvert. Contactez-nous à{" "}
-              <a href="mailto:contact@fasoemploi.bf" className="underline">contact@fasoemploi.bf</a> pour activer votre abonnement.
+              <a href="mailto:contact@fasoemplois.tech" className="underline">contact@fasoemplois.tech</a> pour activer votre abonnement.
             </p>
           </div>
         )}

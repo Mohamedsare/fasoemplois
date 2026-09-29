@@ -12,7 +12,7 @@ export default async function OnboardingPage() {
   return (
     <div className="container-page max-w-3xl py-10">
       <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-muted">Bienvenue {user.profile.first_name} 👋</p>
+        <p className="text-sm text-muted">Bienvenue {user.profile.first_name}</p>
         <form action={skipOnboarding}>
           <button type="submit" className="text-sm text-muted underline hover:text-ink">Passer pour le moment</button>
         </form>

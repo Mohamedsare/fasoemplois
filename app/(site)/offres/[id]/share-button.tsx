@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Share2 } from "lucide-react";
 import { useState } from "react";
 
 export function ShareButton({ title }: { title: string }) {
@@ -22,7 +23,7 @@ export function ShareButton({ title }: { title: string }) {
 
   return (
     <button type="button" onClick={share} className="btn-secondary">
-      {copied ? "Lien copié ✓" : "Partager"}
+      {copied ? <>Lien copié <Check aria-hidden className="size-4" /></> : <><Share2 aria-hidden className="size-4" /> Partager</>}
     </button>
   );
 }

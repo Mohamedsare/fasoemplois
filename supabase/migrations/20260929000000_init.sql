@@ -1,4 +1,4 @@
--- Faso Emploi — schéma initial
+-- Faso Emplois — schéma initial
 -- Modèle : offres publiées par l'admin, contenu complet réservé aux abonnés.
 -- À appliquer via `npm run db:migrate`, `supabase db push` ou le SQL Editor.
 

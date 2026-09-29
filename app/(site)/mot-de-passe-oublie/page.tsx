@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ForgotForm } from "./forgot-form";
@@ -11,7 +12,7 @@ export default function ForgotPasswordPage() {
         <h1 className="text-2xl font-bold">Mot de passe oublié</h1>
         <p className="text-sm text-muted">Indiquez votre e-mail : nous vous enverrons un lien de réinitialisation.</p>
         <ForgotForm />
-        <Link href="/connexion" className="block text-center text-sm text-muted hover:text-ink">← Retour à la connexion</Link>
+        <Link href="/connexion" className="inline-flex items-center gap-1 block text-center text-sm text-muted hover:text-ink"><ArrowLeft aria-hidden className="size-4" /> Retour à la connexion</Link>
       </div>
     </div>
   );

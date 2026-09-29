@@ -5,7 +5,7 @@ import { SUBSCRIPTION_DAYS } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Politique d'abonnement",
-  description: "Durée, paiement, renouvellement et résiliation des abonnements Faso Emploi.",
+  description: "Durée, paiement, renouvellement et résiliation des abonnements Faso Emplois.",
 };
 
 export default function SubscriptionPolicyPage() {
@@ -69,7 +69,7 @@ export default function SubscriptionPolicyPage() {
         <h2>7. Réclamations</h2>
         <p>
           Pour toute question sur un paiement, écrivez à{" "}
-          <a href="mailto:contact@fasoemploi.bf" className="underline">contact@fasoemploi.bf</a> en indiquant la
+          <a href="mailto:contact@fasoemplois.tech" className="underline">contact@fasoemplois.tech</a> en indiquant la
           référence du paiement (format FE-XXXXXXXX), visible dans votre historique.
         </p>
       </section>

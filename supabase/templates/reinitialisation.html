@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Réinitialisation du mot de passe</title>
+</head>
+<body style="margin:0;padding:0;background:#faf6ef;">
+  <!-- Aperçu affiché dans la boîte de réception -->
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Choisissez un nouveau mot de passe pour votre compte Faso Emplois.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf6ef;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+          <!-- En-tête -->
+          <tr>
+            <td style="padding:0 0 20px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="32" style="width:32px;">
+                    <table role="presentation" width="32" cellpadding="0" cellspacing="0" border="0" style="border-radius:8px;overflow:hidden;">
+                      <tr><td height="16" style="height:16px;background:#ef2b2d;font-size:0;line-height:0;">&nbsp;</td></tr>
+                      <tr><td height="16" style="height:16px;background:#009e49;font-size:0;line-height:0;">&nbsp;</td></tr>
+                    </table>
+                  </td>
+                  <td style="padding-left:10px;font-family:Arial, Helvetica, sans-serif;font-size:22px;font-weight:bold;color:#1c1f23;">
+                    Faso <span style="color:#009e49;">Emplois</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Carte -->
+          <tr>
+            <td style="background:#ffffff;border:1px solid #e3e6ea;border-radius:16px;padding:32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="font-family:Arial, Helvetica, sans-serif;font-size:22px;line-height:30px;font-weight:bold;color:#1c1f23;padding-bottom:12px;">Réinitialisation du mot de passe</td>
+                </tr>
+                <tr>
+                  <td style="font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;color:#1c1f23;padding-bottom:20px;">Vous avez demandé à réinitialiser le mot de passe de votre compte Faso Emplois. Cliquez sur le bouton ci-dessous pour en choisir un nouveau.</td>
+                </tr>
+          <tr>
+            <td align="center" style="padding:8px 0 24px;">
+              <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&suivant=/reinitialisation" target="_blank" style="display:inline-block;background:#009e49;color:#ffffff;font-family:Arial, Helvetica, sans-serif;font-size:16px;font-weight:bold;text-decoration:none;padding:14px 32px;border-radius:999px;">Choisir un nouveau mot de passe</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="font-family:Arial, Helvetica, sans-serif;font-size:13px;line-height:20px;color:#5b6470;padding-bottom:8px;">
+              Le bouton ne fonctionne pas ? Copiez ce lien dans votre navigateur :<br>
+              <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&suivant=/reinitialisation" target="_blank" style="color:#009e49;word-break:break-all;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&suivant=/reinitialisation</a>
+            </td>
+          </tr>
+                <tr>
+                  <td style="font-family:Arial, Helvetica, sans-serif;font-size:14px;line-height:21px;color:#5b6470;padding-top:16px;border-top:1px solid #e3e6ea;">Ce lien est valable 1 heure et ne peut servir qu&apos;une fois. Si vous n&apos;avez rien demandé, ignorez cet e-mail : votre mot de passe reste inchangé.</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Liseré aux couleurs du drapeau -->
+          <tr>
+            <td style="padding:20px 0 0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td height="4" style="height:4px;background:#ef2b2d;font-size:0;line-height:0;">&nbsp;</td>
+                  <td height="4" width="40" style="height:4px;width:40px;background:#fcd116;font-size:0;line-height:0;">&nbsp;</td>
+                  <td height="4" style="height:4px;background:#009e49;font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Pied de page -->
+          <tr>
+            <td style="font-family:Arial, Helvetica, sans-serif;font-size:12px;line-height:18px;color:#5b6470;padding:16px 8px 0;text-align:center;">
+              Vous recevez cet e-mail suite à une demande de réinitialisation pour {{ .Email }}.<br>
+              Faso Emplois · L&apos;emploi au Burkina Faso · <a href="{{ .SiteURL }}" style="color:#5b6470;">fasoemplois.tech</a><br>
+              Cet e-mail est envoyé automatiquement, merci de ne pas y répondre. Besoin d&apos;aide ?
+              <a href="mailto:contact@fasoemplois.tech" style="color:#5b6470;">contact@fasoemplois.tech</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

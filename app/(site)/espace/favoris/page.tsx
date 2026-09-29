@@ -30,7 +30,7 @@ export default async function FavoritesPage() {
       ) : (
         <EmptyState
           title="Vous n'avez enregistré aucune offre."
-          text="Touchez ♡ sur une offre pour la retrouver ici."
+          text="Touchez le cœur sur une offre pour la retrouver ici."
           action={<Link href="/offres" className="btn-primary">Explorer les opportunités</Link>}
         />
       )}

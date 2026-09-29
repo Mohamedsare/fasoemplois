@@ -1,6 +1,6 @@
-# Faso Emploi
+# Faso Emplois
 
-Plateforme d'emploi au Burkina Faso : offres publiées par l'équipe Faso Emploi, aperçu gratuit, contenu complet et candidature réservés aux abonnés (dès 500 FCFA / mois).
+Plateforme d'emploi au Burkina Faso : offres publiées par l'équipe Faso Emplois, aperçu gratuit, contenu complet et candidature réservés aux abonnés (dès 500 FCFA / mois).
 
 **Stack :** Next.js 16 (App Router, Server Actions, `proxy.ts`) · Tailwind CSS 4 · Supabase (Auth, Postgres + RLS, Storage).
 
@@ -30,7 +30,7 @@ npm run dev
 ### Connexion avec Google
 
 1. **Google Cloud Console** (console.cloud.google.com) > *APIs & Services* :
-   - *OAuth consent screen* : type **External**, nom « Faso Emploi », e-mail de support, domaine du site ; scopes `email`, `profile`, `openid`. Publiez l'application (sinon seuls les « test users » peuvent se connecter).
+   - *OAuth consent screen* : type **External**, nom « Faso Emplois », e-mail de support, domaine du site ; scopes `email`, `profile`, `openid`. Publiez l'application (sinon seuls les « test users » peuvent se connecter).
    - *Credentials* > *Create credentials* > **OAuth client ID** > *Web application* :
      - *Authorized JavaScript origins* : `http://localhost:3000` et votre domaine de production ;
      - *Authorized redirect URIs* : `https://<ref-du-projet>.supabase.co/auth/v1/callback`.
@@ -39,13 +39,43 @@ npm run dev
 
 Côté application : bouton « Continuer avec Google » sur `/connexion` et `/inscription`, retour via `/auth/confirm` (échange du code PKCE). Un nouveau compte Google va vers l'onboarding, sauf s'il venait d'une offre (la destination `?suivant=` est conservée). Le prénom et le nom sont repris du profil Google (migration `20260930000000_google_auth.sql`).
 
+### E-mails avec Resend
+
+Le SMTP par défaut de Supabase est limité à quelques e-mails par heure : en production, les e-mails
+d'authentification partent via **Resend** depuis `no-reply@fasoemplois.tech`.
+
+1. **Resend** (resend.com) > *Domains* > *Add domain* : `fasoemplois.tech`, région **EU (Ireland)**.
+2. Chez le registrar du domaine, ajouter **exactement** les enregistrements DNS affichés par Resend
+   (DKIM `resend._domainkey`, MX et SPF sur `send`), puis cliquer *Verify* et attendre « Verified ».
+   Recommandé en plus : un TXT `_dmarc` = `v=DMARC1; p=none; rua=mailto:contact@fasoemplois.tech`.
+3. Relier Resend à Supabase, au choix :
+   - Resend > *Integrations* > **Supabase** : choisir le projet, l'expéditeur et le domaine → SMTP configuré automatiquement ;
+   - ou manuellement : Resend > *API Keys* > clé « Sending access » limitée à `fasoemplois.tech`, puis
+     Supabase > *Authentication* > *Emails* > *SMTP Settings* > *Enable custom SMTP* :
+
+     | Champ | Valeur |
+     | --- | --- |
+     | Sender email | `no-reply@fasoemplois.tech` |
+     | Sender name | `Faso Emplois` |
+     | Host | `smtp.resend.com` |
+     | Port | `465` |
+     | Username | `resend` |
+     | Password | la clé API Resend (`re_…`) |
+4. Supabase > *Authentication* > *Rate Limits* : relever « Rate limit for sending emails » (ex. 100 / heure).
+5. Supabase > *Authentication* > *Emails* > *Templates* : coller les modèles français de
+   [`supabase/templates/`](supabase/templates/README.md) (sujet + contenu, 6 modèles).
+6. Tester : inscription, « Mot de passe oublié », puis vérifier la réception (et le dossier spam).
+
+`contact@fasoemplois.tech` doit être une vraie boîte de réception (Resend n'en fournit pas) :
+créez-la chez votre registrar ou un service de redirection (ex. ImprovMX, Zoho Mail).
+
 ## Déploiement sur Vercel
 
 ### Avant la mise en ligne publique
 
 - [ ] **Paiement réel** : implémenter le prestataire dans `lib/payments.ts` et définir `PAYMENT_PROVIDER`. En production, si la variable est absente, le paiement est désactivé (message « bientôt disponible ») ; `PAYMENT_PROVIDER=simulation` ouvrirait des abonnements gratuits.
 - [ ] **Pages légales** : compléter les passages surlignés « À compléter » dans `/conditions` et `/confidentialite` (raison sociale, RCCM/IFU, adresse, durées de conservation, région d'hébergement) et les faire relire par un juriste.
-- [ ] **E-mails** : configurer un SMTP (Resend, Brevo…) dans Supabase > *Authentication* > *SMTP Settings* — le SMTP par défaut de Supabase est limité à quelques e-mails par heure. Personnaliser les modèles d'e-mail en français.
+- [ ] **E-mails** : Resend branché sur Supabase et modèles français installés (voir *E-mails avec Resend* ci-dessous).
 - [ ] **Migrations** appliquées sur la base de production (`npm run db:migrate`) et premier compte admin créé.
 - [ ] Parcours testés sur la vraie base : inscription e-mail + Google, onboarding, paiement, candidature avec CV PDF, traitement admin.
 
@@ -59,13 +89,13 @@ Côté application : bouton « Continuer avec Google » sur `/connexion` et `/in
    | `NEXT_PUBLIC_SUPABASE_URL` | URL du projet Supabase |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | clé `anon` |
    | `SUPABASE_SERVICE_ROLE_KEY` | clé `service_role` (**secrète**) |
-   | `NEXT_PUBLIC_SITE_URL` | `https://votre-domaine.bf` (sans `/` final) |
+   | `NEXT_PUBLIC_SITE_URL` | `https://fasoemplois.tech` (sans `/` final) |
    | `PAYMENT_PROVIDER` | prestataire réel (ne pas mettre `simulation` en production) |
 
    Sans `NEXT_PUBLIC_SITE_URL`, le domaine de production Vercel est utilisé automatiquement.
 3. **Région des fonctions** (Settings > Functions) : la même que la base Supabase (ex. `cdg1` Paris si Supabase est en `eu-west-3`), pour limiter la latence.
 4. **Domaine** : l'ajouter dans Vercel, puis mettre à jour :
-   - Supabase > *URL Configuration* : *Site URL* = le domaine, *Redirect URLs* += `https://votre-domaine.bf/auth/confirm` (et `https://*-votre-equipe.vercel.app/auth/confirm` pour les previews) ;
+   - Supabase > *URL Configuration* : *Site URL* = le domaine, *Redirect URLs* += `https://fasoemplois.tech/auth/confirm` (et `https://*-votre-equipe.vercel.app/auth/confirm` pour les previews) ;
    - Google Cloud > client OAuth : *Authorized JavaScript origins* += le domaine.
 
 Notes : les CV PDF sont envoyés directement du navigateur à Supabase Storage (les requêtes vers Vercel sont limitées à 4,5 Mo) ; `sitemap.xml` et `robots.txt` sont générés automatiquement.

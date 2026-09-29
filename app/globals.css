@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Palette Faso Emploi (couleurs du Burkina Faso), structure issue du wireframe. */
+/* Palette Faso Emplois (couleurs du Burkina Faso), structure issue du wireframe. */
 @theme {
   --color-brand-50: #e8f7ef;
   --color-brand-100: #c6ebd6;

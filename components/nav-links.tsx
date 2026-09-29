@@ -1,5 +1,6 @@
 "use client";
 
+import { BadgeCheck, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -45,7 +46,7 @@ export function NavLinks({ user }: Props) {
     <>
       {user.isSubscribed && (
         <span className="hidden items-center gap-1 rounded-full border border-brand-600 px-2.5 py-0.5 text-xs font-medium text-brand-800 lg:inline-flex">
-          <span aria-hidden>●</span> Abonné
+          <BadgeCheck aria-hidden className="size-3.5" /> Abonné
         </span>
       )}
       {user.isAdmin && (
@@ -88,9 +89,7 @@ export function NavLinks({ user }: Props) {
         onClick={() => setOpen(true)}
       >
         <span className="sr-only">Ouvrir le menu</span>
-        <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2}>
-          <path d="M4 7h16M4 12h16M4 17h16" />
-        </svg>
+        <Menu aria-hidden className="size-5" />
       </button>
 
       {/* Portail vers <body> : le backdrop-blur du header confinerait un élément `fixed`. */}
@@ -117,9 +116,7 @@ export function NavLinks({ user }: Props) {
                   autoFocus
                 >
                   <span className="sr-only">Fermer le menu</span>
-                  <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path d="M6 6l12 12M18 6L6 18" />
-                  </svg>
+                  <X aria-hidden className="size-5" />
                 </button>
               </div>
               <nav

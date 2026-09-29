@@ -1,3 +1,4 @@
+import { Hourglass } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -107,7 +108,7 @@ export default async function ApplicationsPage(props: PageProps<"/espace/candida
                 ))}
                 {!["retenue", "refusee"].includes(selected.status) && (
                   <li className="text-muted">
-                    <p>○ Décision</p>
+                    <p className="flex items-center gap-1"><Hourglass aria-hidden className="size-3.5" /> Décision</p>
                     <p className="text-xs">en attente</p>
                   </li>
                 )}

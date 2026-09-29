@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, Check, FileText } from "lucide-react";
 import { useState } from "react";
 import { saveProfile } from "@/app/actions/candidate";
 import { FormAlert, SubmitButton, useFormAction } from "@/components/form";
@@ -37,7 +38,7 @@ export function OnboardingWizard({ profile, categories }: { profile: Profile; ca
               i < step ? "border-brand-600 bg-brand-50 text-brand-800" : i === step ? "border-ink" : "border-transparent text-muted"
             }`}
           >
-            <span aria-hidden>{i < step ? "✓" : i + 1}</span> {s.label}
+            {i < step ? <Check aria-hidden className="size-3.5" /> : <span aria-hidden>{i + 1}</span>} {s.label}
           </li>
         ))}
       </ol>
@@ -56,7 +57,7 @@ export function OnboardingWizard({ profile, categories }: { profile: Profile; ca
       <div hidden={step !== 2}><SkillsFields profile={profile} /></div>
       <div hidden={step !== 3}>
         <label className="flex cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-line p-10 text-center hover:border-brand-600">
-          <span aria-hidden className="text-3xl">📄</span>
+          <FileText aria-hidden className="size-8 text-brand-600" />
           <span className="font-medium">Choisissez votre CV (PDF, 5 Mo max.)</span>
           <input
             type="file"
@@ -70,7 +71,7 @@ export function OnboardingWizard({ profile, categories }: { profile: Profile; ca
       <div hidden={step !== 4}><PreferenceFields profile={profile} categories={categories} /></div>
 
       <div className="flex items-center gap-3 border-t border-line pt-5">
-        {step > 0 && <button type="button" onClick={() => setStep(step - 1)} className="btn-secondary">← Retour</button>}
+        {step > 0 && <button type="button" onClick={() => setStep(step - 1)} className="btn-secondary"><ArrowLeft aria-hidden className="size-4" /> Retour</button>}
         {!last && (
           <button type="button" onClick={() => setStep(step + 1)} className="ml-auto text-sm text-muted hover:text-ink">
             Passer

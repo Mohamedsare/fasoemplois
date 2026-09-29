@@ -1,3 +1,4 @@
+import { CornerDownLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -40,7 +41,7 @@ export default async function SignupPage(props: PageProps<"/inscription">) {
         <div className="w-full max-w-md space-y-5">
           {jobTitle && (
             <p className="rounded-xl border border-dashed border-ink/25 px-4 py-2 text-xs">
-              ↩ Après inscription : retour à « {jobTitle} »
+              <CornerDownLeft aria-hidden className="mr-1 inline size-3.5 align-[-2px]" />Après inscription : retour à « {jobTitle} »
             </p>
           )}
           <h1 className="text-3xl font-bold">Créer mon compte</h1>

@@ -1,3 +1,4 @@
+import { Check, Clock, Heart, Lock, MoreHorizontal, Search, X } from "lucide-react";
 import { initials } from "@/lib/format";
 
 export function CompanyLogo({
@@ -26,12 +27,7 @@ export function CompanyLogo({
 }
 
 export function LockIcon({ className = "size-5" }: { className?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
-      <rect x="4" y="11" width="16" height="10" rx="2" />
-      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-    </svg>
-  );
+  return <Lock aria-hidden className={className} />;
 }
 
 export function LockBadge({ size = "md" }: { size?: "sm" | "md" }) {
@@ -47,19 +43,15 @@ export function LockBadge({ size = "md" }: { size?: "sm" | "md" }) {
 }
 
 export function HeartIcon({ filled, className = "size-5" }: { filled?: boolean; className?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 24 24" className={className} fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2}>
-      <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.2 0 3.6 1.2 4.2 2.4h2c.6-1.2 2-2.4 4.2-2.4 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z" />
-    </svg>
-  );
+  return <Heart aria-hidden className={className} fill={filled ? "currentColor" : "none"} />;
 }
 
 export function CheckCircle({ tone = "brand" }: { tone?: "brand" | "muted" | "danger" | "warn" }) {
   const bg = { brand: "bg-brand-600", muted: "bg-muted", danger: "bg-accent-600", warn: "bg-star-400 text-ink" }[tone];
-  const icon = { brand: "✓", muted: "…", danger: "✕", warn: "⏱" }[tone];
+  const Icon = { brand: Check, muted: MoreHorizontal, danger: X, warn: Clock }[tone];
   return (
-    <span aria-hidden className={`grid size-14 place-items-center rounded-full text-2xl font-bold text-white ${bg}`}>
-      {icon}
+    <span aria-hidden className={`grid size-14 place-items-center rounded-full text-white ${bg}`}>
+      <Icon className="size-7" strokeWidth={3} />
     </span>
   );
 }
@@ -90,7 +82,9 @@ export function EmptyState({
 }) {
   return (
     <div className="card flex flex-col items-center px-6 py-12 text-center">
-      <span aria-hidden className="mb-4 grid size-16 place-items-center rounded-full bg-surface text-2xl">🔍</span>
+      <span aria-hidden className="mb-4 grid size-16 place-items-center rounded-full bg-surface text-muted">
+        <Search className="size-7" />
+      </span>
       <p className="font-semibold">{title}</p>
       {text && <p className="mt-1 max-w-sm text-sm text-muted">{text}</p>}
       {action && <div className="mt-5">{action}</div>}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { X } from "lucide-react";
 
 type Props = {
   name: string;
@@ -28,7 +29,7 @@ export function TagInput({ name, id, defaultValue = [], suggestions = [], placeh
         {tags.map((t) => (
           <span key={t} className="chip chip-active">
             {t}
-            <button type="button" onClick={() => setTags(tags.filter((x) => x !== t))} aria-label={`Retirer ${t}`}>✕</button>
+            <button type="button" onClick={() => setTags(tags.filter((x) => x !== t))} aria-label={`Retirer ${t}`}><X aria-hidden className="size-3.5" /></button>
           </span>
         ))}
         <input

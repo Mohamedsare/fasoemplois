@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -116,7 +117,7 @@ export default async function DashboardPage(props: PageProps<"/espace">) {
       <section>
         <div className="mb-3 flex items-end justify-between">
           <h2 className="text-lg font-semibold">Mes candidatures récentes</h2>
-          <Link href="/espace/candidatures" className="text-sm font-semibold text-brand-700 hover:underline">Tout voir →</Link>
+          <Link href="/espace/candidatures" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline">Tout voir <ArrowRight aria-hidden className="size-4" /></Link>
         </div>
         {apps?.length ? (
           <div className="card overflow-x-auto">

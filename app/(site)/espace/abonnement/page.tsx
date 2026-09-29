@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -82,7 +83,7 @@ export default async function SubscriptionPage() {
               >
                 <p className="text-xs font-semibold">{p.name}</p>
                 <p className="font-bold">{formatNumber(p.price)} <span className="text-xs font-normal text-muted">FCFA / mois</span></p>
-                {current && <p className="text-xs text-brand-700">✓ Plan actuel</p>}
+                {current && <p className="inline-flex items-center gap-1 text-xs text-brand-700"><Check aria-hidden className="size-3.5" /> Plan actuel</p>}
               </Link>
             );
           })}

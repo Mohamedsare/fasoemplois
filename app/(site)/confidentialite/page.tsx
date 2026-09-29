@@ -3,7 +3,7 @@ import { LegalPage, ToFill } from "@/components/legal-page";
 
 export const metadata: Metadata = {
   title: "Politique de confidentialité",
-  description: "Comment Faso Emploi collecte, utilise et protège vos données personnelles.",
+  description: "Comment Faso Emplois collecte, utilise et protège vos données personnelles.",
 };
 
 export default function PrivacyPage() {
@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         <h2>1. Responsable du traitement</h2>
         <p>
           <ToFill>raison sociale et adresse de l&apos;éditeur</ToFill>, joignable à{" "}
-          <a href="mailto:contact@fasoemploi.bf" className="underline">contact@fasoemploi.bf</a>. Les traitements sont
+          <a href="mailto:contact@fasoemplois.tech" className="underline">contact@fasoemplois.tech</a>. Les traitements sont
           effectués conformément à la réglementation burkinabè relative à la protection des données personnelles,
           sous le contrôle de la Commission de l&apos;Informatique et des Libertés (CIL).
         </p>
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
           <li><strong>Profil</strong> : ville, titre professionnel, expérience, compétences, langues, préférences d&apos;emploi.</li>
           <li><strong>CV</strong> : CV en ligne et fichiers PDF que vous déposez.</li>
           <li><strong>Candidatures</strong> : offres visées, messages, statut de traitement.</li>
-          <li><strong>Paiements</strong> : plan choisi, montant, méthode, référence et statut. Les données bancaires sont traitées par le prestataire de paiement, jamais stockées par Faso Emploi.</li>
+          <li><strong>Paiements</strong> : plan choisi, montant, méthode, référence et statut. Les données bancaires sont traitées par le prestataire de paiement, jamais stockées par Faso Emplois.</li>
           <li><strong>Technique</strong> : cookies de session indispensables à la connexion.</li>
         </ul>
       </section>
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
       <section>
         <h2>4. Destinataires</h2>
         <ul>
-          <li>L&apos;équipe Faso Emploi habilitée (administration du Service).</li>
+          <li>L&apos;équipe Faso Emplois habilitée (administration du Service).</li>
           <li>Les employeurs, uniquement pour les candidatures que vous leur adressez.</li>
           <li>Nos sous-traitants techniques : Supabase (base de données, stockage, authentification), Vercel (hébergement), le prestataire de paiement, et Google si vous utilisez la connexion Google.</li>
         </ul>
@@ -75,7 +75,7 @@ export default function PrivacyPage() {
         <p>
           Vous disposez d&apos;un droit d&apos;accès, de rectification, d&apos;opposition et de suppression de vos
           données. Vous pouvez modifier la plupart d&apos;entre elles depuis votre espace ; pour toute autre demande,
-          écrivez à <a href="mailto:contact@fasoemploi.bf" className="underline">contact@fasoemploi.bf</a>. Vous pouvez
+          écrivez à <a href="mailto:contact@fasoemplois.tech" className="underline">contact@fasoemplois.tech</a>. Vous pouvez
           également saisir la CIL.
         </p>
       </section>

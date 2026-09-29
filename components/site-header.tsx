@@ -9,7 +9,7 @@ export async function SiteHeader() {
   return (
     <header className="no-print sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between gap-6">
-        <Link href="/" aria-label="Faso Emploi — accueil">
+        <Link href="/" aria-label="Faso Emplois — accueil">
           <Logo />
         </Link>
         <NavLinks

@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, Check } from "lucide-react";
 import { useRef, useState } from "react";
 import { submitApplication } from "@/app/actions/applications";
 import { Field, FormAlert, SubmitButton, useFormAction } from "@/components/form";
@@ -30,7 +31,7 @@ export function ApplyWizard({ jobId, files, onlineCvDate, defaults }: Props) {
 
   const cvLabel =
     choice === "online"
-      ? "CV en ligne Faso Emploi"
+      ? "CV en ligne Faso Emplois"
       : choice === "upload"
         ? uploadName || "Nouveau CV (PDF)"
         : files.find((f) => `file:${f.id}` === choice)?.name ?? "";
@@ -57,7 +58,7 @@ export function ApplyWizard({ jobId, files, onlineCvDate, defaults }: Props) {
               i < step ? "border-brand-600 bg-brand-50 text-brand-800" : i === step ? "border-ink" : "border-line text-muted"
             }`}
           >
-            <span aria-hidden>{i < step ? "✓" : i + 1}</span> {label}
+            {i < step ? <Check aria-hidden className="size-3.5" /> : <span aria-hidden>{i + 1}</span>} {label}
           </li>
         ))}
       </ol>
@@ -74,7 +75,7 @@ export function ApplyWizard({ jobId, files, onlineCvDate, defaults }: Props) {
         ))}
         {onlineCvDate && (
           <CvOption value="online" choice={choice} onChange={setChoice}
-            title="Mon CV en ligne Faso Emploi" subtitle={`mis à jour le ${formatShortDate(onlineCvDate)}`} />
+            title="Mon CV en ligne Faso Emplois" subtitle={`mis à jour le ${formatShortDate(onlineCvDate)}`} />
         )}
         <label className={`card flex cursor-pointer flex-col gap-3 p-4 ${choice === "upload" ? "border-2 border-ink" : ""}`}>
           <span className="flex items-center gap-3">
@@ -123,7 +124,7 @@ export function ApplyWizard({ jobId, files, onlineCvDate, defaults }: Props) {
 
       <div className="flex items-center gap-3 border-t border-line pt-5">
         {step > 0 && (
-          <button type="button" onClick={() => setStep((s) => s - 1)} className="btn-secondary">← Retour</button>
+          <button type="button" onClick={() => setStep((s) => s - 1)} className="btn-secondary"><ArrowLeft aria-hidden className="size-4" /> Retour</button>
         )}
         {step < 2 ? (
           <button type="button" onClick={next} className="btn-primary ml-auto">Continuer</button>

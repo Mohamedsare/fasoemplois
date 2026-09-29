@@ -31,7 +31,7 @@ const COLUMNS = [
   {
     title: "Support",
     links: [
-      { href: "mailto:contact@fasoemploi.bf", label: "contact@fasoemploi.bf" },
+      { href: "mailto:contact@fasoemplois.tech", label: "contact@fasoemplois.tech" },
       { href: "/mot-de-passe-oublie", label: "Mot de passe oublié" },
     ],
   },
@@ -45,7 +45,7 @@ export function SiteFooter() {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-[12%] select-none text-center font-script text-[clamp(5rem,20vw,20rem)] leading-none whitespace-nowrap text-ink/10"
       >
-        Faso <span className="text-brand-600/15">Emploi</span>
+        Faso <span className="text-brand-600/15">Emplois</span>
       </span>
       <div className="container-page relative grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
         <div className="space-y-3">
@@ -68,7 +68,7 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="relative border-t border-line py-4 text-center text-xs text-muted">
-        © {new Date().getFullYear()} Faso Emploi. Tous droits réservés.
+        © {new Date().getFullYear()} Faso Emplois. Tous droits réservés.
       </div>
     </footer>
   );

@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
@@ -55,7 +56,7 @@ export default async function HomePage() {
             Trouvez l&apos;opportunité qui fera avancer votre carrière.
           </h1>
           <p className="mt-4 max-w-xl text-muted">
-            Découvrez les dernières offres sélectionnées sur Faso Emploi.
+            Découvrez les dernières offres sélectionnées sur Faso Emplois.
           </p>
           <div className="mt-8 w-full max-w-3xl">
             <JobSearchForm />
@@ -90,7 +91,7 @@ export default async function HomePage() {
       <section className="container-page py-14">
         <div className="mb-6 flex items-end justify-between gap-4">
           <h2 className="text-2xl font-bold">Offres récentes</h2>
-          <Link href="/offres" className="text-sm font-semibold text-brand-700 hover:underline">Voir toutes →</Link>
+          <Link href="/offres" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline">Voir toutes <ArrowRight aria-hidden className="size-4" /></Link>
         </div>
         {jobs?.length ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -136,7 +137,7 @@ export default async function HomePage() {
           <div className="container-page">
             <div className="mb-6 flex items-end justify-between gap-4">
               <h2 className="text-2xl font-bold">Astuces pour votre recherche</h2>
-              <Link href="/astuces" className="text-sm font-semibold text-brand-700 hover:underline">Toutes les astuces →</Link>
+              <Link href="/astuces" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline">Toutes les astuces <ArrowRight aria-hidden className="size-4" /></Link>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               {tips.map((tip) => <TipCard key={tip.id} tip={tip} />)}

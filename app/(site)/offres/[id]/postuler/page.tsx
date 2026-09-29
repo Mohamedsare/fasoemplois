@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -60,7 +61,7 @@ export default async function ApplyPage(props: PageProps<"/offres/[id]/postuler"
 
   return (
     <div className="container-page py-8">
-      <Link href={`/offres/${job.id}`} className="text-sm text-muted hover:text-ink">← Retour à l&apos;offre</Link>
+      <Link href={`/offres/${job.id}`} className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowLeft aria-hidden className="size-4" /> Retour à l&apos;offre</Link>
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_280px]">
         <ApplyWizard
           jobId={job.id}

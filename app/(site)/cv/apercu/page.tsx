@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -18,7 +19,7 @@ export default async function CvPreviewPage() {
   return (
     <div className="bg-surface py-8 print:bg-white print:py-0">
       <div className="no-print container-page mb-6 flex flex-wrap items-center justify-between gap-3">
-        <Link href="/cv" className="text-sm text-muted hover:text-ink">← Modifier mon CV</Link>
+        <Link href="/cv" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowLeft aria-hidden className="size-4" /> Modifier mon CV</Link>
         <PrintButton />
       </div>
       <div className="container-page">

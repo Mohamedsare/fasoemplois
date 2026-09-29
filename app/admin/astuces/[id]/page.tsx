@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -22,7 +23,7 @@ export default async function AdminTipPage(props: PageProps<"/admin/astuces/[id]
 
   return (
     <div className="max-w-3xl space-y-5">
-      <Link href="/admin/astuces" className="text-sm text-muted hover:text-ink">← Contenu</Link>
+      <Link href="/admin/astuces" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowLeft aria-hidden className="size-4" /> Contenu</Link>
       <h1 className="text-2xl font-bold">{tip ? "Modifier l'astuce" : "Nouvelle astuce"}</h1>
       <TipForm tip={tip} />
       {tip && (

@@ -1,3 +1,4 @@
+import { FileText } from "lucide-react";
 import type { Metadata } from "next";
 import Form from "next/form";
 import Link from "next/link";
@@ -70,7 +71,7 @@ export default async function AdminApplicationsPage(props: PageProps<"/admin/can
             {a.message && <p className="whitespace-pre-line rounded-xl bg-surface p-3 text-sm">{a.message}</p>}
             <div className="flex flex-wrap items-center gap-2">
               {a.cv_file && (
-                <a href={`/cv/fichier/${a.cv_file.id}`} target="_blank" rel="noreferrer" className="btn-secondary py-1.5 text-xs">📄 {a.cv_file.name}</a>
+                <a href={`/cv/fichier/${a.cv_file.id}`} target="_blank" rel="noreferrer" className="btn-secondary py-1.5 text-xs"><FileText aria-hidden className="size-4" /> {a.cv_file.name}</a>
               )}
               {a.include_online_cv && (
                 <Link href={`/admin/candidats/${a.user_id}#cv`} className="btn-secondary py-1.5 text-xs">CV en ligne</Link>

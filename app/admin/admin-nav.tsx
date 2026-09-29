@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -23,10 +24,10 @@ export function AdminNav({ name }: { name: string }) {
     <aside className="bg-ink text-cream lg:sticky lg:top-0 lg:h-screen lg:w-56 lg:shrink-0">
       <div className="flex items-center justify-between px-5 py-4 lg:block">
         <Link href="/admin" className="flex items-center gap-2 font-bold">
-          <span aria-hidden className="grid size-7 place-items-center rounded-md bg-linear-to-b from-accent-500 from-50% to-brand-600 to-50% text-xs text-star-400">★</span>
+          <span aria-hidden className="grid size-7 place-items-center rounded-md bg-linear-to-b from-accent-500 from-50% to-brand-600 to-50% text-star-400"><Star className="size-3" fill="currentColor" strokeWidth={0} /></span>
           FE Admin
         </Link>
-        <Link href="/" className="text-xs text-cream/60 hover:text-cream lg:mt-1 lg:block">← Voir le site</Link>
+        <Link href="/" className="inline-flex items-center gap-1 text-xs text-cream/60 hover:text-cream lg:mt-1 lg:block"><ArrowLeft aria-hidden className="size-4" /> Voir le site</Link>
       </div>
       <nav aria-label="Administration" className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible">
         {LINKS.map((l) => (

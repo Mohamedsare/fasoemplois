@@ -78,3 +78,9 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
 
 export const JOBS_PER_PAGE = 10;
 export const SUBSCRIPTION_DAYS = 30;
+
+/** Numéro WhatsApp du support (format international, sans « + » ni espaces). */
+export const WHATSAPP_NUMBER = "22664712044";
+export const WHATSAPP_SUBSCRIBE_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+  "Bonjour Faso Emplois, j'aimerais de l'aide pour m'abonner.",
+)}`;

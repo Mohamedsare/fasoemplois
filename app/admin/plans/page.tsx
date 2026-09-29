@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -95,10 +96,10 @@ export default async function AdminPlansPage(props: PageProps<"/admin/plans">) {
               <div key={p.id} className={`card flex items-center gap-2 p-3 ${selected?.id === p.id ? "border-2 border-ink" : ""}`}>
                 <div className="flex flex-col">
                   <form action={movePlan.bind(null, p.id, "up")}>
-                    <button type="submit" disabled={i === 0} aria-label={`Monter ${p.name}`} className="px-1 text-xs disabled:opacity-30">▲</button>
+                    <button type="submit" disabled={i === 0} aria-label={`Monter ${p.name}`} className="px-1 disabled:opacity-30"><ChevronUp aria-hidden className="size-4" /></button>
                   </form>
                   <form action={movePlan.bind(null, p.id, "down")}>
-                    <button type="submit" disabled={i === plans.length - 1} aria-label={`Descendre ${p.name}`} className="px-1 text-xs disabled:opacity-30">▼</button>
+                    <button type="submit" disabled={i === plans.length - 1} aria-label={`Descendre ${p.name}`} className="px-1 disabled:opacity-30"><ChevronDown aria-hidden className="size-4" /></button>
                   </form>
                 </div>
                 <Link href={`/admin/plans?plan=${p.id}`} className="min-w-0 flex-1">

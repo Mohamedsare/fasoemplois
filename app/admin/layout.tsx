@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { AdminNav } from "./admin-nav";
 
 export const metadata: Metadata = {
-  title: { default: "Admin", template: "%s · Admin Faso Emploi" },
+  title: { default: "Admin", template: "%s · Admin Faso Emplois" },
   robots: { index: false },
 };
 

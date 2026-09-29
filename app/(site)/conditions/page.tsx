@@ -4,7 +4,7 @@ import { LegalPage, ToFill } from "@/components/legal-page";
 
 export const metadata: Metadata = {
   title: "Conditions d'utilisation",
-  description: "Conditions générales d'utilisation de la plateforme Faso Emploi.",
+  description: "Conditions générales d'utilisation de la plateforme Faso Emplois.",
 };
 
 export default function TermsPage() {
@@ -13,7 +13,7 @@ export default function TermsPage() {
       <section>
         <h2>1. Objet</h2>
         <p>
-          Les présentes conditions encadrent l&apos;utilisation de la plateforme Faso Emploi (le « Service »), qui
+          Les présentes conditions encadrent l&apos;utilisation de la plateforme Faso Emplois (le « Service »), qui
           publie des offres d&apos;emploi au Burkina Faso, permet aux candidats de créer un profil et un CV, et de
           postuler aux offres. En créant un compte, vous acceptez ces conditions.
         </p>
@@ -25,7 +25,7 @@ export default function TermsPage() {
           <li>Raison sociale : <ToFill>nom de la société ou de l&apos;entrepreneur</ToFill></li>
           <li>Siège : <ToFill>adresse, ville</ToFill></li>
           <li>Immatriculation : <ToFill>n° RCCM / IFU</ToFill></li>
-          <li>Contact : <a href="mailto:contact@fasoemploi.bf" className="underline">contact@fasoemploi.bf</a></li>
+          <li>Contact : <a href="mailto:contact@fasoemplois.tech" className="underline">contact@fasoemplois.tech</a></li>
           <li>Hébergement : Vercel Inc. (application) et Supabase Inc. (base de données)</li>
         </ul>
       </section>
@@ -52,8 +52,8 @@ export default function TermsPage() {
       <section>
         <h2>5. Offres d&apos;emploi</h2>
         <p>
-          Les offres sont sélectionnées et publiées par l&apos;équipe Faso Emploi à partir d&apos;informations fournies
-          par les employeurs. Faso Emploi n&apos;est pas l&apos;employeur et ne garantit ni l&apos;obtention d&apos;un
+          Les offres sont sélectionnées et publiées par l&apos;équipe Faso Emplois à partir d&apos;informations fournies
+          par les employeurs. Faso Emplois n&apos;est pas l&apos;employeur et ne garantit ni l&apos;obtention d&apos;un
           entretien ni celle d&apos;un emploi. <strong>Aucun recruteur sérieux ne demande d&apos;argent pour postuler</strong> :
           signalez-nous toute demande de ce type.
         </p>
@@ -64,7 +64,7 @@ export default function TermsPage() {
         <ul>
           <li>Vous êtes responsable des informations, CV et messages que vous envoyez.</li>
           <li>Il est interdit de publier des contenus faux, illicites, injurieux ou portant atteinte aux droits de tiers.</li>
-          <li>En postulant, vous autorisez Faso Emploi à transmettre votre candidature à l&apos;employeur concerné.</li>
+          <li>En postulant, vous autorisez Faso Emplois à transmettre votre candidature à l&apos;employeur concerné.</li>
         </ul>
       </section>
 
@@ -81,7 +81,7 @@ export default function TermsPage() {
       <section>
         <h2>8. Responsabilité</h2>
         <p>
-          Faso Emploi s&apos;efforce d&apos;assurer la disponibilité et l&apos;exactitude du Service, sans pouvoir le
+          Faso Emplois s&apos;efforce d&apos;assurer la disponibilité et l&apos;exactitude du Service, sans pouvoir le
           garantir en permanence. Sa responsabilité ne saurait être engagée pour le contenu des offres fourni par les
           employeurs ni pour les décisions de recrutement.
         </p>

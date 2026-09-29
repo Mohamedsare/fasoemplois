@@ -1,5 +1,6 @@
 "use client";
 
+import { SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 
 /** Mobile : les filtres s'ouvrent dans une feuille en bas d'écran. */
@@ -9,7 +10,7 @@ export function FilterSheet({ count, total, children }: { count: number; total: 
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} className="btn-secondary" aria-haspopup="dialog">
-        ⚙ Filtres{count ? ` (${count})` : ""}
+        <SlidersHorizontal aria-hidden className="size-4" /> Filtres{count ? ` (${count})` : ""}
       </button>
       {open && (
         <div role="dialog" aria-modal="true" aria-label="Filtres" className="fixed inset-0 z-50">

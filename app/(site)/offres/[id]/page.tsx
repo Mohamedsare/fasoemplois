@@ -1,3 +1,4 @@
+import { ArrowRight, Check } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -90,7 +91,7 @@ export default async function JobPage(props: PageProps<"/offres/[id]">) {
       {justUnlocked && (
         <div className="border-b border-brand-600/40 bg-brand-50">
           <p className="container-page flex items-center gap-2 py-3 text-sm text-brand-800" role="status">
-            <span aria-hidden className="grid size-6 place-items-center rounded-full bg-brand-600 text-xs text-white">✓</span>
+            <span aria-hidden className="grid size-6 place-items-center rounded-full bg-brand-600 text-white"><Check aria-hidden className="size-3.5" /></span>
             Offre débloquée — vous pouvez postuler.
           </p>
         </div>
@@ -132,8 +133,8 @@ export default async function JobPage(props: PageProps<"/offres/[id]">) {
               <div className="card flex flex-wrap items-center gap-3 bg-surface p-4 text-sm">
                 <span>Vous avez postulé le {formatDate(application.created_at)}.</span>
                 <StatusBadge status={application.status} />
-                <Link href="/espace/candidatures" className="ml-auto font-semibold text-brand-700 hover:underline">
-                  Suivre mes candidatures →
+                <Link href="/espace/candidatures" className="ml-auto inline-flex items-center gap-1 font-semibold text-brand-700 hover:underline">
+                  Suivre mes candidatures <ArrowRight aria-hidden className="size-4" />
                 </Link>
               </div>
             )}
@@ -253,7 +254,7 @@ function ApplyButton({
   expired: boolean;
   applied: boolean;
 }) {
-  if (applied) return <Link href="/espace/candidatures" className="btn-secondary">Candidature envoyée ✓</Link>;
+  if (applied) return <Link href="/espace/candidatures" className="btn-secondary">Candidature envoyée <Check aria-hidden className="size-4" /></Link>;
   if (expired) return <span className="btn-secondary cursor-default opacity-70">Candidatures closes</span>;
   if (!user?.isSubscribed || locked) {
     return <Link href={unlockHref(job.id, user)} className="btn-primary">Postuler maintenant</Link>;

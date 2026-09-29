@@ -1,3 +1,4 @@
+import { CircleCheck, PencilLine } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -25,7 +26,7 @@ export default async function AdminTipsPage(props: PageProps<"/admin/astuces">) 
               <Link href={`/admin/astuces/${t.id}`} className="font-medium hover:text-brand-700">{t.title}</Link>
               <p className="text-xs text-muted">{t.category} · {formatShortDate(t.published_at)}</p>
             </div>
-            <span className={`badge ${t.is_published ? "bg-brand-50 text-brand-700" : ""}`}>{t.is_published ? "● Publiée" : "○ Brouillon"}</span>
+            <span className={`badge ${t.is_published ? "bg-brand-50 text-brand-700" : ""}`}>{t.is_published ? <><CircleCheck aria-hidden className="mr-1 size-3" />Publiée</> : <><PencilLine aria-hidden className="mr-1 size-3" />Brouillon</>}</span>
             {t.is_published && <Link href={`/astuces/${t.slug}`} target="_blank" className="text-xs underline">Voir</Link>}
           </li>
         ))}

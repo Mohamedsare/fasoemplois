@@ -1,5 +1,6 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "@/app/actions/auth";
@@ -32,7 +33,7 @@ export function LoginForm({ next }: { next: string }) {
             aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
             className="absolute inset-y-0 right-0 px-3 text-muted hover:text-ink"
           >
-            {showPassword ? "🙈" : "👁"}
+            {showPassword ? <EyeOff aria-hidden className="size-4" /> : <Eye aria-hidden className="size-4" />}
           </button>
         </div>
       </Field>
