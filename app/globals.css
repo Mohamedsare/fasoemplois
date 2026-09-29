@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Palette Faso Emploi (couleurs du Burkina Faso), structure issue du wireframe. */
+@theme {
+  --color-brand-50: #e8f7ef;
+  --color-brand-100: #c6ebd6;
+  --color-brand-500: #00a651;
+  --color-brand-600: #009e49;
+  --color-brand-700: #007a38;
+  --color-brand-800: #005c2a;
+  --color-accent-500: #ef2b2d;
+  --color-accent-600: #d41f22;
+  --color-star-400: #fcd116;
+  --color-ink: #1c1f23;
+  --color-muted: #5b6470;
+  --color-line: #e3e6ea;
+  --color-surface: #f6f7f9;
+  --color-cream: #faf6ef;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-script: var(--font-mr-dafoe), cursive;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-drawer-in: drawer-in 200ms ease-out;
+  --animate-fade-in: fade-in 200ms ease-out;
+
+  @keyframes drawer-in {
+    from {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    @apply bg-white text-ink antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-600;
+  }
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .btn-secondary {
+    @apply btn border border-ink/15 bg-white text-ink hover:bg-surface;
+  }
+  .btn-dark {
+    @apply btn bg-ink text-white hover:bg-ink/90;
+  }
+  .btn-danger {
+    @apply btn border border-accent-500/30 bg-white text-accent-600 hover:bg-accent-500/5;
+  }
+
+  .card {
+    @apply rounded-2xl border border-line bg-white;
+  }
+
+  .input {
+    @apply block w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm placeholder:text-muted/70 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/20;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-line bg-white px-3 py-1 text-xs font-medium text-ink/80 whitespace-nowrap;
+  }
+  .chip-active {
+    @apply border-ink bg-ink text-white;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full bg-surface px-2.5 py-0.5 text-xs font-medium text-muted whitespace-nowrap;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
 }
