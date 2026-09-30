@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
-import { isPaymentConfigured, isSimulation } from "@/lib/payments";
+import { isManualOrangeMoney, isPaymentConfigured, isSimulation } from "@/lib/payments";
 import { SUBSCRIPTION_DAYS } from "@/lib/constants";
 import { formatDate, formatNumber, param } from "@/lib/format";
 import type { Plan } from "@/lib/types";
@@ -37,7 +37,7 @@ export default async function CheckoutPage(props: PageProps<"/paiement">) {
     <div className="container-page py-10">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Paiement</h1>
-        <span className="inline-flex items-center gap-1 text-xs text-muted"><Lock aria-hidden className="size-3.5" /> Paiement sécurisé</span>
+        <span className="inline-flex items-center gap-1 text-xs text-muted"><Lock aria-hidden className="size-3.5" /> Vérifié par notre équipe</span>
       </div>
 
       {isSimulation() && (
@@ -61,7 +61,11 @@ export default async function CheckoutPage(props: PageProps<"/paiement">) {
             <span>Total aujourd&apos;hui</span>
             <strong>{formatNumber(plan.price)} FCFA</strong>
           </div>
-          <p className="text-xs text-muted">Valable jusqu&apos;au {formatDate(renewal)} · sans renouvellement automatique</p>
+          <p className="text-xs text-muted">
+            {isManualOrangeMoney()
+              ? `${SUBSCRIPTION_DAYS} jours à partir de la validation du dépôt · sans renouvellement automatique`
+              : `Valable jusqu'au ${formatDate(renewal)} · sans renouvellement automatique`}
+          </p>
           {job && (
             <p className="rounded-lg border border-dashed border-ink/20 px-3 py-2 text-xs"><CornerDownLeft aria-hidden className="mr-1 inline size-3.5 align-[-2px]" />Retour ensuite à : {job.title}</p>
           )}
@@ -76,6 +80,7 @@ export default async function CheckoutPage(props: PageProps<"/paiement">) {
             amount={plan.price}
             returnTo={returnTo}
             defaultPhone={user.profile.phone ?? ""}
+            mode={isManualOrangeMoney() ? "orange_money" : "simulation"}
           />
         ) : (
           <div className="card space-y-2 self-start p-6">

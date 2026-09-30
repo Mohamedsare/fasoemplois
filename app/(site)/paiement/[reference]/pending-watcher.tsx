@@ -32,3 +32,17 @@ export function PendingWatcher({ reference, expiresAt }: { reference: string; ex
     </p>
   );
 }
+
+/** Paiement manuel : rafraîchit la page toutes les 30 s pour afficher la validation dès qu'elle a lieu. */
+export function ReviewWatcher() {
+  const router = useRouter();
+  useEffect(() => {
+    const poll = setInterval(() => router.refresh(), 30_000);
+    return () => clearInterval(poll);
+  }, [router]);
+  return (
+    <p className="text-xs text-muted" aria-live="polite">
+      Mise à jour automatique toutes les 30 secondes.
+    </p>
+  );
+}

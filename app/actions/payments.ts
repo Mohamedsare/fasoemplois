@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireUser, safePath } from "@/lib/auth";
-import { createPayment, isSimulation, markPaymentFailed, markPaymentPaid } from "@/lib/payments";
+import { createPayment, isManualOrangeMoney, isSimulation, markPaymentFailed, markPaymentPaid } from "@/lib/payments";
 import { nullable, str } from "@/lib/format";
 import type { ActionState, Payment, PaymentMethod } from "@/lib/types";
 
@@ -16,11 +16,39 @@ export async function startCheckout(_prev: ActionState, formData: FormData): Pro
   const returnTo = nullable(formData, "retour");
   const user = await requireUser(`/paiement?plan=${planId}`);
 
-  const method = str(formData, "method") as PaymentMethod;
-  if (!METHODS.includes(method)) return { fieldErrors: { method: "Choisissez une méthode de paiement." } };
-  const phone = nullable(formData, "phone");
-  if (method === "mobile_money" && !/^\+?[\d\s]{8,15}$/.test(phone ?? ""))
-    return { fieldErrors: { phone: "Numéro de téléphone invalide." } };
+  let method: PaymentMethod = "mobile_money";
+  let phone = nullable(formData, "phone");
+  let providerRef: string | null = null;
+
+  if (isManualOrangeMoney()) {
+    // Dépôt Orange Money : numéro utilisé + ID de la transaction reçu par SMS
+    const digits = (phone ?? "").replace(/\D/g, "").replace(/^226/, "");
+    providerRef = str(formData, "transaction_id").replace(/\s+/g, "").toUpperCase();
+    const fieldErrors: Record<string, string> = {};
+    if (!/^\d{8}$/.test(digits)) fieldErrors.phone = "Numéro Orange invalide (8 chiffres, ex. 64 71 20 44).";
+    if (!/^[A-Z0-9.\-_/]{6,40}$/.test(providerRef))
+      fieldErrors.transaction_id = "ID de transaction invalide : recopiez-le tel qu'il figure dans le SMS Orange Money.";
+    if (formData.get("depot") !== "on") fieldErrors.depot = "Confirmez avoir effectué le dépôt.";
+    if (Object.keys(fieldErrors).length) return { fieldErrors };
+    phone = digits.replace(/(\d{2})(?=\d)/g, "$1 ");
+
+    // Un seul paiement en vérification à la fois
+    const supabase = await createClient();
+    const { data: pending } = await supabase
+      .from("payments")
+      .select("reference")
+      .eq("user_id", user.id)
+      .eq("status", "pending")
+      .eq("provider", "orange_money")
+      .limit(1)
+      .maybeSingle<{ reference: string }>();
+    if (pending) redirect(`/paiement/${pending.reference}`);
+  } else {
+    method = str(formData, "method") as PaymentMethod;
+    if (!METHODS.includes(method)) return { fieldErrors: { method: "Choisissez une méthode de paiement." } };
+    if (method === "mobile_money" && !/^\+?[\d\s]{8,15}$/.test(phone ?? ""))
+      return { fieldErrors: { phone: "Numéro de téléphone invalide." } };
+  }
 
   let target: string;
   try {
@@ -29,12 +57,16 @@ export async function startCheckout(_prev: ActionState, formData: FormData): Pro
       planId,
       method,
       phone,
+      providerRef,
       returnTo: returnTo ? safePath(returnTo) : null,
     });
     target = redirectUrl ?? `/paiement/${payment.reference}`;
-  } catch {
-    return { error: "Impossible de lancer le paiement. Réessayez." };
+  } catch (e) {
+    if (e instanceof Error && e.message === "duplicate_ref")
+      return { fieldErrors: { transaction_id: "Cet ID de transaction a déjà été utilisé pour un autre paiement." } };
+    return { error: "Impossible d'enregistrer le paiement. Réessayez." };
   }
+  revalidatePath("/admin", "layout");
   redirect(target);
 }
 

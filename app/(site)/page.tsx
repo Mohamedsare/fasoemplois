@@ -53,10 +53,10 @@ export default async function HomePage() {
       <section className="bg-cream">
         <div className="container-page flex flex-col items-center py-16 text-center sm:py-20">
           <h1 className="max-w-3xl text-3xl font-bold tracking-tight sm:text-5xl">
-            Trouvez l&apos;opportunité qui fera avancer votre carrière.
+            Votre prochain emploi est peut-être ici.
           </h1>
           <p className="mt-4 max-w-xl text-muted">
-            Découvrez les dernières offres sélectionnées sur Faso Emplois.
+            Découvrez des offres d&apos;emploi et de stage au Burkina Faso et trouvez l&apos;opportunité qui vous correspond.
           </p>
           <div className="mt-8 w-full max-w-3xl">
             <JobSearchForm />

@@ -106,6 +106,9 @@ export type Payment = {
   phone: string | null;
   status: PaymentStatus;
   provider: string;
+  provider_ref: string | null;
+  admin_note: string | null;
+  reviewed_at: string | null;
   return_to: string | null;
   expires_at: string;
   paid_at: string | null;

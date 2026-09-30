@@ -63,7 +63,7 @@ export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
 export const APPLICATION_STATUSES = Object.keys(APPLICATION_STATUS_LABELS) as ApplicationStatus[];
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
-  pending: "En attente",
+  pending: "En vérification",
   paid: "Payé",
   failed: "Échec",
   expired: "Expiré",
@@ -84,3 +84,10 @@ export const WHATSAPP_NUMBER = "22664712044";
 export const WHATSAPP_SUBSCRIBE_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
   "Bonjour Faso Emplois, j'aimerais de l'aide pour m'abonner.",
 )}`;
+
+/** Compte Orange Money qui reçoit les dépôts d'abonnement (paiement manuel vérifié par l'admin). */
+export const ORANGE_MONEY = {
+  number: "64 71 20 44",
+  holder: "SARE MOHAMED",
+  ussd: "*144#",
+};

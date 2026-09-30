@@ -4,7 +4,22 @@ import { supabaseAnonKey, supabaseUrl } from "./env";
 
 const PROTECTED_PREFIXES = ["/espace", "/admin", "/bienvenue", "/paiement"];
 
+const OAUTH_CODE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function updateSession(request: NextRequest) {
+  // Filet de sécurité : si Supabase renvoie le retour OAuth (?code=… ou ?error=…) sur une autre
+  // page que /auth/confirm (ex. l'accueil, quand l'URL de retour n'est pas dans la liste autorisée),
+  // on le redirige vers /auth/confirm au lieu de perdre la connexion.
+  const { pathname: path, searchParams } = request.nextUrl;
+  const code = searchParams.get("code");
+  const isOAuthReturn =
+    (code && OAUTH_CODE.test(code)) || (searchParams.get("error") && searchParams.get("error_description"));
+  if (path !== "/auth/confirm" && isOAuthReturn) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/confirm";
+    return NextResponse.redirect(url);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(supabaseUrl(), supabaseAnonKey(), {

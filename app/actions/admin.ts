@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
+import { markPaymentFailed, markPaymentPaid } from "@/lib/payments";
 import { CONTRACT_TYPES, EXPERIENCE_LABELS, SECTION_ORDER } from "@/lib/constants";
 import { nullable, str, strList } from "@/lib/format";
 import type { ActionState, ContractType, ExperienceLevel, Job } from "@/lib/types";
@@ -361,4 +362,23 @@ export async function deleteTip(tipId: string) {
   await supabase.from("tips").delete().eq("id", tipId);
   revalidatePublic();
   redirect("/admin/astuces");
+}
+
+// ---------------------------------------------------------------------------
+// Paiements Orange Money manuels : vérification par un administrateur
+// ---------------------------------------------------------------------------
+
+/** Le dépôt a bien été reçu : le paiement passe « Payé » et l'abonnement est activé. */
+export async function approvePayment(paymentId: string) {
+  const admin = await requireAdmin();
+  await markPaymentPaid(paymentId, admin.id);
+  revalidatePath("/", "layout");
+}
+
+/** Dépôt introuvable ou incorrect : le paiement est rejeté avec un motif visible par l'utilisateur. */
+export async function rejectPayment(paymentId: string, formData: FormData) {
+  const admin = await requireAdmin();
+  const note = nullable(formData, "motif") ?? "Dépôt introuvable ou montant incorrect.";
+  await markPaymentFailed(paymentId, "failed", { reviewerId: admin.id, note: note.slice(0, 300) });
+  revalidatePath("/", "layout");
 }

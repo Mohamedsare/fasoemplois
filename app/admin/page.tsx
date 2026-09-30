@@ -33,7 +33,8 @@ export default async function AdminDashboardPage(props: PageProps<"/admin">) {
   const supabase = await createClient();
   const count = (q: PromiseLike<{ count: number | null }>) => q.then((r) => r.count ?? 0);
 
-  const [users, activeSubs, activeJobs, applications, payments, subs, newUsers, lastApps, lastPayments, lastUsers] = await Promise.all([
+  const [toReview, users, activeSubs, activeJobs, applications, payments, subs, newUsers, lastApps, lastPayments, lastUsers] = await Promise.all([
+    count(supabase.from("payments").select("id", { count: "exact", head: true }).eq("status", "pending").eq("provider", "orange_money")),
     count(supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_admin", false)),
     count(supabase.from("subscriptions").select("id", { count: "exact", head: true }).neq("status", "expired").gt("expires_at", now)),
     count(supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "publie").lte("published_at", now)),
@@ -95,6 +96,17 @@ export default async function AdminDashboardPage(props: PageProps<"/admin">) {
         ))}
         <Link href="/admin/offres/nouvelle" className="btn-primary">+ Nouvelle offre</Link>
       </div>
+
+      {toReview > 0 && (
+        <Link
+          href="/admin/paiements"
+          className="flex items-center gap-3 rounded-2xl border-2 border-[#ff7900] bg-[#ff7900]/10 px-5 py-4 text-sm font-medium hover:bg-[#ff7900]/15"
+        >
+          <span className="grid size-8 place-items-center rounded-full bg-[#ff7900] font-bold text-white">{toReview}</span>
+          {toReview > 1 ? "dépôts Orange Money attendent" : "dépôt Orange Money attend"} votre vérification
+          <span className="ml-auto underline">Vérifier →</span>
+        </Link>
+      )}
 
       <dl className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         {kpis.map((k) => (

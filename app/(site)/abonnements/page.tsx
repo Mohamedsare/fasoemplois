@@ -19,7 +19,7 @@ const FAQ = [
   },
   {
     q: "Quels moyens de paiement sont acceptés ?",
-    a: "Mobile Money et carte bancaire. Aucun montant n'est débité si le paiement échoue.",
+    a: "Orange Money : vous envoyez le montant au 64 71 20 44 (SARE MOHAMED), puis vous saisissez l'ID de la transaction reçu par SMS. Votre abonnement est activé dès que notre équipe a vérifié le dépôt.",
   },
   {
     q: "Que se passe-t-il à l'expiration ?",

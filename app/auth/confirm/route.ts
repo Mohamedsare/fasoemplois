@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
 
   // Refus ou erreur côté fournisseur (ex. l'utilisateur annule sur l'écran Google)
   if (searchParams.get("error")) {
+    console.error("[auth/confirm] erreur fournisseur :", searchParams.get("error"), searchParams.get("error_description"));
     return NextResponse.redirect(new URL("/connexion?erreur=oauth", origin));
   }
 
@@ -24,6 +25,8 @@ export async function GET(request: NextRequest) {
     ok = !error;
   } else if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+    // Cause fréquente : retour sur un autre domaine que celui du départ (cookie PKCE absent)
+    if (error) console.error("[auth/confirm] échange du code impossible :", error.message);
     ok = !error;
   }
 
