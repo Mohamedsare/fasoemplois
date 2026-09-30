@@ -95,3 +95,31 @@ export const ORANGE_MONEY = {
 export function orangeMoneyUssd(amount: number) {
   return `*144*10*${ORANGE_MONEY.number.replace(/\s/g, "")}*${amount}#`;
 }
+
+// ---------------------------------------------------------------------------
+// Créateur de CV
+// ---------------------------------------------------------------------------
+
+/** Nombre de CV sans abonnement (les plans définissent leur propre quota : cv_limit). */
+export const FREE_CV_LIMIT = 1;
+
+export const CV_TEMPLATES: { value: "moderne" | "classique" | "epure"; label: string; description: string }[] = [
+  { value: "moderne", label: "Moderne", description: "Colonne latérale colorée avec photo" },
+  { value: "classique", label: "Classique", description: "Sobre et élégant, en une colonne" },
+  { value: "epure", label: "Épuré", description: "Minimaliste, beaucoup d'espace" },
+];
+
+/** Couleurs d'accent proposées (contraste suffisant sur fond blanc). */
+export const CV_ACCENTS = [
+  { value: "#009e49", label: "Vert Faso" },
+  { value: "#1d4ed8", label: "Bleu" },
+  { value: "#0f766e", label: "Émeraude" },
+  { value: "#b91c1c", label: "Rouge" },
+  { value: "#7c3aed", label: "Violet" },
+  { value: "#c2410c", label: "Orange" },
+  { value: "#1c1f23", label: "Anthracite" },
+];
+
+/** Appels à l'assistant IA par jour et par utilisateur (maîtrise des coûts). */
+export const AI_DAILY_LIMIT = { free: 15, subscribed: 60 };
+

@@ -266,6 +266,8 @@ export async function savePlan(planId: string | null, _prev: ActionState, formDa
   if (!name) fieldErrors.name = "Indiquez le nom du plan.";
   if (!Number.isInteger(price) || price < 0) fieldErrors.price = "Prix invalide.";
   if (limit !== null && (!Number.isInteger(limit) || limit < 1)) fieldErrors.application_limit = "Limite invalide.";
+  const cvLimit = Number(str(formData, "cv_limit"));
+  if (!Number.isInteger(cvLimit) || cvLimit < 1 || cvLimit > 50) fieldErrors.cv_limit = "Entre 1 et 50.";
   if (Object.keys(fieldErrors).length) return { fieldErrors };
 
   const values = {
@@ -274,6 +276,7 @@ export async function savePlan(planId: string | null, _prev: ActionState, formDa
     description: nullable(formData, "description"),
     features: str(formData, "features").split("\n").map((f) => f.trim()).filter(Boolean).slice(0, 12),
     application_limit: limit,
+    cv_limit: cvLimit,
     badge: nullable(formData, "badge"),
     is_featured: formData.get("is_featured") === "on",
     is_available: formData.get("is_available") === "on",

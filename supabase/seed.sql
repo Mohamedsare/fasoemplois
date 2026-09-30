@@ -33,6 +33,9 @@ insert into public.plans (name, price, description, features, application_limit,
 
 update public.plans set is_available = false where name = 'Entreprise';
 
+-- Quota de CV (colonne ajoutée par la migration cv_builder)
+update public.plans set cv_limit = case when price <= 500 then 4 when price <= 1200 then 6 else 8 end;
+
 -- Offres
 with src (title, company, category, city, contract, exp, salary, days_ago, deadline_in, summary, skills, featured, urgent) as (
   values

@@ -32,8 +32,13 @@ export async function submitApplication(
   const choice = str(formData, "cv_choice");
   let cvFileId: string | null = null;
   let includeOnlineCv = false;
-  if (choice === "online") {
+  let cvId: string | null = null;
+  if (choice.startsWith("online:")) {
+    // Le CV doit appartenir au candidat (la RLS ne renvoie que les siens)
+    const { data: cv } = await supabase.from("cvs").select("id").eq("id", choice.slice(7)).eq("user_id", user.id).maybeSingle();
+    if (!cv) return { error: "CV introuvable." };
     includeOnlineCv = true;
+    cvId = cv.id as string;
   } else if (choice === "upload") {
     const result = await registerCvFile(user.id, formData);
     if (!result) return { error: "Choisissez un fichier PDF." };
@@ -54,6 +59,7 @@ export async function submitApplication(
     message: nullable(formData, "message"),
     cv_file_id: cvFileId,
     include_online_cv: includeOnlineCv,
+    cv_id: cvId,
   });
 
   if (error) {

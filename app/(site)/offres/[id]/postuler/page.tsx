@@ -52,10 +52,15 @@ export default async function ApplyPage(props: PageProps<"/offres/[id]/postuler"
 
   if (!user.isSubscribed) redirect(`/abonnements/choisir?offre=${job.id}`);
 
-  const [{ data: existing }, { data: files }, { data: cv }] = await Promise.all([
+  const [{ data: existing }, { data: files }, { data: cvs }] = await Promise.all([
     supabase.from("applications").select("id").eq("job_id", job.id).eq("user_id", user.id).maybeSingle(),
     supabase.from("cv_files").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).returns<CvFile[]>(),
-    supabase.from("cvs").select("updated_at").eq("user_id", user.id).maybeSingle<{ updated_at: string }>(),
+    supabase
+      .from("cvs")
+      .select("id, title, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .returns<{ id: string; title: string; updated_at: string }[]>(),
   ]);
   if (existing) redirect("/espace/candidatures");
 
@@ -66,7 +71,7 @@ export default async function ApplyPage(props: PageProps<"/offres/[id]/postuler"
         <ApplyWizard
           jobId={job.id}
           files={files ?? []}
-          onlineCvDate={cv?.updated_at ?? null}
+          onlineCvs={cvs ?? []}
           defaults={{ full_name: user.profile.full_name, email: user.email, phone: user.profile.phone ?? "" }}
         />
         <aside className="order-first lg:order-none">

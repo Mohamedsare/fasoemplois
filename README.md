@@ -69,6 +69,18 @@ d'authentification partent via **Resend** depuis `no-reply@fasoemplois.tech`.
 `contact@fasoemplois.tech` doit être une vraie boîte de réception (Resend n'en fournit pas) :
 créez-la chez votre registrar ou un service de redirection (ex. ImprovMX, Zoho Mail).
 
+### Créateur de CV et assistant IA
+
+- Page **CV** : l'utilisateur crée des CV (1 sans abonnement, puis selon le plan : 4 / 6 / 8, modifiable
+  dans *Admin > Abonnements* via « Nombre de CV »), avec photo, 3 modèles A4 et 7 couleurs, puis les
+  télécharge en PDF (impression du navigateur, texte sélectionnable).
+- **Assistant IA (OpenAI)** : remplissage à partir d'un texte libre, résumé, reformulation des expériences,
+  suggestions de compétences, relecture notée. Il n'invente ni employeur, ni date, ni chiffre.
+- Configuration : `OPENAI_API_KEY` (secrète, serveur uniquement) et, facultatif, `OPENAI_MODEL`
+  (par défaut `gpt-6.1-sol` ; `gpt-6-astra` plus puissant mais environ 5 fois plus cher, `gpt-6-luna` le plus économique), dans `.env.local` et sur Vercel. Sans clé, l'éditeur fonctionne sans les boutons IA.
+- Coûts maîtrisés : 15 demandes IA par jour sans abonnement, 60 avec (`AI_DAILY_LIMIT`, `lib/constants.ts`).
+- Migration requise : `20261002000000_cv_builder.sql` (CV multiples, quotas, bucket privé `photos`, suivi IA).
+
 ## Déploiement sur Vercel
 
 ### Avant la mise en ligne publique

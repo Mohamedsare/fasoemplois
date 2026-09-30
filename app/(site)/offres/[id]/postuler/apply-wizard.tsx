@@ -13,25 +13,27 @@ const STEPS = ["CV", "Infos", "Vérification", "Envoi"] as const;
 type Props = {
   jobId: string;
   files: CvFile[];
-  onlineCvDate: string | null;
+  onlineCvs: { id: string; title: string; updated_at: string }[];
   defaults: { full_name: string; email: string; phone: string };
 };
 
-export function ApplyWizard({ jobId, files, onlineCvDate, defaults }: Props) {
+export function ApplyWizard({ jobId, files, onlineCvs, defaults }: Props) {
   const { state, onSubmit, pending } = useFormAction(submitApplication.bind(null, jobId), {
     // Envoi direct du PDF vers Supabase Storage avant la Server Action
     prepare: (fd) => replaceFileWithUpload(fd, "file"),
   });
   const [step, setStep] = useState(0);
-  const [choice, setChoice] = useState(files[0] ? `file:${files[0].id}` : onlineCvDate ? "online" : "upload");
+  const [choice, setChoice] = useState(
+    onlineCvs[0] ? `online:${onlineCvs[0].id}` : files[0] ? `file:${files[0].id}` : "upload",
+  );
   const [uploadName, setUploadName] = useState("");
   const [info, setInfo] = useState({ ...defaults, message: "" });
   const [stepError, setStepError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   const cvLabel =
-    choice === "online"
-      ? "CV en ligne Faso Emplois"
+    choice.startsWith("online:")
+      ? onlineCvs.find((c) => `online:${c.id}` === choice)?.title ?? "CV en ligne"
       : choice === "upload"
         ? uploadName || "Nouveau CV (PDF)"
         : files.find((f) => `file:${f.id}` === choice)?.name ?? "";
@@ -69,14 +71,14 @@ export function ApplyWizard({ jobId, files, onlineCvDate, defaults }: Props) {
       {/* Les champs restent montés (masqués) pour être envoyés avec le formulaire */}
       <section hidden={step !== 0} className="space-y-3">
         <h1 className="text-xl font-bold">Quel CV envoyer ?</h1>
+        {onlineCvs.map((c) => (
+          <CvOption key={c.id} value={`online:${c.id}`} choice={choice} onChange={setChoice}
+            title={c.title} subtitle={`CV Faso Emplois · modifié le ${formatShortDate(c.updated_at)}`} />
+        ))}
         {files.map((f) => (
           <CvOption key={f.id} value={`file:${f.id}`} choice={choice} onChange={setChoice}
-            title={f.name} subtitle={`ajouté le ${formatShortDate(f.created_at)}`} />
+            title={f.name} subtitle={`PDF ajouté le ${formatShortDate(f.created_at)}`} />
         ))}
-        {onlineCvDate && (
-          <CvOption value="online" choice={choice} onChange={setChoice}
-            title="Mon CV en ligne Faso Emplois" subtitle={`mis à jour le ${formatShortDate(onlineCvDate)}`} />
-        )}
         <label className={`card flex cursor-pointer flex-col gap-3 p-4 ${choice === "upload" ? "border-2 border-ink" : ""}`}>
           <span className="flex items-center gap-3">
             <input type="radio" name="cv_choice" value="upload" checked={choice === "upload"} onChange={() => setChoice("upload")} className="size-4 accent-brand-600" />

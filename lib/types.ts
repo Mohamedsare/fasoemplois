@@ -84,6 +84,8 @@ export type Plan = {
   is_available: boolean;
   cta_label: string;
   position: number;
+  /** Nombre maximum de CV créés avec ce plan. */
+  cv_limit: number;
 };
 
 export type Subscription = {
@@ -123,9 +125,16 @@ export type CvEntry = {
   description: string;
 };
 
+export type CvTemplate = "moderne" | "classique" | "epure";
+
 export type Cv = {
   id: string;
   user_id: string;
+  title: string;
+  template: CvTemplate;
+  accent: string;
+  photo_path: string | null;
+  website: string | null;
   full_name: string;
   headline: string | null;
   email: string | null;
@@ -136,8 +145,13 @@ export type Cv = {
   education: CvEntry[];
   skills: string[];
   languages: string[];
+  certifications: CvEntry[];
+  interests: string[];
   updated_at: string;
 };
+
+/** Contenu éditable d'un CV (ce que l'éditeur envoie à l'enregistrement). */
+export type CvDraft = Omit<Cv, "id" | "user_id" | "updated_at">;
 
 export type CvFile = {
   id: string;
@@ -158,6 +172,7 @@ export type Application = {
   message: string | null;
   cv_file_id: string | null;
   include_online_cv: boolean;
+  cv_id: string | null;
   status: ApplicationStatus;
   created_at: string;
   updated_at: string;

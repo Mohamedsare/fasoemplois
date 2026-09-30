@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EXPERIENCE_LABELS } from "@/lib/constants";
 import { formatDate, formatNumber, formatShortDate } from "@/lib/format";
-import { CvView } from "@/components/cv-view";
 import { PaymentBadge, StatusBadge } from "@/components/status-badge";
 import type { ApplicationStatus, Cv, CvFile, Payment, Profile } from "@/lib/types";
 
@@ -16,9 +15,9 @@ export default async function AdminCandidatePage(props: PageProps<"/admin/candid
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const supabase = await createClient();
 
-  const [{ data: profile }, { data: cv }, { data: files }, { data: apps }, { data: payments }] = await Promise.all([
+  const [{ data: profile }, { data: cvs }, { data: files }, { data: apps }, { data: payments }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", id).maybeSingle<Profile>(),
-    supabase.from("cvs").select("*").eq("user_id", id).maybeSingle<Cv>(),
+    supabase.from("cvs").select("id, title, updated_at").eq("user_id", id).order("updated_at", { ascending: false }).returns<Pick<Cv, "id" | "title" | "updated_at">[]>(),
     supabase.from("cv_files").select("*").eq("user_id", id).order("created_at", { ascending: false }).returns<CvFile[]>(),
     supabase
       .from("applications")
@@ -87,7 +86,17 @@ export default async function AdminCandidatePage(props: PageProps<"/admin/candid
             ))}
           </div>
         ) : null}
-        {cv ? <div className="card overflow-hidden"><CvView cv={cv} /></div> : <p className="text-sm text-muted">Pas de CV en ligne.</p>}
+        {cvs?.length ? (
+          <div className="flex flex-wrap gap-2">
+            {cvs.map((c) => (
+              <Link key={c.id} href={`/cv/${c.id}/apercu`} target="_blank" className="btn-secondary text-xs">
+                {c.title} · {formatShortDate(c.updated_at)}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted">Pas de CV en ligne.</p>
+        )}
       </section>
     </div>
   );

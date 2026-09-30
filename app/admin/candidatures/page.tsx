@@ -74,7 +74,13 @@ export default async function AdminApplicationsPage(props: PageProps<"/admin/can
                 <a href={`/cv/fichier/${a.cv_file.id}`} target="_blank" rel="noreferrer" className="btn-secondary py-1.5 text-xs"><FileText aria-hidden className="size-4" /> {a.cv_file.name}</a>
               )}
               {a.include_online_cv && (
-                <Link href={`/admin/candidats/${a.user_id}#cv`} className="btn-secondary py-1.5 text-xs">CV en ligne</Link>
+                <Link
+                  href={a.cv_id ? `/cv/${a.cv_id}/apercu` : `/admin/candidats/${a.user_id}#cv`}
+                  target={a.cv_id ? "_blank" : undefined}
+                  className="btn-secondary py-1.5 text-xs"
+                >
+                  CV en ligne
+                </Link>
               )}
               <form action={setApplicationStatus.bind(null, a.id)} className="ml-auto flex items-center gap-2">
                 <label htmlFor={`status-${a.id}`} className="sr-only">Statut</label>

@@ -35,7 +35,7 @@ export default async function DashboardPage(props: PageProps<"/espace">) {
       .returns<RecentApp[]>(),
     supabase.from("favorites").select("job_id", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("cv_files").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-    supabase.from("cvs").select("id").eq("user_id", user.id).maybeSingle(),
+    supabase.from("cvs").select("id").eq("user_id", user.id).limit(1).maybeSingle(),
     getFavoriteIds(user.id),
   ]);
 

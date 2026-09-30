@@ -13,6 +13,7 @@ const EMPTY: Plan = {
   description: "",
   features: [],
   application_limit: null,
+  cv_limit: 4,
   badge: null,
   is_featured: false,
   is_available: true,
@@ -45,6 +46,18 @@ export function PlanEditor({ plan }: { plan: Plan | null }) {
         </Field>
         <Field label="Fonctionnalités" name="features" hint="Une par ligne.">
           <textarea id="features" name="features" rows={5} value={features} onChange={(ev) => setFeatures(ev.target.value)} className="input" />
+        </Field>
+        <Field label="Nombre de CV" name="cv_limit" hint="CV que l'abonné peut créer avec le créateur de CV." error={e.cv_limit}>
+          <input
+            id="cv_limit"
+            name="cv_limit"
+            type="number"
+            min={1}
+            max={50}
+            value={draft.cv_limit}
+            onChange={(ev) => set("cv_limit", Number(ev.target.value))}
+            className="input max-w-40"
+          />
         </Field>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Limite de candidatures / mois" name="application_limit" hint="Vide = illimité" error={e.application_limit}>
