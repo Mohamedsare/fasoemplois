@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { CV_TEMPLATES } from "@/lib/constants";
+import { getTemplateCatalog } from "@/lib/template-catalog";
 import { daysAgoIso, formatNumber, formatRelative, param, sanitizeSearch } from "@/lib/format";
 import { TemplateBadge } from "@/components/template-card";
-import type { Cv, CvTemplate } from "@/lib/types";
+import type { Cv } from "@/lib/types";
 import { PageHeader, Pagination, StatCard, buildHref, pageParam } from "../ui";
 
 export const metadata: Metadata = { title: "CV & modèles" };
@@ -20,7 +20,8 @@ type Row = Pick<Cv, "id" | "title" | "full_name" | "headline" | "template" | "us
 export default async function AdminCvPage(props: PageProps<"/admin/cv">) {
   const sp = await props.searchParams;
   const q = sanitizeSearch(param(sp.q));
-  const template = CV_TEMPLATES.find((t) => t.value === param(sp.modele))?.value ?? "";
+  const catalog = await getTemplateCatalog(true);
+  const template = catalog.find((t) => t.value === param(sp.modele))?.value ?? "";
   const page = pageParam(sp.page);
   const since = daysAgoIso(30);
   const supabase = await createClient();
@@ -34,13 +35,13 @@ export default async function AdminCvPage(props: PageProps<"/admin/cv">) {
 
   const [{ data: cvs, count: total }, { data: all }, { count: created30 }, { data: downloads }] = await Promise.all([
     query.range((page - 1) * PER_PAGE, page * PER_PAGE - 1).returns<Row[]>(),
-    supabase.from("cvs").select("template").limit(50000).returns<{ template: CvTemplate }[]>(),
+    supabase.from("cvs").select("template").limit(50000).returns<{ template: string }[]>(),
     supabase.from("cvs").select("id", { count: "exact", head: true }).gte("created_at", since),
-    supabase.from("pdf_downloads").select("template").gte("created_at", since).limit(50000).returns<{ template: CvTemplate }[]>(),
+    supabase.from("pdf_downloads").select("template").gte("created_at", since).limit(50000).returns<{ template: string }[]>(),
   ]);
 
   const cvCount = all?.length ?? 0;
-  const byTemplate = CV_TEMPLATES.map((t) => ({
+  const byTemplate = catalog.map((t) => ({
     ...t,
     cvs: (all ?? []).filter((c) => c.template === t.value).length,
     downloads: (downloads ?? []).filter((d) => d.template === t.value).length,
@@ -87,7 +88,7 @@ export default async function AdminCvPage(props: PageProps<"/admin/cv">) {
             <label htmlFor="modele" className="sr-only">Modèle</label>
             <select id="modele" name="modele" defaultValue={template} className="input sm:w-44">
               <option value="">Tous les modèles</option>
-              {CV_TEMPLATES.map((t) => <option key={t.value} value={t.value}>{t.label}{t.premium ? " (Premium)" : ""}</option>)}
+              {catalog.map((t) => <option key={t.value} value={t.value}>{t.label}{t.custom ? " · IA" : ""}{t.premium ? " (Premium)" : ""}</option>)}
             </select>
             <input name="q" defaultValue={q} placeholder="Nom, titre du CV, métier…" aria-label="Rechercher" className="input sm:w-64" />
             <button type="submit" className="btn-dark">Filtrer</button>
@@ -96,7 +97,7 @@ export default async function AdminCvPage(props: PageProps<"/admin/cv">) {
 
         <ul className="card divide-y divide-line">
           {cvs?.map((c) => {
-            const t = CV_TEMPLATES.find((x) => x.value === c.template);
+            const t = catalog.find((x) => x.value === c.template);
             return (
               <li key={c.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 p-4 text-sm">
                 <div className="min-w-0 flex-1 basis-60">

@@ -4,7 +4,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { getAvailablePlans } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND } from "@/lib/brand";
-import { AI_DAILY_LIMIT, CV_TEMPLATES, FREE_CV_LIMIT, FREE_TEMPLATE_COUNT, PREMIUM_TEMPLATE_COUNT } from "@/lib/constants";
+import { AI_DAILY_LIMIT, FREE_CV_LIMIT } from "@/lib/constants";
+import { getTemplateCatalog } from "@/lib/template-catalog";
 import { sampleFor } from "@/lib/sample-cvs";
 import { CvPreview } from "@/components/cv-preview";
 import { PlanCard } from "@/components/plan-card";
@@ -14,7 +15,7 @@ import { TIP_SUMMARY_COLUMNS, TipCard, type TipSummary } from "@/components/tip-
 const STEPS = [
   { icon: PenLine, title: "Décrivez votre parcours", text: "Quelques phrases suffisent, ou collez votre ancien CV." },
   { icon: Wand2, title: "L'IA rédige votre CV", text: "Résumé, expériences, compétences : tout est structuré et reformulé." },
-  { icon: Download, title: "Téléchargez en PDF", text: `Choisissez parmi ${CV_TEMPLATES.length} modèles, une couleur, et envoyez votre CV.` },
+  { icon: Download, title: "Téléchargez en PDF", text: "Choisissez un modèle professionnel, une couleur, et envoyez votre CV." },
 ];
 
 const AI_FEATURES = [
@@ -29,8 +30,8 @@ const AI_FEATURES = [
 /** Modèles mis en avant dans l'en-tête (au centre, à gauche, à droite). */
 const HERO = [sampleFor("executif"), sampleFor("horizon"), sampleFor("creatif")];
 
-/** Modèles présentés sur l'accueil (la galerie complète est sur /modeles). */
-const FEATURED = ["moderne", "executif", "horizon", "prestige", "parcours", "mosaique", "elegance", "corporate"] as const;
+/** Modèles présentés sur l'accueil, après les derniers modèles IA publiés (la galerie complète est sur /modeles). */
+const FEATURED = ["moderne", "executif", "horizon", "prestige", "parcours", "mosaique", "elegance", "corporate"];
 
 const FAQ = [
   { q: "Est-ce vraiment gratuit ?", a: `Oui : vous créez ${FREE_CV_LIMIT} CV gratuitement, avec l'assistant IA. Le téléchargement en PDF est réservé aux abonnés.` },
@@ -42,9 +43,10 @@ const FAQ = [
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const [user, plans, { data: tips }] = await Promise.all([
+  const [user, plans, catalog, { data: tips }] = await Promise.all([
     getCurrentUser(),
     getAvailablePlans(),
+    getTemplateCatalog(),
     supabase
       .from("tips")
       .select(TIP_SUMMARY_COLUMNS)
@@ -54,6 +56,11 @@ export default async function HomePage() {
       .returns<TipSummary[]>(),
   ]);
   const start = user ? "/cv" : "/inscription?suivant=%2Fcv";
+  const premiumCount = catalog.filter((t) => t.premium).length;
+  const featured = [
+    ...catalog.filter((t) => t.custom).slice(0, 2),
+    ...FEATURED.map((v) => catalog.find((t) => t.value === v)).filter((t) => t !== undefined),
+  ].slice(0, 8);
 
   return (
     <>
@@ -138,23 +145,23 @@ export default async function HomePage() {
       <section id="modeles" className="container-page scroll-mt-20 py-14 sm:py-20">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-xs font-semibold text-star-400">
-            <Crown aria-hidden className="size-3.5" /> {PREMIUM_TEMPLATE_COUNT} modèles Premium
+            <Crown aria-hidden className="size-3.5" /> {premiumCount} modèles Premium
           </span>
-          <h2 className="mt-3 text-2xl font-bold sm:text-3xl">{CV_TEMPLATES.length} modèles professionnels, 7 couleurs</h2>
+          <h2 className="mt-3 text-2xl font-bold sm:text-3xl">{catalog.length} modèles professionnels, 7 couleurs</h2>
           <p className="mt-2 text-muted">
             Conçus pour chaque métier, au format A4, lisibles par les recruteurs comme par les logiciels de recrutement.
-            {" "}{FREE_TEMPLATE_COUNT} modèles gratuits, les autres inclus dans les abonnements.
+            {" "}{catalog.length - premiumCount} modèles gratuits, les autres inclus dans les abonnements.
           </p>
         </div>
         <ul className="-mx-4 mt-8 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-4">
-          {FEATURED.map((t) => (
-            <li key={t} className="w-[70%] shrink-0 snap-start sm:w-auto">
+          {featured.map((t) => (
+            <li key={t.value} className="w-[70%] shrink-0 snap-start sm:w-auto">
               <TemplateCard template={t} />
             </li>
           ))}
         </ul>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link href="/modeles" className="btn-primary w-full py-3 sm:w-auto sm:px-6">Voir les {CV_TEMPLATES.length} modèles</Link>
+          <Link href="/modeles" className="btn-primary w-full py-3 sm:w-auto sm:px-6">Voir les {catalog.length} modèles</Link>
           <Link href={start} className="btn-secondary w-full py-3 sm:w-auto sm:px-6">Créer mon CV</Link>
         </div>
       </section>
@@ -171,7 +178,7 @@ export default async function HomePage() {
               <h3 className="font-bold">Gratuit</h3>
               <p><span className="text-3xl font-bold">0</span> <span className="text-sm text-muted">FCFA</span></p>
               <ul className="flex-1 space-y-2 text-sm">
-                {[`${FREE_CV_LIMIT} CV`, `Assistant IA (${AI_DAILY_LIMIT.free} demandes / jour)`, `${FREE_TEMPLATE_COUNT} modèles gratuits et 7 couleurs`, "Aperçu en ligne"].map((f) => (
+                {[`${FREE_CV_LIMIT} CV`, `Assistant IA (${AI_DAILY_LIMIT.free} demandes / jour)`, `${catalog.length - premiumCount} modèles gratuits et 7 couleurs`, "Aperçu en ligne"].map((f) => (
                   <li key={f} className="flex gap-2"><Check aria-hidden className="mt-0.5 size-4 shrink-0 text-brand-600" />{f}</li>
                 ))}
                 <li className="flex gap-2 text-muted"><FileText aria-hidden className="mt-0.5 size-4 shrink-0" />Téléchargement PDF réservé aux abonnés</li>

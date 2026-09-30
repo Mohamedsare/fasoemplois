@@ -1,4 +1,5 @@
-import type { CvDraft, CvTemplate } from "./types";
+import type { CatalogTemplate } from "./template-spec";
+import type { CvDraft } from "./types";
 
 /**
  * CV d'exemple (personnes fictives) pour présenter les modèles.
@@ -6,7 +7,7 @@ import type { CvDraft, CvTemplate } from "./types";
  */
 export type SampleCv = { cv: CvDraft; photo: string };
 
-const base = { photo_path: "exemple", website: null, certifications: [], interests: [] } satisfies Partial<CvDraft>;
+const base = { photo_path: "exemple", website: null, certifications: [], interests: [], template_spec: null } satisfies Partial<CvDraft>;
 
 export const SAMPLE_CVS: SampleCv[] = [
   {
@@ -529,7 +530,20 @@ export const SAMPLE_CVS: SampleCv[] = [
   },
 ];
 
-/** Exemple d'un modèle donné (les modèles sans exemple dédié reprennent le premier). */
-export function sampleFor(template: CvTemplate): SampleCv {
+/** Identifiant d'une personne d'exemple (« awa », « issa »…), tiré du nom de sa photo. */
+export const sampleId = (s: SampleCv) => s.photo.replace(/^.*\/|\.jpg$/g, "");
+
+/** Personnes d'exemple proposées pour l'aperçu des modèles IA. */
+export const SAMPLE_PEOPLE = SAMPLE_CVS.map((s) => ({ id: sampleId(s), name: s.cv.full_name, headline: s.cv.headline ?? "" }));
+
+/** Exemple d'un modèle du code (les modèles sans exemple dédié reprennent le premier). */
+export function sampleFor(template: string): SampleCv {
   return SAMPLE_CVS.find((s) => s.cv.template === template) ?? SAMPLE_CVS[0];
+}
+
+/** Exemple pour une entrée du catalogue : modèle IA appliqué à la personne d'exemple choisie. */
+export function sampleForTemplate(t: Pick<CatalogTemplate, "value" | "spec" | "sample">): SampleCv {
+  if (!t.spec) return sampleFor(t.value);
+  const person = SAMPLE_CVS.find((s) => sampleId(s) === t.sample) ?? SAMPLE_CVS[0];
+  return { photo: person.photo, cv: { ...person.cv, template: t.value, template_spec: t.spec, accent: t.spec.defaultAccent } };
 }

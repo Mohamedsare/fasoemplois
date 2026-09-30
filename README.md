@@ -36,6 +36,7 @@ npm run dev
 | `20261003000000_pivot_saas_cv.sql` | **suppression définitive** des offres, candidatures, favoris, entreprises, catégories |
 | `20261004000000_modeles_premium.sql` | 12 modèles de CV (3 gratuits + 9 Premium), avantages des plans |
 | `20261005000000_backoffice_admin.sql` | back-office : e-mail des profils, journal des actions admin, suivi des PDF, vue `admin_users` |
+| `20261006000000_modeles_ia.sql` | modèles de CV créés par l'IA (table `cv_templates`, fiche de style copiée dans chaque CV) |
 
 ⚠️ `20261003000000_pivot_saas_cv.sql` est **irréversible** : l'appliquer **après** avoir déployé le code
 de *Votre CV* (l'ancienne version du site lit encore ces tables).
@@ -93,6 +94,11 @@ créez-la chez votre registrar ou un service de redirection (ex. ImprovMX, Zoho 
   Chromium (`@sparticuz/chromium` sur Vercel, Chrome/Edge en local) imprime `/cv-print/[id]` en A4.
   Sans abonnement, les boutons « Télécharger en PDF » mènent aux abonnements et l'aperçu porte un filigrane.
 - **Marque** : nom, domaine et e-mail de contact centralisés dans `lib/brand.ts`.
+- **Modèles créés par l'IA** (*Admin > Modèles IA*) : l'admin décrit un style, l'IA produit une *fiche de style* JSON
+  (disposition, colonne, en-tête, polices, titres, frise…), jamais du code. Elle est validée par `sanitizeSpec`
+  (`lib/template-spec.ts`) puis rendue par un moteur unique (`components/cv-templates/custom.tsx`). L'admin ajuste,
+  choisit Gratuit / Premium et publie : le modèle apparaît dans la galerie et l'éditeur. Chaque CV garde une copie de la
+  fiche : modifier ou supprimer un modèle ne change pas les CV existants.
 
 ## Déploiement sur Vercel
 

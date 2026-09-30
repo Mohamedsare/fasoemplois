@@ -12,6 +12,11 @@ export const ADMIN_ACTION_LABELS: Record<string, string> = {
   admin_granted: "Droits administrateur accordés",
   admin_revoked: "Droits administrateur retirés",
   user_deleted: "Compte supprimé",
+  template_created: "Modèle IA créé",
+  template_updated: "Modèle IA modifié",
+  template_published: "Modèle IA publié",
+  template_unpublished: "Modèle IA retiré",
+  template_deleted: "Modèle IA supprimé",
 };
 
 /** Enregistre une action d'administration (n'interrompt jamais l'action en cas d'échec). */
@@ -34,6 +39,7 @@ const DETAIL_LABELS: Record<string, string> = {
   note: "Motif",
   name: "Nom",
   email: "E-mail",
+  published: "Publié",
 };
 
 /** Détails d'une action du journal, en texte court (« Plan : Standard · Durée : 30 j »). */
@@ -45,6 +51,7 @@ export function formatLogDetails(details: Record<string, unknown>) {
       if (k === "days") value = `${v} j`;
       if (k === "amount") value = `${Number(v).toLocaleString("fr-FR")} FCFA`;
       if (k === "until") value = new Date(String(v)).toLocaleDateString("fr-FR");
+      if (typeof v === "boolean") value = v ? "oui" : "non";
       return `${DETAIL_LABELS[k] ?? k} : ${value}`;
     })
     .join(" · ");

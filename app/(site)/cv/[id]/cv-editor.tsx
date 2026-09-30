@@ -23,10 +23,11 @@ import { saveCvDraft } from "@/app/actions/cv";
 import { aiAssist, type AiFill, type AiRequest, type AiResult } from "@/app/actions/cv-ai";
 import { CvPreview } from "@/components/cv-preview";
 import { DownloadPdfButton } from "@/components/download-pdf-button";
-import { CV_ACCENTS, CV_TEMPLATES } from "@/lib/constants";
+import { CV_ACCENTS } from "@/lib/constants";
 import { uploadCvPhoto } from "@/lib/photo-upload";
-import { sampleFor } from "@/lib/sample-cvs";
-import type { CvDraft, CvEntry, CvTemplate } from "@/lib/types";
+import { sampleForTemplate } from "@/lib/sample-cvs";
+import type { CatalogTemplate } from "@/lib/template-spec";
+import type { CvDraft, CvEntry } from "@/lib/types";
 
 const STEPS = [
   { key: "modele", label: "Modèle" },
@@ -58,11 +59,13 @@ type Props = {
   aiEnabled: boolean;
   /** Téléchargement PDF inclus (abonné) */
   canDownload: boolean;
+  /** Catalogue des modèles (code + modèles IA publiés). */
+  templates: CatalogTemplate[];
 };
 
 type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
 
-export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, canDownload }: Props) {
+export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, canDownload, templates }: Props) {
   const [cv, setCv] = useState<CvDraft>(initial);
   const [photoUrl, setPhotoUrl] = useState(initialPhotoUrl);
   const [step, setStep] = useState(0);
@@ -169,7 +172,7 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, can
 
           <div className="card space-y-5 p-4 sm:p-6">
             {current === "modele" && (
-              <TemplateStep cv={cv} photoUrl={photoUrl} update={update} onPhoto={setPhotoUrl} subscribed={canDownload} />
+              <TemplateStep cv={cv} photoUrl={photoUrl} update={update} onPhoto={setPhotoUrl} subscribed={canDownload} templates={templates} />
             )}
             {current === "infos" && <InfoStep cv={cv} update={update} />}
             {current === "profil" && <ProfileStep cv={cv} update={update} aiEnabled={aiEnabled} />}
@@ -434,7 +437,8 @@ function TemplateStep({
   update,
   onPhoto,
   subscribed,
-}: StepProps & { photoUrl: string | null; onPhoto: (url: string | null) => void; subscribed: boolean }) {
+  templates: catalog,
+}: StepProps & { photoUrl: string | null; onPhoto: (url: string | null) => void; subscribed: boolean; templates: CatalogTemplate[] }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -450,20 +454,25 @@ function TemplateStep({
     update({ photo_path: res.path });
   }
 
-  const selected = CV_TEMPLATES.find((t) => t.value === cv.template);
+  // Modèle IA retiré depuis : le CV le garde, on l'affiche en tête de liste
+  const templates =
+    catalog.some((t) => t.value === cv.template) || !cv.template_spec
+      ? catalog
+      : [{ value: cv.template, label: "Modèle actuel", description: "Modèle retiré de la galerie", premium: false, spec: cv.template_spec, sample: null, custom: true }, ...catalog];
+  const selected = templates.find((t) => t.value === cv.template);
 
   return (
     <>
       <fieldset>
         <legend className="label">Modèle</legend>
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          {CV_TEMPLATES.map((t) => (
+          {templates.map((t) => (
             <label
               key={t.value}
               className={`card relative cursor-pointer p-1.5 transition-colors has-focus-visible:ring-2 has-focus-visible:ring-brand-600 sm:p-2 ${cv.template === t.value ? "border-2 border-ink" : "hover:border-ink/30"}`}
             >
-              <input type="radio" name="template" value={t.value} checked={cv.template === t.value} onChange={() => update({ template: t.value })} className="sr-only" />
-              <TemplateThumb template={t.value} accent={cv.accent} />
+              <input type="radio" name="template" value={t.value} checked={cv.template === t.value} onChange={() => update({ template: t.value, template_spec: t.spec })} className="sr-only" />
+              <TemplateThumb template={t} accent={cv.accent} />
               {t.premium && (
                 <span className="absolute top-2.5 right-2.5 grid size-5 place-items-center rounded-full bg-ink text-star-400 shadow-sm sm:size-6" title="Modèle Premium">
                   <Crown aria-hidden className="size-3 sm:size-3.5" />
@@ -532,8 +541,8 @@ function TemplateStep({
 }
 
 /** Vignette : le CV d'exemple du modèle, dans la couleur choisie. */
-function TemplateThumb({ template, accent }: { template: CvTemplate; accent: string }) {
-  const sample = sampleFor(template);
+function TemplateThumb({ template, accent }: { template: CatalogTemplate; accent: string }) {
+  const sample = sampleForTemplate(template);
   return (
     <span className="pointer-events-none block" aria-hidden>
       <CvPreview cv={{ ...sample.cv, accent }} photoUrl={sample.photo} />

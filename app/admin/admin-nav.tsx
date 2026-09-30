@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, FileText, LayoutDashboard, Lightbulb, LogOut, ReceiptText, ScrollText, Tags, Users } from "lucide-react";
+import { ExternalLink, FileText, LayoutDashboard, Lightbulb, LogOut, ReceiptText, ScrollText, Tags, Users, Wand2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/app/actions/auth";
@@ -11,7 +11,8 @@ const LINKS = [
   { href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users },
   { href: "/admin/paiements", label: "Paiements", icon: ReceiptText, badge: "pending" },
   { href: "/admin/plans", label: "Abonnements", icon: Tags },
-  { href: "/admin/cv", label: "CV & modèles", icon: FileText },
+  { href: "/admin/cv", label: "CV & statistiques", icon: FileText },
+  { href: "/admin/modeles", label: "Modèles IA", icon: Wand2 },
   { href: "/admin/astuces", label: "Astuces", icon: Lightbulb },
   { href: "/admin/journal", label: "Journal", icon: ScrollText },
 ] as const;

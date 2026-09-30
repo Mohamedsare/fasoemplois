@@ -62,8 +62,10 @@ function describe(cv: CvDraft) {
 // ---------------------------------------------------------------------------
 // Limite quotidienne
 // ---------------------------------------------------------------------------
-async function checkQuota(userId: string, subscribed: boolean) {
+async function checkQuota(userId: string, subscribed: boolean, admin: boolean) {
   const supabase = await createClient();
+  // Administrateurs : pas de limite
+  if (admin) return { allowed: true, limit: Infinity, supabase };
   const since = new Date(Date.now() - 86_400_000).toISOString();
   const { count } = await supabase
     .from("ai_usage")
@@ -76,7 +78,7 @@ async function checkQuota(userId: string, subscribed: boolean) {
 
 export async function aiAssist(request: AiRequest): Promise<AiResult> {
   const user = await requireUser("/cv");
-  const { allowed, limit, supabase } = await checkQuota(user.id, user.isSubscribed);
+  const { allowed, limit, supabase } = await checkQuota(user.id, user.isSubscribed, user.profile.is_admin);
   if (!allowed) {
     return {
       ok: false,

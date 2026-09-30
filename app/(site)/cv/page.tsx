@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getAvailablePlans } from "@/lib/queries";
 import { signedPhotoUrls } from "@/lib/cv-photos";
 import { isAiConfigured } from "@/lib/ai";
-import { CV_TEMPLATES, FREE_CV_LIMIT, PREMIUM_TEMPLATE_COUNT } from "@/lib/constants";
+import { FREE_CV_LIMIT } from "@/lib/constants";
 import { formatDate, param } from "@/lib/format";
 import { createCv, deleteCv, duplicateCv } from "@/app/actions/cv";
 import { CvPreview } from "@/components/cv-preview";
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 const FEATURES = [
   { icon: Sparkles, title: "Guidé par l'IA", text: "L'assistant rédige votre résumé, reformule vos expériences et suggère vos compétences." },
-  { icon: LayoutTemplate, title: "Mise en page soignée", text: `${CV_TEMPLATES.length} modèles au format A4, dont ${PREMIUM_TEMPLATE_COUNT} Premium, prêts pour les recruteurs.` },
+  { icon: LayoutTemplate, title: "Mise en page soignée", text: "Des modèles A4 gratuits et Premium, prêts pour les recruteurs." },
   { icon: Camera, title: "Photo de profil", text: "Ajoutez votre photo, recadrée automatiquement." },
   { icon: FileText, title: "PDF en un clic", text: "Téléchargez votre CV au format A4, prêt à envoyer aux recruteurs." },
 ];
@@ -65,7 +65,9 @@ export default async function CvPage(props: PageProps<"/cv">) {
   const photos = await signedPhotoUrls(list.map((c) => c.photo_path));
 
   const limit = user.subscription?.isActive ? user.subscription.plan.cv_limit ?? FREE_CV_LIMIT : FREE_CV_LIMIT;
-  const canCreate = list.length < limit;
+  // Administrateurs : CV illimités, sans abonnement
+  const isAdmin = user.profile.is_admin;
+  const canCreate = isAdmin || list.length < limit;
   const canDownload = canDownloadPdf(user);
   // Plan qui permettrait d'en créer davantage
   const upgrade = plans.filter((p) => p.cv_limit > limit).sort((a, b) => a.price - b.price)[0];
@@ -76,8 +78,14 @@ export default async function CvPage(props: PageProps<"/cv">) {
         <div>
           <h1 className="text-3xl font-bold">Mes CV</h1>
           <p className="mt-1 text-muted">
-            {list.length} / {limit} CV utilisé{limit > 1 ? "s" : ""}
-            {user.subscription?.isActive ? ` · plan ${user.subscription.plan.name}` : " · sans abonnement"}
+            {isAdmin ? (
+              `${list.length} CV · administrateur (accès illimité)`
+            ) : (
+              <>
+                {list.length} / {limit} CV utilisé{limit > 1 ? "s" : ""}
+                {user.subscription?.isActive ? ` · plan ${user.subscription.plan.name}` : " · sans abonnement"}
+              </>
+            )}
           </p>
         </div>
         {canCreate && (

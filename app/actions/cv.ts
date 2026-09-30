@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
-import { CV_TEMPLATES } from "@/lib/constants";
+import { resolveTemplate } from "@/lib/template-catalog";
 import type { ActionState, Cv, CvDraft, CvEntry } from "@/lib/types";
 
 // ---------------------------------------------------------------------------
@@ -28,8 +28,8 @@ const entries = (v: unknown, max = 15): CvEntry[] =>
         .slice(0, max)
     : [];
 
+/** Contenu du CV (le modèle est résolu à part, côté serveur : voir resolveTemplate). */
 function sanitize(draft: CvDraft, userId: string) {
-  const template = CV_TEMPLATES.some((t) => t.value === draft.template) ? draft.template : "moderne";
   const accent = /^#[0-9a-f]{6}$/i.test(draft.accent) ? draft.accent : "#009e49";
   // La photo doit être dans le dossier de l'utilisateur (bucket « photos »)
   const photo = draft.photo_path && new RegExp(`^${userId}/[0-9a-f-]{36}\\.(jpg|png|webp)$`, "i").test(draft.photo_path)
@@ -37,7 +37,6 @@ function sanitize(draft: CvDraft, userId: string) {
     : null;
   return {
     title: text(draft.title, 80) || "Mon CV",
-    template,
     accent,
     photo_path: photo,
     full_name: text(draft.full_name, 120),
@@ -70,7 +69,7 @@ function revalidateCv() {
 export async function createCv(formData?: FormData) {
   const user = await requireUser("/cv");
   const chosen = formData?.get("template");
-  const template = CV_TEMPLATES.find((t) => t.value === chosen)?.value ?? "moderne";
+  const { template, template_spec } = await resolveTemplate(typeof chosen === "string" ? chosen : "moderne");
   const supabase = await createClient();
   const { count } = await supabase.from("cvs").select("id", { count: "exact", head: true }).eq("user_id", user.id);
   const { data, error } = await supabase
@@ -79,6 +78,8 @@ export async function createCv(formData?: FormData) {
       user_id: user.id,
       title: count ? `CV ${count + 1}` : "Mon CV",
       template,
+      // Colonne ajoutée par la migration modeles_ia : envoyée seulement pour un modèle IA
+      ...(template_spec ? { template_spec } : {}),
       full_name: user.profile.full_name,
       headline: user.profile.headline,
       email: user.email,
@@ -102,13 +103,19 @@ export async function saveCvDraft(cvId: string, draft: CvDraft): Promise<ActionS
   const supabase = await createClient();
   const { data: previous } = await supabase
     .from("cvs")
-    .select("photo_path")
+    .select("*")
     .eq("id", cvId)
     .eq("user_id", user.id)
-    .maybeSingle<{ photo_path: string | null }>();
+    .maybeSingle<Cv>();
   if (!previous) return { error: "CV introuvable." };
 
-  const { error } = await supabase.from("cvs").update(values).eq("id", cvId).eq("user_id", user.id);
+  // Le modèle (et sa fiche de style) est relu côté serveur, jamais repris du navigateur
+  const { template, template_spec } = await resolveTemplate(String(draft.template ?? ""), previous);
+  const { error } = await supabase
+    .from("cvs")
+    .update({ ...values, template, ...(template_spec || previous.template_spec ? { template_spec } : {}) })
+    .eq("id", cvId)
+    .eq("user_id", user.id);
   if (error) return { error: "Impossible d'enregistrer votre CV. Réessayez." };
 
   // Photo remplacée ou retirée : on supprime l'ancienne du stockage

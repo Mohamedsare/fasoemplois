@@ -3,11 +3,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND } from "@/lib/brand";
-import { CV_TEMPLATES } from "@/lib/constants";
+import { getTemplateCatalog } from "@/lib/template-catalog";
 import { daysAgoIso, formatNumber, formatRelative, formatShortDate, param, whatsappLink } from "@/lib/format";
 import { ColumnChart, DataTable, LineChart, type Point } from "@/components/charts";
 import { PaymentBadge } from "@/components/status-badge";
-import type { CvTemplate, PaymentStatus } from "@/lib/types";
+import type { PaymentStatus } from "@/lib/types";
 import { FilterChips, PageHeader, StatCard } from "./ui";
 
 export const metadata: Metadata = { title: "Tableau de bord" };
@@ -71,7 +71,7 @@ export default async function AdminDashboardPage(props: PageProps<"/admin">) {
       .order("expires_at")
       .limit(20)
       .returns<Expiring[]>(),
-    supabase.from("cvs").select("template").limit(50000).returns<{ template: CvTemplate }[]>(),
+    supabase.from("cvs").select("template").limit(50000).returns<{ template: string }[]>(),
     supabase.from("payments").select("id, reference, amount, status, created_at, user_id").order("created_at", { ascending: false }).limit(6)
       .returns<{ id: string; reference: string; amount: number; status: PaymentStatus; created_at: string; user_id: string }[]>(),
     supabase.from("profiles").select("id, full_name, email, created_at").eq("is_admin", false).order("created_at", { ascending: false }).limit(6)
@@ -103,7 +103,8 @@ export default async function AdminDashboardPage(props: PageProps<"/admin">) {
     value: (newUsers.data ?? []).filter((u) => inBucket(u.created_at, from, to)).length,
   }));
 
-  const popular = CV_TEMPLATES.map((t) => ({ ...t, count: (templates.data ?? []).filter((c) => c.template === t.value).length }))
+  const catalog = await getTemplateCatalog(true);
+  const popular = catalog.map((t) => ({ ...t, count: (templates.data ?? []).filter((c) => c.template === t.value).length }))
     .sort((a, b2) => b2.count - a.count)
     .slice(0, 5);
   const maxPopular = Math.max(1, ...popular.map((t) => t.count));

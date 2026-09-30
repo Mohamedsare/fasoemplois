@@ -73,9 +73,6 @@ export const CV_TEMPLATES: { value: CvTemplate; label: string; description: stri
   { value: "mosaique", label: "Mosaïque", description: "Blocs arrondis, moderne et aéré", premium: true },
 ];
 
-export const FREE_TEMPLATE_COUNT = CV_TEMPLATES.filter((t) => !t.premium).length;
-export const PREMIUM_TEMPLATE_COUNT = CV_TEMPLATES.filter((t) => t.premium).length;
-
 /** Couleurs d'accent proposées (contraste suffisant sur fond blanc). */
 export const CV_ACCENTS = [
   { value: "#009e49", label: "Vert" },

@@ -1,7 +1,6 @@
 import { Crown } from "lucide-react";
-import { CV_TEMPLATES } from "@/lib/constants";
-import { sampleFor } from "@/lib/sample-cvs";
-import type { CvTemplate } from "@/lib/types";
+import { sampleForTemplate } from "@/lib/sample-cvs";
+import type { CatalogTemplate } from "@/lib/template-spec";
 import { CvPreview } from "./cv-preview";
 
 /** Badge « Premium » (modèles inclus dans les abonnements) ou « Gratuit ». */
@@ -18,9 +17,8 @@ export function TemplateBadge({ premium, className = "" }: { premium: boolean; c
 }
 
 /** Carte de présentation d'un modèle, avec un CV d'exemple complet. */
-export function TemplateCard({ template, children }: { template: CvTemplate; children?: React.ReactNode }) {
-  const meta = CV_TEMPLATES.find((t) => t.value === template)!;
-  const sample = sampleFor(template);
+export function TemplateCard({ template: meta, children }: { template: CatalogTemplate; children?: React.ReactNode }) {
+  const sample = sampleForTemplate(meta);
   return (
     <div className="flex h-full flex-col">
       <div className="relative rounded-2xl bg-surface p-3 sm:p-4">

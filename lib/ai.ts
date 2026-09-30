@@ -40,7 +40,7 @@ Règles impératives :
 
 export async function askJson<T>(
   userPrompt: string,
-  options: { maxTokens?: number; temperature?: number; effort?: ReasoningEffort } = {},
+  options: { maxTokens?: number; temperature?: number; effort?: ReasoningEffort; system?: string } = {},
 ): Promise<T> {
   const key = process.env.OPENAI_API_KEY;
   if (!key) throw new AiError("Assistant IA non configuré", "not_configured");
@@ -65,7 +65,7 @@ export async function askJson<T>(
           : { temperature: options.temperature ?? 0.4, max_completion_tokens: outputTokens }),
         response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: CV_SYSTEM_PROMPT },
+          { role: "system", content: options.system ?? CV_SYSTEM_PROMPT },
           { role: "user", content: userPrompt },
         ],
       }),

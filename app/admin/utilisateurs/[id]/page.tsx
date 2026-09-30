@@ -7,7 +7,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/auth";
 import { BRAND } from "@/lib/brand";
 import { ADMIN_ACTION_LABELS, formatLogDetails } from "@/lib/admin-log";
-import { AI_DAILY_LIMIT, CV_TEMPLATES, FREE_CV_LIMIT } from "@/lib/constants";
+import { AI_DAILY_LIMIT, FREE_CV_LIMIT } from "@/lib/constants";
+import { getTemplateCatalog } from "@/lib/template-catalog";
 import { daysAgoIso, formatDate, formatDateTime, formatNumber, formatRelative, formatShortDate, initials, nowTime, whatsappLink } from "@/lib/format";
 import { PaymentBadge, SubscriptionBadge } from "@/components/status-badge";
 import { TemplateBadge } from "@/components/template-card";
@@ -55,13 +56,15 @@ export default async function AdminUserPage(props: PageProps<"/admin/utilisateur
 
   const now = nowTime();
   const current = subs?.find((s) => s.status !== "expired" && new Date(s.expires_at).getTime() > now) ?? null;
-  const cvLimit = current?.plan?.cv_limit ?? FREE_CV_LIMIT;
-  const aiLimit = current ? AI_DAILY_LIMIT.subscribed : AI_DAILY_LIMIT.free;
+  // Les administrateurs ont accès à tout sans abonnement
+  const cvLimit = profile.is_admin ? "∞" : current?.plan?.cv_limit ?? FREE_CV_LIMIT;
+  const aiLimit = profile.is_admin ? "∞" : current ? AI_DAILY_LIMIT.subscribed : AI_DAILY_LIMIT.free;
   const totalPaid = (payments ?? []).filter((p) => p.status === "paid").reduce((n, p) => n + p.amount, 0);
   const providers = (authUser?.app_metadata?.providers as string[] | undefined) ?? [authUser?.app_metadata?.provider].filter(Boolean);
   const name = profile.full_name || profile.email || "Cet utilisateur";
   const wa = whatsappLink(profile.phone, `Bonjour${profile.first_name ? ` ${profile.first_name}` : ""}, c'est l'équipe ${BRAND.name}.`);
-  const templateLabel = (t: string) => CV_TEMPLATES.find((x) => x.value === t);
+  const catalog = await getTemplateCatalog(true);
+  const templateLabel = (t: string) => catalog.find((x) => x.value === t);
 
   return (
     <div className="space-y-6">

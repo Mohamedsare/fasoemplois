@@ -1,3 +1,5 @@
+import type { TemplateSpec } from "./template-spec";
+
 export type ExperienceLevel = "debutant" | "1-3" | "3-5" | "5+";
 export type SubscriptionStatus = "active" | "cancelled" | "expired";
 export type PaymentStatus = "pending" | "paid" | "failed" | "expired" | "cancelled";
@@ -73,6 +75,7 @@ export type CvEntry = {
   description: string;
 };
 
+/** Modèles écrits dans le code (les modèles IA ont un identifiant « ia-… »). */
 export type CvTemplate =
   | "moderne"
   | "classique"
@@ -91,7 +94,10 @@ export type Cv = {
   id: string;
   user_id: string;
   title: string;
-  template: CvTemplate;
+  /** Modèle du code (CvTemplate) ou modèle IA (« ia-… »). */
+  template: string;
+  /** Copie de la fiche de style d'un modèle IA (null pour les modèles du code). */
+  template_spec: TemplateSpec | null;
   accent: string;
   photo_path: string | null;
   website: string | null;

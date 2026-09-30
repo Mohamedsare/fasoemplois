@@ -15,6 +15,7 @@ const GROUPS = [
   { key: "paiements", label: "Paiements", actions: ["payment_approved", "payment_rejected"] },
   { key: "abonnements", label: "Abonnements", actions: ["subscription_granted", "subscription_revoked", "subscription_not_renewed"] },
   { key: "comptes", label: "Comptes", actions: ["admin_granted", "admin_revoked", "user_deleted", "ai_quota_reset"] },
+  { key: "modeles", label: "Modèles IA", actions: ["template_created", "template_updated", "template_published", "template_unpublished", "template_deleted"] },
 ];
 
 type Row = AdminLog & { admin: { full_name: string } | null; user: { full_name: string; email: string | null } | null };

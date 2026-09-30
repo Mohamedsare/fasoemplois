@@ -35,8 +35,12 @@ export default async function DashboardPage(props: PageProps<"/espace">) {
   const photos = await signedPhotoUrls((cvs ?? []).map((c) => c.photo_path));
 
   const sub = user.subscription;
-  const cvLimit = user.isSubscribed ? sub?.plan.cv_limit ?? FREE_CV_LIMIT : FREE_CV_LIMIT;
-  const aiLimit = user.isSubscribed ? AI_DAILY_LIMIT.subscribed : AI_DAILY_LIMIT.free;
+  // Administrateurs : accès à tout sans abonnement (CV et assistant IA illimités, PDF inclus)
+  const isAdmin = user.profile.is_admin;
+  const fullAccess = user.isSubscribed || isAdmin;
+  const cvLimit = isAdmin ? Infinity : user.isSubscribed ? sub?.plan.cv_limit ?? FREE_CV_LIMIT : FREE_CV_LIMIT;
+  const aiLimit = isAdmin ? Infinity : user.isSubscribed ? AI_DAILY_LIMIT.subscribed : AI_DAILY_LIMIT.free;
+  const limitLabel = (n: number) => (Number.isFinite(n) ? n : "∞");
   const used = cvCount ?? 0;
   const canCreate = used < cvLimit;
   const last = cvs?.[0];
@@ -93,31 +97,31 @@ export default async function DashboardPage(props: PageProps<"/espace">) {
       <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="card space-y-2 p-4">
           <dt className="flex items-center gap-1.5 text-xs text-muted"><FileText aria-hidden className="size-3.5" /> CV utilisés</dt>
-          <dd className="text-2xl font-bold">{used} <span className="text-sm font-normal text-muted">/ {cvLimit}</span></dd>
+          <dd className="text-2xl font-bold">{used} <span className="text-sm font-normal text-muted">/ {limitLabel(cvLimit)}</span></dd>
           <dd><ProgressBar value={Math.min(100, (used / cvLimit) * 100)} label="CV utilisés" /></dd>
         </div>
         <div className="card space-y-2 p-4">
           <dt className="flex items-center gap-1.5 text-xs text-muted"><Bot aria-hidden className="size-3.5" /> IA aujourd&apos;hui</dt>
-          <dd className="text-2xl font-bold">{formatNumber(aiToday ?? 0)} <span className="text-sm font-normal text-muted">/ {aiLimit}</span></dd>
+          <dd className="text-2xl font-bold">{formatNumber(aiToday ?? 0)} <span className="text-sm font-normal text-muted">/ {limitLabel(aiLimit)}</span></dd>
           <dd><ProgressBar value={Math.min(100, ((aiToday ?? 0) / aiLimit) * 100)} label="Demandes IA" /></dd>
         </div>
         <div className="card space-y-1 p-4">
           <dt className="flex items-center gap-1.5 text-xs text-muted"><Download aria-hidden className="size-3.5" /> PDF</dt>
-          <dd className={`font-semibold ${user.isSubscribed ? "text-brand-700" : ""}`}>{user.isSubscribed ? "Inclus" : "Réservé aux abonnés"}</dd>
+          <dd className={`font-semibold ${fullAccess ? "text-brand-700" : ""}`}>{fullAccess ? "Inclus" : "Réservé aux abonnés"}</dd>
         </div>
         <div className="card relative space-y-1 p-4 hover:border-ink/30">
           <dt className="flex items-center gap-1.5 text-xs text-muted"><Crown aria-hidden className="size-3.5" /> Abonnement</dt>
           <dd className="font-semibold">
             {/* Lien étendu à toute la carte */}
             <Link href="/espace/abonnement" className="after:absolute after:inset-0">
-              {sub?.isActive ? sub.plan.name : sub ? "Expiré" : "Gratuit"}
+              {sub?.isActive ? sub.plan.name : isAdmin ? "Administrateur" : sub ? "Expiré" : "Gratuit"}
             </Link>
           </dd>
           {sub?.isActive && <dd className="text-xs text-muted">jusqu&apos;au {formatShortDate(sub.expires_at)}</dd>}
         </div>
       </dl>
 
-      {!user.isSubscribed && (
+      {!fullAccess && (
         <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-brand-600/50 bg-cream p-5 sm:flex-row sm:items-center">
           <Download aria-hidden className="hidden size-8 shrink-0 text-brand-600 sm:block" />
           <p className="flex-1 text-sm">

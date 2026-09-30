@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { canDownloadPdf, requireUser } from "@/lib/auth";
 import { isAiConfigured } from "@/lib/ai";
 import { signedPhotoUrl } from "@/lib/cv-photos";
+import { getTemplateCatalog } from "@/lib/template-catalog";
 import type { Cv, CvDraft } from "@/lib/types";
 import { CvEditor } from "./cv-editor";
 
@@ -35,6 +36,7 @@ export default async function CvEditorPage(props: PageProps<"/cv/[id]">) {
         isNew={sp.nouveau === "1" || isEmpty}
         aiEnabled={isAiConfigured()}
         canDownload={canDownloadPdf(user)}
+        templates={await getTemplateCatalog()}
       />
     </div>
   );

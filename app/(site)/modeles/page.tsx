@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import { CV_TEMPLATES, FREE_TEMPLATE_COUNT, PREMIUM_TEMPLATE_COUNT } from "@/lib/constants";
+import { getTemplateCatalog } from "@/lib/template-catalog";
 import { createCv } from "@/app/actions/cv";
 import { SubmitButton } from "@/components/form";
 import { TemplateCard } from "@/components/template-card";
 
-export const metadata: Metadata = {
-  title: "Modèles de CV",
-  description: `${CV_TEMPLATES.length} modèles de CV professionnels au format A4, dont ${PREMIUM_TEMPLATE_COUNT} modèles Premium. Photo, couleurs au choix, rédaction guidée par l'IA.`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const catalog = await getTemplateCatalog();
+  const premium = catalog.filter((t) => t.premium).length;
+  return {
+    title: "Modèles de CV",
+    description: `${catalog.length} modèles de CV professionnels au format A4, dont ${premium} modèles Premium. Photo, couleurs au choix, rédaction guidée par l'IA.`,
+  };
+}
 
 const FILTERS = [
   { value: "", label: "Tous" },
@@ -30,15 +34,16 @@ function UseLabel() {
 export default async function TemplatesPage(props: PageProps<"/modeles">) {
   const sp = await props.searchParams;
   const filter = sp.type === "gratuits" || sp.type === "premium" ? sp.type : "";
-  const user = await getCurrentUser();
-  const templates = CV_TEMPLATES.filter((t) => (filter === "premium" ? t.premium : filter === "gratuits" ? !t.premium : true));
+  const [user, catalog] = await Promise.all([getCurrentUser(), getTemplateCatalog()]);
+  const premiumCount = catalog.filter((t) => t.premium).length;
+  const templates = catalog.filter((t) => (filter === "premium" ? t.premium : filter === "gratuits" ? !t.premium : true));
 
   return (
     <div className="container-page py-10 sm:py-14">
       <div className="mx-auto max-w-2xl text-center">
         <h1 className="text-[1.75rem] leading-tight font-bold sm:text-4xl">Modèles de CV professionnels</h1>
         <p className="mt-3 text-muted">
-          {CV_TEMPLATES.length} modèles au format A4 : {FREE_TEMPLATE_COUNT} gratuits et {PREMIUM_TEMPLATE_COUNT} modèles Premium inclus
+          {catalog.length} modèles au format A4 : {catalog.length - premiumCount} gratuits et {premiumCount} modèles Premium inclus
           dans les abonnements. Photo, 7 couleurs au choix, et l&apos;assistant IA pour rédiger le contenu.
         </p>
       </div>
@@ -59,7 +64,7 @@ export default async function TemplatesPage(props: PageProps<"/modeles">) {
       <ul className="mt-8 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4">
         {templates.map((t) => (
           <li key={t.value}>
-            <TemplateCard template={t.value}>
+            <TemplateCard template={t}>
               {user ? (
                 <form action={createCv}>
                   <input type="hidden" name="template" value={t.value} />
