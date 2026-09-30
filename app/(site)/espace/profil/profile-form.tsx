@@ -1,32 +1,46 @@
 "use client";
 
+import Link from "next/link";
 import { saveProfile } from "@/app/actions/candidate";
-import { FormAlert, SubmitButton, useFormAction } from "@/components/form";
-import { InfoFields, PreferenceFields, ProFields, SkillsFields } from "@/components/profile-fields";
-import type { Category, Profile } from "@/lib/types";
+import { Field, FormAlert, SubmitButton, useFormAction } from "@/components/form";
+import { CITIES } from "@/lib/constants";
+import type { Profile } from "@/lib/types";
 
-export function ProfileForm({ profile, categories }: { profile: Profile; categories: Category[] }) {
+export function ProfileForm({ profile }: { profile: Profile }) {
   const { state, onSubmit, pending } = useFormAction(saveProfile);
+  const e = state?.fieldErrors ?? {};
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
-      <Section title="Informations"><InfoFields profile={profile} /></Section>
-      <Section title="Profil professionnel"><ProFields profile={profile} /></Section>
-      <Section title="Compétences et langues"><SkillsFields profile={profile} /></Section>
-      <Section title="Préférences d'emploi"><PreferenceFields profile={profile} categories={categories} /></Section>
-      <div className="sticky bottom-16 flex items-center gap-4 rounded-2xl border border-line bg-white/95 p-4 backdrop-blur lg:bottom-4">
-        <SubmitButton pending={pending} pendingLabel="Enregistrement…">Enregistrer</SubmitButton>
-        <div className="flex-1"><FormAlert state={state} /></div>
+    <form onSubmit={onSubmit} className="card space-y-5 p-5 sm:p-6">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Prénom" name="first_name" required error={e.first_name}>
+          <input id="first_name" name="first_name" defaultValue={profile.first_name} autoComplete="given-name" className="input" />
+        </Field>
+        <Field label="Nom" name="last_name" required error={e.last_name}>
+          <input id="last_name" name="last_name" defaultValue={profile.last_name} autoComplete="family-name" className="input" />
+        </Field>
+        <Field label="Téléphone" name="phone">
+          <input id="phone" name="phone" type="tel" defaultValue={profile.phone ?? ""} autoComplete="tel" placeholder="+226 …" className="input" />
+        </Field>
+        <Field label="Ville" name="city">
+          <input id="city" name="city" list="profile-cities" defaultValue={profile.city ?? ""} className="input" />
+          <datalist id="profile-cities">{CITIES.map((c) => <option key={c} value={c} />)}</datalist>
+        </Field>
+        <div className="sm:col-span-2">
+          <Field label="Titre professionnel" name="headline" hint="Ex. Comptable, Développeur web… Repris comme titre de vos nouveaux CV.">
+            <input id="headline" name="headline" defaultValue={profile.headline ?? ""} className="input" />
+          </Field>
+        </div>
       </div>
+      <div className="flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:items-center">
+        <SubmitButton pending={pending} className="btn-primary w-full py-3 sm:w-auto sm:py-2" pendingLabel="Enregistrement…">
+          Enregistrer
+        </SubmitButton>
+        <Link href="/mot-de-passe-oublie" className="text-center text-sm text-muted underline hover:text-ink sm:ml-auto">
+          Changer mon mot de passe
+        </Link>
+      </div>
+      <FormAlert state={state} />
     </form>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="card space-y-4 p-6">
-      <h2 className="font-semibold">{title}</h2>
-      {children}
-    </section>
   );
 }

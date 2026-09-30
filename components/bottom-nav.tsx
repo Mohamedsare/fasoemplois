@@ -1,6 +1,6 @@
 "use client";
 
-import { BriefcaseBusiness, FileText, House, Lightbulb, LogIn, UserRound } from "lucide-react";
+import { FileText, House, Lightbulb, LogIn, Tag, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
  * Barre d'onglets mobile, façon application native (masquée à partir de md).
  * Masquée aussi dans les parcours ciblés qui ont leur propre barre d'actions.
  */
-const HIDDEN_ON = [/^\/cv\/.+/, /^\/paiement/, /^\/offres\/[^/]+\/postuler/, /^\/abonnements\/choisir/, /^\/bienvenue/];
+const HIDDEN_ON = [/^\/cv\/.+/, /^\/paiement/];
 
 export function BottomNav({ loggedIn }: { loggedIn: boolean }) {
   const pathname = usePathname();
@@ -16,11 +16,11 @@ export function BottomNav({ loggedIn }: { loggedIn: boolean }) {
 
   const tabs = [
     { href: "/", label: "Accueil", icon: House, active: pathname === "/" },
-    { href: "/offres", label: "Offres", icon: BriefcaseBusiness, active: pathname.startsWith("/offres") },
+    { href: "/cv", label: "Mes CV", icon: FileText, active: pathname === "/cv" },
+    { href: "/abonnements", label: "Tarifs", icon: Tag, active: pathname.startsWith("/abonnements") },
     { href: "/astuces", label: "Astuces", icon: Lightbulb, active: pathname.startsWith("/astuces") },
-    { href: "/cv", label: "CV", icon: FileText, active: pathname === "/cv" },
     loggedIn
-      ? { href: "/espace", label: "Mon espace", icon: UserRound, active: pathname.startsWith("/espace") || pathname.startsWith("/abonnements") }
+      ? { href: "/espace", label: "Mon espace", icon: UserRound, active: pathname.startsWith("/espace") }
       : {
           href: "/connexion",
           label: "Connexion",

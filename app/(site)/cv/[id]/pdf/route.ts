@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { canDownloadPdf, getCurrentUser } from "@/lib/auth";
 import { createPrintToken, launchBrowser, pdfFileName } from "@/lib/pdf";
 
 // Démarrage de Chromium + rendu : quelques secondes
@@ -10,11 +11,13 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/cv/[id]/pdf"
   const { id } = await ctx.params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) return NextResponse.json({ error: "CV introuvable" }, { status: 404 });
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Connectez-vous pour télécharger ce CV." }, { status: 401 });
+  if (!canDownloadPdf(user)) {
+    return NextResponse.json({ error: "Le téléchargement PDF est réservé aux abonnés." }, { status: 402 });
+  }
+
+  const supabase = await createClient();
 
   // La RLS ne renvoie le CV qu'à son propriétaire ou à un administrateur
   const { data: cv } = await supabase

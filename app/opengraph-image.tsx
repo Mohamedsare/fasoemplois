@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
+import { BRAND } from "@/lib/brand";
 
-export const alt = "Faso Emplois — Trouvez l'opportunité qui fera avancer votre carrière";
+export const alt = `${BRAND.name} — ${BRAND.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -38,14 +39,15 @@ export default function OpengraphImage() {
             </svg>
           </div>
           <div style={{ display: "flex", fontSize: 44, fontWeight: 700 }}>
-            Faso<span style={{ color: "#009e49" }}>Emplois</span>
+            {BRAND.logoFirst}
+            <span style={{ color: "#009e49", marginLeft: 12 }}>{BRAND.logoSecond}</span>
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 68, fontWeight: 700, lineHeight: 1.1, maxWidth: 950 }}>
-            Trouvez l&apos;opportunité qui fera avancer votre carrière.
+            Votre CV professionnel, prêt en quelques minutes.
           </div>
-          <div style={{ fontSize: 30, color: "#5b6470" }}>Offres d&apos;emploi au Burkina Faso · CV en ligne · Candidature simple</div>
+          <div style={{ fontSize: 30, color: "#5b6470" }}>{`Guidé par l'IA · Modèles soignés · PDF en un clic · ${BRAND.domain}`}</div>
         </div>
       </div>
     ),

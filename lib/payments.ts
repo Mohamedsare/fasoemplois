@@ -23,7 +23,7 @@ const simulationProvider: PaymentProvider = {
 };
 
 /**
- * Orange Money manuel : l'utilisateur dépose le montant sur le compte Orange Money de Faso Emplois,
+ * Orange Money manuel : l'utilisateur dépose le montant sur le compte Orange Money du service,
  * saisit l'ID de la transaction, puis un administrateur vérifie et valide le paiement.
  */
 const orangeMoneyProvider: PaymentProvider = {
@@ -57,7 +57,7 @@ export const isPaymentConfigured = () => isSimulation() || isManualOrangeMoney()
 const MANUAL_REVIEW_DAYS = 7;
 
 function newReference() {
-  return `FE-${randomBytes(4).toString("hex").toUpperCase()}`;
+  return `VC-${randomBytes(4).toString("hex").toUpperCase()}`;
 }
 
 export async function createPayment(input: {

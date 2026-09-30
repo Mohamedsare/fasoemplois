@@ -64,5 +64,5 @@ export function pdfFileName(fullName: string, title: string) {
     .replace(/[^a-zA-Z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
     .slice(0, 60);
-  return `CV-${base || "Faso-Emplois"}.pdf`;
+  return `CV-${base || "Votre-CV"}.pdf`;
 }

@@ -1,4 +1,4 @@
-// Crée (ou met à jour) un compte administrateur Faso Emplois.
+// Crée (ou met à jour) un compte administrateur Votre CV.
 // Usage : npm run admin:create -- <email> <mot-de-passe>
 // Lit NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY dans .env.local.
 
@@ -54,7 +54,7 @@ if (user) {
     email,
     password,
     email_confirm: true, // pas d'e-mail de confirmation à cliquer
-    user_metadata: { first_name: "Admin", last_name: "Faso Emplois" },
+    user_metadata: { first_name: "Admin", last_name: "Votre CV" },
   });
   if (error) throw error;
   user = data.user;

@@ -1,82 +1,17 @@
--- Faso Emplois — données de démonstration
--- À exécuter après la migration initiale.
+-- Données de démonstration (SaaS de création de CV)
+-- À exécuter après toutes les migrations.
 
-insert into public.categories (name, slug, position) values
-  ('Développement', 'developpement', 1),
-  ('Comptabilité', 'comptabilite', 2),
-  ('Marketing', 'marketing', 3),
-  ('Commercial', 'commercial', 4),
-  ('Administration', 'administration', 5),
-  ('Finance', 'finance', 6),
-  ('Informatique', 'informatique', 7),
-  ('Santé', 'sante', 8),
-  ('Agriculture', 'agriculture', 9),
-  ('Logistique', 'logistique', 10);
-
-insert into public.companies (name, city, description, website) values
-  ('FasoTech Solutions', 'Ouagadougou', 'Éditeur de logiciels et intégrateur de solutions de paiement mobile.', 'https://example.com'),
-  ('Cabinet Sahel Conseil', 'Bobo-Dioulasso', 'Cabinet d''expertise comptable au service des PME.', null),
-  ('Kôrô Média', 'Ouagadougou', 'Agence de communication digitale et événementielle.', null),
-  ('Wend-Panga Distribution', 'Koudougou', 'Distribution de produits de grande consommation.', null),
-  ('ONG Terre Verte', 'Ouagadougou', 'Appui aux coopératives agricoles et à la sécurité alimentaire.', null),
-  ('Clinique Espoir', 'Koudougou', 'Clinique de médecine générale et de maternité.', null);
-
-insert into public.plans (name, price, description, features, application_limit, badge, is_featured, position) values
-  ('Essentiel', 500, 'Pour consulter les offres et postuler ponctuellement.',
-    array['Offres complètes', 'Postuler en ligne', 'Suivi des candidatures'], 3, null, false, 1),
-  ('Standard', 1200, 'Le meilleur équilibre pour une recherche active.',
-    array['Offres complètes', 'Postuler en ligne', 'Suivi des candidatures', 'Recommandations personnalisées'], 15, 'Recommandé', true, 2),
-  ('Premium', 2000, 'Pour postuler sans compter.',
-    array['Offres complètes', 'Candidatures illimitées', 'Suivi des candidatures', 'Recommandations personnalisées', 'Alertes prioritaires'], null, null, false, 3),
-  ('Entreprise', 5000, 'Pour les cabinets et accompagnateurs de candidats.',
-    array['Tout Premium', 'Accompagnement dédié'], null, null, false, 4);
+insert into public.plans (name, price, description, features, badge, is_featured, position, cv_limit) values
+  ('Essentiel', 500, 'Pour un CV soigné, prêt à envoyer.',
+    array['4 CV professionnels', 'Téléchargement PDF illimité', '12 modèles, dont 9 Premium', 'Assistant IA étendu'], null, false, 1, 4),
+  ('Standard', 1200, 'Un CV adapté à chaque poste visé.',
+    array['6 CV professionnels', 'Téléchargement PDF illimité', '12 modèles, dont 9 Premium', 'Assistant IA étendu et relecture notée'], 'Recommandé', true, 2, 6),
+  ('Premium', 2000, 'Pour les candidatures nombreuses.',
+    array['8 CV professionnels', 'Téléchargement PDF illimité', '12 modèles, dont 9 Premium', 'Assistant IA étendu et relecture notée'], null, false, 3, 8),
+  ('Entreprise', 5000, 'Pour les écoles, cabinets et accompagnateurs.',
+    array['8 CV professionnels', 'Téléchargement PDF illimité', '12 modèles, dont 9 Premium', 'Accompagnement dédié'], null, false, 4, 8);
 
 update public.plans set is_available = false where name = 'Entreprise';
-
--- Quota de CV (colonne ajoutée par la migration cv_builder)
-update public.plans set cv_limit = case when price <= 500 then 4 when price <= 1200 then 6 else 8 end;
-
--- Offres
-with src (title, company, category, city, contract, exp, salary, days_ago, deadline_in, summary, skills, featured, urgent) as (
-  values
-  ('Développeur Full Stack', 'FasoTech Solutions', 'Développement', 'Ouagadougou', 'CDI', '1-3', 'À négocier', 2, 30,
-   'Rejoignez notre équipe produit pour concevoir des applications web et mobiles utilisées dans toute l''Afrique de l''Ouest.',
-   array['React', 'Node.js', 'PostgreSQL'], true, false),
-  ('Responsable comptable', 'Cabinet Sahel Conseil', 'Comptabilité', 'Bobo-Dioulasso', 'CDI', '5+', '450 000 – 600 000 FCFA', 3, 15,
-   'Vous encadrez l''équipe comptable du cabinet et supervisez les dossiers de nos clients PME.',
-   array['SYSCOHADA', 'Excel'], false, true),
-  ('Chargé(e) marketing digital', 'Kôrô Média', 'Marketing', 'Ouagadougou', 'CDD', '1-3', null, 5, 20,
-   'Vous pilotez les campagnes digitales de nos clients : réseaux sociaux, contenus et reporting.',
-   array['Digital', 'Contenu'], true, false),
-  ('Commercial terrain', 'Wend-Panga Distribution', 'Commercial', 'Koudougou', 'CDI', 'debutant', '150 000 FCFA + primes', 7, 25,
-   'Vous développez notre réseau de revendeurs dans la région du Centre-Ouest.',
-   array['Vente', 'Moto'], false, false),
-  ('Assistant(e) administratif', 'ONG Terre Verte', 'Administration', 'Ouagadougou', 'Stage', 'debutant', 'Indemnité de stage', 8, 10,
-   'Stage de 6 mois au sein de l''équipe administrative et financière.',
-   array['Bureautique', 'Accueil'], false, false),
-  ('Infirmier(ère) diplômé(e) d''État', 'Clinique Espoir', 'Santé', 'Koudougou', 'CDI', '1-3', null, 1, 45,
-   'La clinique renforce son service de médecine générale.',
-   array['Soins', 'Gardes'], false, true)
-)
-insert into public.jobs (title, company_id, category_id, city, contract_type, experience_level, salary,
-  deadline, summary, skills, is_featured, is_urgent, status, published_at)
-select s.title, c.id, cat.id, s.city, s.contract::public.contract_type, s.exp::public.experience_level, s.salary,
-  current_date + s.deadline_in, s.summary, s.skills, s.featured, s.urgent, 'publie', now() - make_interval(days => s.days_ago)
-from src s
-join public.companies c on c.name = s.company
-join public.categories cat on cat.name = s.category;
-
--- Sections (réservées aux abonnés sauf mention)
-insert into public.job_sections (job_id, kind, content, is_public)
-select j.id, v.kind::public.job_section_kind, v.content, v.is_public
-from public.jobs j
-cross join lateral (values
-  ('missions', E'- Analyser les besoins et proposer des solutions adaptées\n- Réaliser les tâches principales du poste avec rigueur\n- Rendre compte régulièrement à votre responsable\n- Contribuer à l''amélioration continue de l''équipe', false),
-  ('profil', E'Vous êtes rigoureux(se), autonome et avez le sens du service.\n\n- Formation dans le domaine\n- Bonne maîtrise du français écrit et oral', false),
-  ('avantages', E'- Assurance maladie\n- Formation continue\n- Cadre de travail stimulant', false),
-  ('candidature', E'Postulez directement sur Faso Emplois avec votre CV et un court message de motivation.\n\nLes candidatures incomplètes ne seront pas étudiées.', false),
-  ('formation', 'Bac+2 minimum dans le domaine concerné.', true)
-) as v (kind, content, is_public);
 
 insert into public.tips (slug, title, excerpt, category, reading_minutes, content) values
 (
@@ -109,7 +44,7 @@ insert into public.tips (slug, title, excerpt, category, reading_minutes, conten
   'Où chercher, comment relancer et comment transformer un stage en premier emploi.',
   'Recherche',
   3,
-  E'## Où chercher\n- Les offres de stage sur Faso Emplois.\n- Les services de stage de votre université.\n- Les candidatures spontanées auprès des entreprises de votre secteur.\n\n## Relancer\nSans réponse après une semaine, relancez poliment par téléphone ou par e-mail.\n\n## Transformer l''essai\nSoyez ponctuel, curieux et force de proposition. Demandez un retour à la fin du stage.'
+  E'## Où chercher\n- Les services de stage de votre université.\n- Les candidatures spontanées auprès des entreprises de votre secteur.\n\n## Relancer\nSans réponse après une semaine, relancez poliment par téléphone ou par e-mail.\n\n## Transformer l''essai\nSoyez ponctuel, curieux et force de proposition. Demandez un retour à la fin du stage.'
 ),
 (
   'reseau-professionnel',

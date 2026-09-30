@@ -34,22 +34,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL(`/connexion?erreur=${code ? "oauth" : "lien-invalide"}`, origin));
   }
 
-  // Sans destination explicite : onboarding pour un nouveau compte, sinon l'espace candidat
-  let next = explicitNext;
-  if (!next) {
-    const { data: { user } } = await supabase.auth.getUser();
-    const { data: profile } = user
-      ? await supabase.from("profiles").select("onboarding_completed_at").eq("id", user.id).maybeSingle()
-      : { data: null };
-    next = profile && !profile.onboarding_completed_at ? "/bienvenue" : "/espace";
-  }
+  const next = explicitNext ?? "/cv";
 
   return NextResponse.redirect(new URL(next, origin));
 }
 
 /**
  * Les modèles d'e-mail transmettent `redirect_to={{ .RedirectTo }}` (URL complète fournie par
- * Supabase, ex. https://fasoemplois.tech/auth/confirm?suivant=/offres/…). On n'en garde que la
+ * Supabase, ex. https://votrecv.site/auth/confirm?suivant=/cv/…). On n'en garde que la
  * destination interne, et seulement si l'URL pointe vers ce site.
  */
 function nextFromRedirectTo(redirectTo: string | null, origin: string) {

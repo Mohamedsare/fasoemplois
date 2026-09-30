@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { requireUser } from "@/lib/auth";
+import { canDownloadPdf, requireUser } from "@/lib/auth";
 import { isAiConfigured } from "@/lib/ai";
 import { signedPhotoUrl } from "@/lib/cv-photos";
 import type { Cv, CvDraft } from "@/lib/types";
@@ -34,6 +34,7 @@ export default async function CvEditorPage(props: PageProps<"/cv/[id]">) {
         initialPhotoUrl={await signedPhotoUrl(cv.photo_path)}
         isNew={sp.nouveau === "1" || isEmpty}
         aiEnabled={isAiConfigured()}
+        canDownload={canDownloadPdf(user)}
       />
     </div>
   );

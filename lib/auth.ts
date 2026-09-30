@@ -48,11 +48,11 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
 });
 
 /** N'accepte que des chemins internes pour éviter les redirections ouvertes. */
-export function safePath(value: string | null | undefined, fallback = "/espace") {
+export function safePath(value: string | null | undefined, fallback = "/cv") {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : fallback;
 }
 
-export async function requireUser(next = "/espace") {
+export async function requireUser(next = "/cv") {
   const user = await getCurrentUser();
   if (!user) redirect(`/connexion?suivant=${encodeURIComponent(next)}`);
   return user;
@@ -64,18 +64,7 @@ export async function requireAdmin() {
   return user;
 }
 
-/** Pourcentage de complétion du profil (dashboard + onboarding). */
-export function profileCompletion(profile: Profile, hasCv: boolean) {
-  const checks = [
-    Boolean(profile.first_name && profile.last_name),
-    Boolean(profile.phone),
-    Boolean(profile.city),
-    Boolean(profile.headline),
-    Boolean(profile.experience_level),
-    profile.skills.length > 0,
-    profile.languages.length > 0,
-    hasCv,
-    profile.pref_contracts.length > 0 || profile.pref_cities.length > 0,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+/** Le téléchargement PDF est réservé aux abonnés (et aux administrateurs). */
+export function canDownloadPdf(user: Pick<CurrentUser, "isSubscribed" | "profile"> | null) {
+  return Boolean(user && (user.isSubscribed || user.profile.is_admin));
 }

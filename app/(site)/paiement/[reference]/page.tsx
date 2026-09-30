@@ -11,6 +11,7 @@ import { CheckCircle } from "@/components/ui";
 import { SubmitButton } from "@/components/form";
 import type { Payment, Plan } from "@/lib/types";
 import { PendingWatcher, ReviewWatcher } from "./pending-watcher";
+import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = { title: "Paiement" };
 
@@ -28,9 +29,7 @@ export default async function PaymentStatusPage(props: PageProps<"/paiement/[ref
     .maybeSingle<Payment & { plan: Plan }>();
   if (!payment) notFound();
 
-  const retry = `/paiement?plan=${payment.plan_id}${
-    payment.return_to?.startsWith("/offres/") ? `&offre=${payment.return_to.split("/")[2].split("?")[0]}` : ""
-  }`;
+  const retry = `/paiement?plan=${payment.plan_id}`;
   const amount = `${formatNumber(payment.amount)} FCFA`;
   const manual = payment.provider === "orange_money";
 
@@ -97,10 +96,10 @@ export default async function PaymentStatusPage(props: PageProps<"/paiement/[ref
             <h1 className="text-xl font-bold">Paiement confirmé</h1>
             <p className="text-sm text-muted">
               {payment.plan.name} · {amount} / mois.{" "}
-              {payment.return_to?.startsWith("/offres/") ? "Votre offre est débloquée." : "Votre abonnement est actif."}
+              Votre abonnement est actif : vous pouvez télécharger vos CV en PDF.
             </p>
-            <Link href={payment.return_to ?? "/offres"} className="btn-primary w-full">
-              {payment.return_to?.startsWith("/offres/") ? "Retour à l'offre" : "Continuer"}
+            <Link href="/cv" className="btn-primary w-full">
+              Aller à mes CV
             </Link>
             <p className="text-xs text-muted">Référence : {payment.reference}</p>
           </>
@@ -122,7 +121,7 @@ export default async function PaymentStatusPage(props: PageProps<"/paiement/[ref
                 )}
                 <p className="text-xs text-muted">
                   Vérifiez l&apos;ID de transaction et le montant envoyé au {ORANGE_MONEY.number} ({ORANGE_MONEY.holder}), ou écrivez à{" "}
-                  <a href="mailto:contact@fasoemplois.tech" className="underline">contact@fasoemplois.tech</a> avec la référence {payment.reference}.
+                  <a href={`mailto:${BRAND.contactEmail}`} className="underline">{BRAND.contactEmail}</a> avec la référence {payment.reference}.
                 </p>
                 <Link href={retry} className="btn-primary w-full">Déclarer un autre dépôt</Link>
               </>

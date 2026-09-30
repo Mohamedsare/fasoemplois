@@ -1,20 +1,34 @@
 "use client";
 
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, Lock } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
-/** Télécharge le CV en vrai fichier PDF (généré côté serveur). */
+/**
+ * Télécharge le CV en vrai fichier PDF (généré côté serveur).
+ * Sans abonnement (`locked`), le bouton mène à la page des abonnements.
+ */
 export function DownloadPdfButton({
   cvId,
   className = "btn-primary",
   label = "Télécharger en PDF",
+  locked = false,
 }: {
   cvId: string;
   className?: string;
   label?: string;
+  locked?: boolean;
 }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+
+  if (locked) {
+    return (
+      <Link href="/abonnements?pdf=1" className={className} title="Le téléchargement PDF est inclus dans les abonnements">
+        <Lock aria-hidden className="size-4" /> {label}
+      </Link>
+    );
+  }
 
   async function download() {
     setPending(true);

@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 export function Logo() {
   return (
     <span className="flex items-center gap-2 text-lg font-bold tracking-tight">
@@ -9,7 +10,7 @@ export function Logo() {
         <Star className="size-3.5" fill="currentColor" strokeWidth={0} />
       </span>
       <span className="font-script text-3xl font-normal leading-none tracking-normal">
-        Faso <span className="text-brand-600">Emplois</span>
+        {BRAND.logoFirst} <span className="text-brand-600">{BRAND.logoSecond}</span>
       </span>
     </span>
   );

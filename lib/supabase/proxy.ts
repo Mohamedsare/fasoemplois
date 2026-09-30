@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseAnonKey, supabaseUrl } from "./env";
 
-const PROTECTED_PREFIXES = ["/espace", "/admin", "/bienvenue", "/paiement"];
+const PROTECTED_PREFIXES = ["/espace", "/admin", "/paiement"];
 
 const OAUTH_CODE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

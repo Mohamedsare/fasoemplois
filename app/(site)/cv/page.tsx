@@ -1,20 +1,19 @@
 import { Camera, Copy, Eye, FileText, LayoutTemplate, PencilLine, Plus, Sparkles, Trash2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/auth";
+import { canDownloadPdf, getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getAvailablePlans } from "@/lib/queries";
 import { signedPhotoUrls } from "@/lib/cv-photos";
 import { isAiConfigured } from "@/lib/ai";
-import { FREE_CV_LIMIT } from "@/lib/constants";
+import { CV_TEMPLATES, FREE_CV_LIMIT, PREMIUM_TEMPLATE_COUNT } from "@/lib/constants";
 import { formatDate, param } from "@/lib/format";
 import { createCv, deleteCv, duplicateCv } from "@/app/actions/cv";
 import { CvPreview } from "@/components/cv-preview";
 import { DownloadPdfButton } from "@/components/download-pdf-button";
 import { SubmitButton } from "@/components/form";
 import { ConfirmSubmit } from "@/components/confirm-submit";
-import type { Cv, CvFile } from "@/lib/types";
-import { CvFileForm } from "./cv-file-form";
+import type { Cv } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "CV",
@@ -23,9 +22,9 @@ export const metadata: Metadata = {
 
 const FEATURES = [
   { icon: Sparkles, title: "Guidé par l'IA", text: "L'assistant rédige votre résumé, reformule vos expériences et suggère vos compétences." },
-  { icon: LayoutTemplate, title: "Mise en page soignée", text: "3 modèles au format A4, couleurs au choix, prêts pour les recruteurs." },
+  { icon: LayoutTemplate, title: "Mise en page soignée", text: `${CV_TEMPLATES.length} modèles au format A4, dont ${PREMIUM_TEMPLATE_COUNT} Premium, prêts pour les recruteurs.` },
   { icon: Camera, title: "Photo de profil", text: "Ajoutez votre photo, recadrée automatiquement." },
-  { icon: FileText, title: "PDF en un clic", text: "Téléchargez votre CV et joignez-le à vos candidatures." },
+  { icon: FileText, title: "PDF en un clic", text: "Téléchargez votre CV au format A4, prêt à envoyer aux recruteurs." },
 ];
 
 export default async function CvPage(props: PageProps<"/cv">) {
@@ -52,15 +51,14 @@ export default async function CvPage(props: PageProps<"/cv">) {
             </li>
           ))}
         </ul>
-        <p className="mt-10 text-center text-sm text-muted">1 CV gratuit · jusqu&apos;à 8 CV avec un abonnement.</p>
+        <p className="mt-10 text-center text-sm text-muted">1 CV gratuit avec l&apos;assistant IA · téléchargement PDF et jusqu&apos;à 8 CV avec un abonnement.</p>
       </div>
     );
   }
 
   const supabase = await createClient();
-  const [{ data: cvs }, { data: files }, plans] = await Promise.all([
+  const [{ data: cvs }, plans] = await Promise.all([
     supabase.from("cvs").select("*").eq("user_id", user.id).order("updated_at", { ascending: false }).returns<Cv[]>(),
-    supabase.from("cv_files").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).returns<CvFile[]>(),
     getAvailablePlans(),
   ]);
   const list = cvs ?? [];
@@ -68,6 +66,7 @@ export default async function CvPage(props: PageProps<"/cv">) {
 
   const limit = user.subscription?.isActive ? user.subscription.plan.cv_limit ?? FREE_CV_LIMIT : FREE_CV_LIMIT;
   const canCreate = list.length < limit;
+  const canDownload = canDownloadPdf(user);
   // Plan qui permettrait d'en créer davantage
   const upgrade = plans.filter((p) => p.cv_limit > limit).sort((a, b) => a.price - b.price)[0];
 
@@ -94,7 +93,17 @@ export default async function CvPage(props: PageProps<"/cv">) {
         </p>
       )}
 
-      {!canCreate && upgrade && (
+      {!canDownload && list.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-brand-600/50 bg-cream p-5 sm:flex-row sm:items-center">
+          <p className="flex-1 text-sm">
+            <strong>Téléchargez votre CV en PDF.</strong> Le téléchargement, plus de CV et plus d&apos;aide de l&apos;IA
+            sont inclus dans les abonnements.
+          </p>
+          <Link href="/abonnements" className="btn-primary">Voir les abonnements</Link>
+        </div>
+      )}
+
+      {canDownload && !canCreate && upgrade && (
         <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-brand-600/50 bg-cream p-5 sm:flex-row sm:items-center">
           <p className="flex-1 text-sm">
             <strong>Besoin de plus de CV ?</strong> Avec le plan {upgrade.name}, créez jusqu&apos;à {upgrade.cv_limit} CV
@@ -120,7 +129,7 @@ export default async function CvPage(props: PageProps<"/cv">) {
                 </div>
                 <div className="mt-auto flex flex-wrap gap-2">
                   <Link href={`/cv/${cv.id}`} className="btn-primary px-3 py-1.5 text-xs"><PencilLine aria-hidden className="size-3.5" /> Modifier</Link>
-                  <DownloadPdfButton cvId={cv.id} className="btn-secondary px-3 py-1.5 text-xs" label="PDF" />
+                  <DownloadPdfButton cvId={cv.id} locked={!canDownload} className="btn-secondary px-3 py-1.5 text-xs" label="PDF" />
                   <Link href={`/cv/${cv.id}/apercu`} className="btn-secondary px-3 py-1.5 text-xs"><Eye aria-hidden className="size-3.5" /> Aperçu</Link>
                   {canCreate && (
                     <form action={duplicateCv.bind(null, cv.id)}>
@@ -153,18 +162,6 @@ export default async function CvPage(props: PageProps<"/cv">) {
           </form>
         </div>
       )}
-
-      <section className="grid gap-6 border-t border-line pt-8 lg:grid-cols-[1fr_380px]">
-        <div>
-          <h2 className="text-xl font-bold">CV PDF importés</h2>
-          <p className="mt-1 text-sm text-muted">
-            Vous avez déjà un CV au format PDF ? Ajoutez-le pour le joindre directement à vos candidatures.
-          </p>
-        </div>
-        <div className="card p-5">
-          <CvFileForm files={files ?? []} />
-        </div>
-      </section>
     </div>
   );
 }

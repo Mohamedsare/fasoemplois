@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth";
 import { AdminNav } from "./admin-nav";
+import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: { default: "Admin", template: "%s · Admin Faso Emplois" },
+  title: { default: "Admin", template: `%s · Admin ${BRAND.name}` },
   robots: { index: false },
 };
 

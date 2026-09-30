@@ -33,20 +33,20 @@ export default async function AdminDashboardPage(props: PageProps<"/admin">) {
   const supabase = await createClient();
   const count = (q: PromiseLike<{ count: number | null }>) => q.then((r) => r.count ?? 0);
 
-  const [toReview, users, activeSubs, activeJobs, applications, payments, subs, newUsers, lastApps, lastPayments, lastUsers] = await Promise.all([
+  const [toReview, users, activeSubs, cvCount, aiRequests, payments, subs, newUsers, lastCvs, lastPayments, lastUsers] = await Promise.all([
     count(supabase.from("payments").select("id", { count: "exact", head: true }).eq("status", "pending").eq("provider", "orange_money")),
     count(supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_admin", false)),
     count(supabase.from("subscriptions").select("id", { count: "exact", head: true }).neq("status", "expired").gt("expires_at", now)),
-    count(supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "publie").lte("published_at", now)),
-    count(supabase.from("applications").select("id", { count: "exact", head: true }).gte("created_at", since)),
+    count(supabase.from("cvs").select("id", { count: "exact", head: true })),
+    count(supabase.from("ai_usage").select("id", { count: "exact", head: true }).gte("created_at", since)),
     supabase.from("payments").select("amount, status, paid_at, created_at").gte("created_at", since).limit(10000)
       .returns<{ amount: number; status: PaymentStatus; paid_at: string | null; created_at: string }[]>(),
     supabase.from("subscriptions").select("started_at, expires_at, status").gte("expires_at", since).limit(10000)
       .returns<{ started_at: string; expires_at: string; status: string }[]>(),
     supabase.from("profiles").select("created_at").eq("is_admin", false).gte("created_at", since).limit(10000)
       .returns<{ created_at: string }[]>(),
-    supabase.from("applications").select("id, full_name, created_at, job:jobs(title)").order("created_at", { ascending: false }).limit(5)
-      .returns<{ id: string; full_name: string; created_at: string; job: { title: string } | null }[]>(),
+    supabase.from("cvs").select("id, title, full_name, created_at").order("created_at", { ascending: false }).limit(5)
+      .returns<{ id: string; title: string; full_name: string; created_at: string }[]>(),
     supabase.from("payments").select("id, reference, amount, status, created_at").order("created_at", { ascending: false }).limit(5)
       .returns<{ id: string; reference: string; amount: number; status: PaymentStatus; created_at: string }[]>(),
     supabase.from("profiles").select("id, full_name, created_at").eq("is_admin", false).order("created_at", { ascending: false }).limit(5)
@@ -78,8 +78,8 @@ export default async function AdminDashboardPage(props: PageProps<"/admin">) {
   const kpis = [
     { label: "Utilisateurs", value: formatNumber(users) },
     { label: "Abonnés actifs", value: formatNumber(activeSubs) },
-    { label: "Offres actives", value: formatNumber(activeJobs) },
-    { label: `Candidatures (${days} j)`, value: formatNumber(applications) },
+    { label: "CV créés (total)", value: formatNumber(cvCount) },
+    { label: `Demandes IA (${days} j)`, value: formatNumber(aiRequests) },
     { label: `Revenus (${days} j)`, value: `${formatNumber(revenue)} FCFA` },
     { label: `Paiements réussis (${days} j)`, value: formatNumber(paid.length) },
   ];
@@ -94,7 +94,6 @@ export default async function AdminDashboardPage(props: PageProps<"/admin">) {
             {p} derniers jours
           </Link>
         ))}
-        <Link href="/admin/offres/nouvelle" className="btn-primary">+ Nouvelle offre</Link>
       </div>
 
       {toReview > 0 && (
@@ -140,12 +139,17 @@ export default async function AdminDashboardPage(props: PageProps<"/admin">) {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <section className="card p-4">
-          <div className="mb-2 flex items-center"><h2 className="flex-1 text-sm font-semibold">Dernières candidatures</h2><Link href="/admin/candidatures" className="text-xs underline">Tout voir</Link></div>
+          <div className="mb-2 flex items-center"><h2 className="flex-1 text-sm font-semibold">Derniers CV créés</h2></div>
           <ul className="space-y-2 text-sm">
-            {lastApps.data?.map((a) => (
-              <li key={a.id} className="flex gap-2"><span className="flex-1 truncate">{a.full_name} · <span className="text-muted">{a.job?.title}</span></span><span className="text-xs text-muted">{formatRelative(a.created_at)}</span></li>
+            {lastCvs.data?.map((c) => (
+              <li key={c.id} className="flex gap-2">
+                <Link href={`/cv/${c.id}/apercu`} target="_blank" className="flex-1 truncate hover:text-brand-700">
+                  {c.full_name || "Sans nom"} · <span className="text-muted">{c.title}</span>
+                </Link>
+                <span className="text-xs text-muted">{formatRelative(c.created_at)}</span>
+              </li>
             ))}
-            {!lastApps.data?.length && <li className="text-muted">Aucune.</li>}
+            {!lastCvs.data?.length && <li className="text-muted">Aucun.</li>}
           </ul>
         </section>
         <section className="card p-4">
@@ -158,10 +162,10 @@ export default async function AdminDashboardPage(props: PageProps<"/admin">) {
           </ul>
         </section>
         <section className="card p-4">
-          <div className="mb-2 flex items-center"><h2 className="flex-1 text-sm font-semibold">Derniers utilisateurs</h2><Link href="/admin/candidats" className="text-xs underline">Tout voir</Link></div>
+          <div className="mb-2 flex items-center"><h2 className="flex-1 text-sm font-semibold">Derniers utilisateurs</h2><Link href="/admin/utilisateurs" className="text-xs underline">Tout voir</Link></div>
           <ul className="space-y-2 text-sm">
             {lastUsers.data?.map((u) => (
-              <li key={u.id} className="flex gap-2"><Link href={`/admin/candidats/${u.id}`} className="flex-1 truncate hover:text-brand-700">{u.full_name || "—"}</Link><span className="text-xs text-muted">inscrit {formatRelative(u.created_at)}</span></li>
+              <li key={u.id} className="flex gap-2"><Link href={`/admin/utilisateurs/${u.id}`} className="flex-1 truncate hover:text-brand-700">{u.full_name || "—"}</Link><span className="text-xs text-muted">inscrit {formatRelative(u.created_at)}</span></li>
             ))}
             {!lastUsers.data?.length && <li className="text-muted">Aucun.</li>}
           </ul>

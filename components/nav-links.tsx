@@ -9,9 +9,10 @@ import { signOut } from "@/app/actions/auth";
 
 const MAIN_LINKS = [
   { href: "/", label: "Accueil" },
-  { href: "/offres", label: "Offres d'emploi" },
+  { href: "/cv", label: "Créer mon CV" },
+  { href: "/modeles", label: "Modèles" },
+  { href: "/abonnements", label: "Tarifs" },
   { href: "/astuces", label: "Astuces" },
-  { href: "/cv", label: "CV" },
 ];
 
 type Props = {

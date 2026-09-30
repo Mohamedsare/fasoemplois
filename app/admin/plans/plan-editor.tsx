@@ -12,7 +12,6 @@ const EMPTY: Plan = {
   price: 0,
   description: "",
   features: [],
-  application_limit: null,
   cv_limit: 4,
   badge: null,
   is_featured: false,
@@ -59,18 +58,7 @@ export function PlanEditor({ plan }: { plan: Plan | null }) {
             className="input max-w-40"
           />
         </Field>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="Limite de candidatures / mois" name="application_limit" hint="Vide = illimité" error={e.application_limit}>
-            <input
-              id="application_limit"
-              name="application_limit"
-              type="number"
-              min={1}
-              value={draft.application_limit ?? ""}
-              onChange={(ev) => set("application_limit", ev.target.value ? Number(ev.target.value) : null)}
-              className="input"
-            />
-          </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Badge" name="badge">
             <input id="badge" name="badge" value={draft.badge ?? ""} placeholder="Recommandé" onChange={(ev) => set("badge", ev.target.value || null)} className="input" />
           </Field>

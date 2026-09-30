@@ -58,8 +58,7 @@ export default async function TipPage(props: PageProps<"/astuces/[slug]">) {
         <div className="card mt-12 flex flex-col items-start gap-4 bg-brand-50 p-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-medium">Prêt à passer à l&apos;action ?</p>
           <div className="flex gap-2">
-            <Link href="/cv" className="btn-secondary">Créer mon CV</Link>
-            <Link href="/offres" className="btn-primary">Voir les offres</Link>
+            <Link href="/cv" className="btn-primary">Créer mon CV avec l&apos;IA</Link>
           </div>
         </div>
       </article>

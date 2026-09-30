@@ -5,10 +5,14 @@ import { PlanCard } from "@/components/plan-card";
 
 export const metadata: Metadata = {
   title: "Abonnements",
-  description: "Débloquez les offres d'emploi complètes et postulez en ligne. Mensuel, sans engagement.",
+  description: "Téléchargez vos CV en PDF, créez plus de CV et profitez de l'assistant IA. Mensuel, sans engagement.",
 };
 
 const FAQ = [
+  {
+    q: "Que débloque un abonnement ?",
+    a: "Le téléchargement de vos CV en PDF (sans filigrane), la création de plusieurs CV selon le plan et un usage quotidien étendu de l'assistant IA.",
+  },
   {
     q: "Comment fonctionne le renouvellement ?",
     a: "L'abonnement dure 30 jours. Avant l'échéance, vous pouvez le renouveler en un clic depuis votre espace : la durée restante est conservée.",
@@ -23,11 +27,12 @@ const FAQ = [
   },
   {
     q: "Que se passe-t-il à l'expiration ?",
-    a: "Les offres complètes redeviennent verrouillées, mais votre profil, votre CV, vos favoris et vos candidatures sont conservés.",
+    a: "Tous vos CV sont conservés et restent modifiables. Le téléchargement PDF et la création de nouveaux CV redeviennent réservés aux abonnés.",
   },
 ];
 
-export default async function PricingPage() {
+export default async function PricingPage(props: PageProps<"/abonnements">) {
+  const sp = await props.searchParams;
   const [plans, user] = await Promise.all([getAvailablePlans(), getCurrentUser()]);
   const currentPlanId = user?.subscription?.isActive ? user.subscription.plan_id : null;
 
@@ -37,6 +42,12 @@ export default async function PricingPage() {
         <h1 className="text-3xl font-bold">Choisissez votre abonnement</h1>
         <p className="mt-2 text-muted">Mensuel · sans engagement · résiliable à tout moment</p>
       </div>
+
+      {sp.pdf === "1" && !currentPlanId && (
+        <p role="status" className="mx-auto mt-6 max-w-2xl rounded-xl border border-dashed border-brand-600/50 bg-cream px-4 py-3 text-center text-sm">
+          Le téléchargement de votre CV en PDF est inclus dans tous les abonnements ci-dessous.
+        </p>
+      )}
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => (

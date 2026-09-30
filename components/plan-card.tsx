@@ -28,10 +28,6 @@ export function PlanCard({ plan, href, current }: { plan: Plan; href: string; cu
         ))}
         <li className="flex gap-2">
           <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-brand-600" />
-          {plan.application_limit ? `${plan.application_limit} candidatures / mois` : "Candidatures illimitées"}
-        </li>
-        <li className="flex gap-2">
-          <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-brand-600" />
           {plan.cv_limit} CV professionnels (créateur guidé par l&apos;IA)
         </li>
       </ul>

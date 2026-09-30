@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
-import { registerCvFile } from "@/lib/cv-files";
 import { CV_TEMPLATES } from "@/lib/constants";
 import type { ActionState, Cv, CvDraft, CvEntry } from "@/lib/types";
 
@@ -67,9 +66,11 @@ function revalidateCv() {
 // CV en ligne (créateur)
 // ---------------------------------------------------------------------------
 
-/** Crée un CV (le quota du plan est vérifié par la base) puis ouvre l'éditeur. */
-export async function createCv() {
+/** Crée un CV (le quota du plan est vérifié par la base) puis ouvre l'éditeur, avec le modèle choisi s'il y en a un. */
+export async function createCv(formData?: FormData) {
   const user = await requireUser("/cv");
+  const chosen = formData?.get("template");
+  const template = CV_TEMPLATES.find((t) => t.value === chosen)?.value ?? "moderne";
   const supabase = await createClient();
   const { count } = await supabase.from("cvs").select("id", { count: "exact", head: true }).eq("user_id", user.id);
   const { data, error } = await supabase
@@ -77,6 +78,7 @@ export async function createCv() {
     .insert({
       user_id: user.id,
       title: count ? `CV ${count + 1}` : "Mon CV",
+      template,
       full_name: user.profile.full_name,
       headline: user.profile.headline,
       email: user.email,
@@ -151,35 +153,4 @@ export async function deleteCv(cvId: string) {
   }
   revalidateCv();
   redirect("/cv");
-}
-
-// ---------------------------------------------------------------------------
-// CV en PDF importés
-// ---------------------------------------------------------------------------
-
-export async function uploadCvFile(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const user = await requireUser("/cv");
-  const result = await registerCvFile(user.id, formData);
-  if (!result) return { error: "Choisissez un fichier PDF." };
-  if ("error" in result) return { error: result.error };
-
-  revalidateCv();
-  return { success: "CV PDF ajouté." };
-}
-
-export async function deleteCvFile(fileId: string) {
-  const user = await requireUser("/cv");
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("cv_files")
-    .select("path")
-    .eq("id", fileId)
-    .eq("user_id", user.id)
-    .maybeSingle<{ path: string }>();
-
-  if (data) {
-    await supabase.storage.from("cvs").remove([data.path]);
-    await supabase.from("cv_files").delete().eq("id", fileId);
-  }
-  revalidatePath("/cv", "layout");
 }

@@ -1,4 +1,4 @@
-import { Check, CornerDownLeft, Lock } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,6 +9,7 @@ import { SUBSCRIPTION_DAYS } from "@/lib/constants";
 import { formatDate, formatNumber, param } from "@/lib/format";
 import type { Plan } from "@/lib/types";
 import { CheckoutForm } from "./checkout-form";
+import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = { title: "Paiement" };
 
@@ -16,22 +17,16 @@ export const metadata: Metadata = { title: "Paiement" };
 export default async function CheckoutPage(props: PageProps<"/paiement">) {
   const sp = await props.searchParams;
   const planId = param(sp.plan);
-  const jobId = param(sp.offre);
-  const user = await requireUser(`/paiement?plan=${planId}${jobId ? `&offre=${jobId}` : ""}`);
+  const user = await requireUser(`/paiement?plan=${planId}`);
 
   const supabase = await createClient();
-  const [{ data: plan }, { data: job }] = await Promise.all([
-    supabase.from("plans").select("*").eq("id", planId).eq("is_available", true).maybeSingle<Plan>(),
-    jobId
-      ? supabase.from("jobs").select("id, title").eq("id", jobId).maybeSingle<{ id: string; title: string }>()
-      : Promise.resolve({ data: null }),
-  ]);
+  const { data: plan } = await supabase.from("plans").select("*").eq("id", planId).eq("is_available", true).maybeSingle<Plan>();
   if (!plan) notFound();
 
   // Si un abonnement est en cours, le nouveau prend la suite de l'échéance actuelle
   const start = user.subscription?.isActive ? new Date(user.subscription.expires_at) : new Date();
   const renewal = new Date(start.getTime() + SUBSCRIPTION_DAYS * 86_400_000);
-  const returnTo = job ? `/offres/${job.id}?debloque=1` : "/espace/abonnement";
+  const returnTo = "/cv";
 
   return (
     <div className="container-page py-10">
@@ -66,10 +61,7 @@ export default async function CheckoutPage(props: PageProps<"/paiement">) {
               ? `${SUBSCRIPTION_DAYS} jours à partir de la validation du dépôt · sans renouvellement automatique`
               : `Valable jusqu'au ${formatDate(renewal)} · sans renouvellement automatique`}
           </p>
-          {job && (
-            <p className="rounded-lg border border-dashed border-ink/20 px-3 py-2 text-xs"><CornerDownLeft aria-hidden className="mr-1 inline size-3.5 align-[-2px]" />Retour ensuite à : {job.title}</p>
-          )}
-          <Link href={job ? `/abonnements/choisir?offre=${job.id}` : "/abonnements"} className="text-xs underline">
+          <Link href="/abonnements" className="text-xs underline">
             Changer de plan
           </Link>
         </section>
@@ -87,7 +79,7 @@ export default async function CheckoutPage(props: PageProps<"/paiement">) {
             <h2 className="text-lg font-bold">Paiement en ligne bientôt disponible</h2>
             <p className="text-sm text-muted">
               Le paiement n&apos;est pas encore ouvert. Contactez-nous à{" "}
-              <a href="mailto:contact@fasoemplois.tech" className="underline">contact@fasoemplois.tech</a> pour activer votre abonnement.
+              <a href={`mailto:${BRAND.contactEmail}`} className="underline">{BRAND.contactEmail}</a> pour activer votre abonnement.
             </p>
           </div>
         )}

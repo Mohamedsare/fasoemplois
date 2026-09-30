@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Palette Faso Emplois (couleurs du Burkina Faso), structure issue du wireframe. */
+/* Palette Votre CV (couleurs du drapeau du Burkina Faso), structure issue du wireframe. */
 @theme {
   --color-brand-50: #e8f7ef;
   --color-brand-100: #c6ebd6;
@@ -46,7 +46,7 @@
     html:has(#tabbar) {
       --tabbar-h: calc(4rem + env(safe-area-inset-bottom));
     }
-    /* Barre d'actions de page (ex. « Débloquer l'offre ») : les boutons flottants passent au-dessus */
+    /* Barre d'actions de page (ex. éditeur de CV) : les boutons flottants passent au-dessus */
     html:has(#mobile-actionbar) {
       --actionbar-h: 4.75rem;
     }

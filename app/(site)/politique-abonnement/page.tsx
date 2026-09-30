@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BRAND } from "@/lib/brand";
 import { LegalPage } from "@/components/legal-page";
 import { SUBSCRIPTION_DAYS } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Politique d'abonnement",
-  description: "Durée, paiement, renouvellement et résiliation des abonnements Faso Emplois.",
+  description: `Durée, paiement, renouvellement et résiliation des abonnements ${BRAND.name}.`,
 };
 
 export default function SubscriptionPolicyPage() {
@@ -14,9 +15,9 @@ export default function SubscriptionPolicyPage() {
       <section>
         <h2>1. Ce que comprend l&apos;abonnement</h2>
         <p>
-          L&apos;abonnement donne accès au contenu complet des offres (missions, profil recherché, informations de
-          candidature…) et à la candidature en ligne, dans la limite éventuelle de candidatures mensuelles propre à
-          chaque plan. Les plans, leurs prix et leurs avantages sont présentés sur la page{" "}
+          L&apos;abonnement débloque le téléchargement de vos CV en PDF, la création de plusieurs CV (dans la limite
+          propre à chaque plan) et un usage quotidien étendu de l&apos;assistant IA. Les plans, leurs prix et leurs
+          avantages sont présentés sur la page{" "}
           <Link href="/abonnements" className="underline">Abonnements</Link>.
         </p>
       </section>
@@ -61,8 +62,9 @@ export default function SubscriptionPolicyPage() {
       <section>
         <h2>6. À l&apos;expiration</h2>
         <p>
-          Les contenus réservés redeviennent verrouillés. Votre profil, vos CV, vos favoris et l&apos;historique de vos
-          candidatures sont conservés.
+          Le téléchargement en PDF et la création de nouveaux CV redeviennent réservés aux abonnés. Tous vos CV sont
+          conservés : vous pouvez toujours les consulter et les modifier, et les télécharger de nouveau dès que vous
+          renouvelez votre abonnement.
         </p>
       </section>
 
@@ -70,8 +72,8 @@ export default function SubscriptionPolicyPage() {
         <h2>7. Réclamations</h2>
         <p>
           Pour toute question sur un paiement, écrivez à{" "}
-          <a href="mailto:contact@fasoemplois.tech" className="underline">contact@fasoemplois.tech</a> en indiquant la
-          référence du paiement (format FE-XXXXXXXX), visible dans votre historique.
+          <a href={`mailto:${BRAND.contactEmail}`} className="underline">{BRAND.contactEmail}</a> en indiquant la
+          référence du paiement (format VC-XXXXXXXX), visible dans votre historique.
         </p>
       </section>
     </LegalPage>

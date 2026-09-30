@@ -7,6 +7,7 @@ import {
   ArrowUp,
   Camera,
   Check,
+  Crown,
   Eye,
   Lightbulb,
   Loader2,
@@ -24,7 +25,8 @@ import { CvPreview } from "@/components/cv-preview";
 import { DownloadPdfButton } from "@/components/download-pdf-button";
 import { CV_ACCENTS, CV_TEMPLATES } from "@/lib/constants";
 import { uploadCvPhoto } from "@/lib/photo-upload";
-import type { CvDraft, CvEntry } from "@/lib/types";
+import { sampleFor } from "@/lib/sample-cvs";
+import type { CvDraft, CvEntry, CvTemplate } from "@/lib/types";
 
 const STEPS = [
   { key: "modele", label: "Modèle" },
@@ -54,11 +56,13 @@ type Props = {
   initialPhotoUrl: string | null;
   isNew: boolean;
   aiEnabled: boolean;
+  /** Téléchargement PDF inclus (abonné) */
+  canDownload: boolean;
 };
 
 type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
 
-export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled }: Props) {
+export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, canDownload }: Props) {
   const [cv, setCv] = useState<CvDraft>(initial);
   const [photoUrl, setPhotoUrl] = useState(initialPhotoUrl);
   const [step, setStep] = useState(0);
@@ -115,7 +119,7 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled }: P
             >
               <Eye aria-hidden className="size-4" /> Aperçu
             </Link>
-            <DownloadPdfButton cvId={cvId} />
+            <DownloadPdfButton cvId={cvId} locked={!canDownload} />
           </div>
         </div>
         <input
@@ -165,7 +169,7 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled }: P
 
           <div className="card space-y-5 p-4 sm:p-6">
             {current === "modele" && (
-              <TemplateStep cv={cv} photoUrl={photoUrl} update={update} onPhoto={setPhotoUrl} />
+              <TemplateStep cv={cv} photoUrl={photoUrl} update={update} onPhoto={setPhotoUrl} subscribed={canDownload} />
             )}
             {current === "infos" && <InfoStep cv={cv} update={update} />}
             {current === "profil" && <ProfileStep cv={cv} update={update} aiEnabled={aiEnabled} />}
@@ -201,7 +205,7 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled }: P
               </>
             )}
             {current === "competences" && <SkillsStep cv={cv} update={update} aiEnabled={aiEnabled} />}
-            {current === "finaliser" && <FinalStep cv={cv} cvId={cvId} aiEnabled={aiEnabled} />}
+            {current === "finaliser" && <FinalStep cv={cv} cvId={cvId} aiEnabled={aiEnabled} canDownload={canDownload} />}
           </div>
 
           {/* Navigation grand écran */}
@@ -246,7 +250,7 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled }: P
           </button>
           {isLast ? (
             <div className="flex-1">
-              <DownloadPdfButton cvId={cvId} className="btn-primary h-12 w-full" label="PDF" />
+              <DownloadPdfButton cvId={cvId} locked={!canDownload} className="btn-primary h-12 w-full" label="PDF" />
             </div>
           ) : (
             <button type="button" onClick={() => setStep(step + 1)} className="btn-primary h-12 flex-1">
@@ -264,7 +268,7 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled }: P
               <X aria-hidden className="size-5" />
             </button>
             <p className="min-w-0 flex-1 truncate text-sm font-semibold">{cv.title}</p>
-            <DownloadPdfButton cvId={cvId} className="btn-primary" label="PDF" />
+            <DownloadPdfButton cvId={cvId} locked={!canDownload} className="btn-primary" label="PDF" />
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <CvPreview cv={cv} photoUrl={photoUrl} />
@@ -424,7 +428,13 @@ function AiStart({ cv, onFill }: { cv: CvDraft; onFill: (fill: AiFill) => void }
 // ---------------------------------------------------------------------------
 type StepProps = { cv: CvDraft; update: (patch: Partial<CvDraft>) => void };
 
-function TemplateStep({ cv, photoUrl, update, onPhoto }: StepProps & { photoUrl: string | null; onPhoto: (url: string | null) => void }) {
+function TemplateStep({
+  cv,
+  photoUrl,
+  update,
+  onPhoto,
+  subscribed,
+}: StepProps & { photoUrl: string | null; onPhoto: (url: string | null) => void; subscribed: boolean }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -440,20 +450,40 @@ function TemplateStep({ cv, photoUrl, update, onPhoto }: StepProps & { photoUrl:
     update({ photo_path: res.path });
   }
 
+  const selected = CV_TEMPLATES.find((t) => t.value === cv.template);
+
   return (
     <>
       <fieldset>
         <legend className="label">Modèle</legend>
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {CV_TEMPLATES.map((t) => (
-            <label key={t.value} className={`card cursor-pointer p-2 transition-colors sm:p-3 ${cv.template === t.value ? "border-2 border-ink" : "hover:border-ink/30"}`}>
+            <label
+              key={t.value}
+              className={`card relative cursor-pointer p-1.5 transition-colors has-focus-visible:ring-2 has-focus-visible:ring-brand-600 sm:p-2 ${cv.template === t.value ? "border-2 border-ink" : "hover:border-ink/30"}`}
+            >
               <input type="radio" name="template" value={t.value} checked={cv.template === t.value} onChange={() => update({ template: t.value })} className="sr-only" />
               <TemplateThumb template={t.value} accent={cv.accent} />
-              <span className="mt-2 block text-center text-xs font-semibold sm:text-left sm:text-sm">{t.label}</span>
-              <span className="hidden text-xs text-muted sm:block">{t.description}</span>
+              {t.premium && (
+                <span className="absolute top-2.5 right-2.5 grid size-5 place-items-center rounded-full bg-ink text-star-400 shadow-sm sm:size-6" title="Modèle Premium">
+                  <Crown aria-hidden className="size-3 sm:size-3.5" />
+                  <span className="sr-only">Premium</span>
+                </span>
+              )}
+              <span className="mt-1.5 block truncate text-center text-xs font-semibold sm:text-left sm:text-sm">{t.label}</span>
+              <span className="hidden truncate text-xs text-muted sm:block">{t.description}</span>
             </label>
           ))}
         </div>
+        {selected?.premium && !subscribed && (
+          <p className="mt-3 flex gap-2 rounded-xl border border-dashed border-ink/30 bg-cream px-3 py-2.5 text-sm">
+            <Crown aria-hidden className="mt-0.5 size-4 shrink-0 text-star-400" />
+            <span>
+              <strong>Modèle Premium.</strong> Essayez-le librement : il est inclus, avec le téléchargement PDF, dans les{" "}
+              <Link href="/abonnements" className="font-semibold text-brand-700 underline">abonnements</Link>.
+            </span>
+          </p>
+        )}
       </fieldset>
 
       <fieldset>
@@ -501,35 +531,12 @@ function TemplateStep({ cv, photoUrl, update, onPhoto }: StepProps & { photoUrl:
   );
 }
 
-function TemplateThumb({ template, accent }: { template: string; accent: string }) {
-  const line = (w: string, c = "#e3e6ea") => <span className="block h-1 rounded-full" style={{ width: w, background: c }} />;
-  if (template === "moderne") {
-    return (
-      <span className="grid aspect-[210/297] grid-cols-[35%_1fr] overflow-hidden rounded-md border border-line bg-white">
-        <span className="flex flex-col items-center gap-1.5 p-2" style={{ background: `color-mix(in srgb, ${accent} 12%, white)` }}>
-          <span className="size-6 rounded-full" style={{ background: `color-mix(in srgb, ${accent} 45%, white)` }} />
-          {line("80%")}{line("60%")}{line("70%")}
-        </span>
-        <span className="flex flex-col gap-1.5 p-2">{line("70%", "#1c1f23")}{line("50%", accent)}{line("90%")}{line("80%")}{line("85%")}</span>
-      </span>
-    );
-  }
-  if (template === "classique") {
-    return (
-      <span className="flex aspect-[210/297] flex-col items-center gap-1.5 overflow-hidden rounded-md border border-line bg-white p-2">
-        {line("55%", "#1c1f23")}{line("40%", accent)}
-        <span className="my-1 block h-px w-full" style={{ background: accent }} />
-        {line("90%")}{line("85%")}{line("88%")}{line("70%")}
-      </span>
-    );
-  }
+/** Vignette : le CV d'exemple du modèle, dans la couleur choisie. */
+function TemplateThumb({ template, accent }: { template: CvTemplate; accent: string }) {
+  const sample = sampleFor(template);
   return (
-    <span className="flex aspect-[210/297] flex-col gap-1.5 overflow-hidden rounded-md border border-line bg-white p-2">
-      {line("65%", "#9aa1aa")}{line("35%", accent)}
-      <span className="mt-1 grid grid-cols-[30%_1fr] gap-1.5">
-        <span className="space-y-1.5">{line("80%", accent)}{line("70%", accent)}</span>
-        <span className="space-y-1.5">{line("90%")}{line("80%")}{line("85%")}</span>
-      </span>
+    <span className="pointer-events-none block" aria-hidden>
+      <CvPreview cv={{ ...sample.cv, accent }} photoUrl={sample.photo} />
     </span>
   );
 }
@@ -766,7 +773,7 @@ function SkillsStep({ cv, update, aiEnabled }: StepProps & { aiEnabled: boolean 
   );
 }
 
-function FinalStep({ cv, cvId, aiEnabled }: { cv: CvDraft; cvId: string; aiEnabled: boolean }) {
+function FinalStep({ cv, cvId, aiEnabled, canDownload }: { cv: CvDraft; cvId: string; aiEnabled: boolean; canDownload: boolean }) {
   const { pending, error, run } = useAi();
   const [review, setReview] = useState<{ score: number; tips: string[] } | null>(null);
   const missing = [
@@ -807,8 +814,15 @@ function FinalStep({ cv, cvId, aiEnabled }: { cv: CvDraft; cvId: string; aiEnabl
         </div>
       )}
 
+      {!canDownload && (
+        <p className="rounded-xl border border-dashed border-brand-600/50 bg-cream px-4 py-3 text-sm">
+          <strong>Votre CV est prêt !</strong> Le téléchargement en PDF est inclus dans les{" "}
+          <Link href="/abonnements" className="font-semibold text-brand-700 underline">abonnements</Link>.
+        </p>
+      )}
+
       <div className="flex flex-col gap-2 sm:flex-row">
-        <DownloadPdfButton cvId={cvId} className="btn-primary w-full py-3 sm:flex-1" />
+        <DownloadPdfButton cvId={cvId} locked={!canDownload} className="btn-primary w-full py-3 sm:flex-1" />
         <Link href={`/cv/${cvId}/apercu`} className="btn-secondary w-full py-3 sm:w-auto">Aperçu pleine page</Link>
       </div>
     </div>

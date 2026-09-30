@@ -4,14 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  { href: "/espace", label: "Vue d'ensemble", short: "Accueil" },
-  { href: "/offres", label: "Trouver un emploi", short: "Emplois" },
-  { href: "/espace/candidatures", label: "Mes candidatures", short: "Candid." },
-  { href: "/espace/favoris", label: "Favoris", short: "Favoris" },
-  { href: "/cv", label: "Mon CV", short: null },
-  { href: "/espace/profil", label: "Mon profil", short: "Profil" },
-  { href: "/espace/abonnement", label: "Abonnement", short: null },
-];
+  { href: "/espace", label: "Vue d'ensemble" },
+  { href: "/cv", label: "Mes CV" },
+  { href: "/espace/abonnement", label: "Abonnement" },
+  { href: "/espace/profil", label: "Mon profil" },
+]
 
 export function SpaceNav({ name }: { name: string }) {
   const pathname = usePathname();
@@ -41,7 +38,7 @@ export function SpaceNav({ name }: { name: string }) {
         className="sticky top-16 z-20 -mx-4 -mt-2 border-b border-line bg-white/95 backdrop-blur lg:hidden"
       >
         <ul className="flex snap-x scroll-px-4 gap-1.5 overflow-x-auto px-4 py-2.5 [scrollbar-width:none]">
-          {LINKS.filter((l) => l.href !== "/offres").map((l) => (
+          {LINKS.map((l) => (
             <li key={l.href} className="shrink-0 snap-start">
               <Link
                 href={l.href}

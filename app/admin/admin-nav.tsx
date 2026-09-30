@@ -6,11 +6,7 @@ import { usePathname } from "next/navigation";
 
 const LINKS = [
   { href: "/admin", label: "Dashboard" },
-  { href: "/admin/offres", label: "Offres d'emploi" },
-  { href: "/admin/candidats", label: "Candidats" },
-  { href: "/admin/candidatures", label: "Candidatures" },
-  { href: "/admin/categories", label: "Catégories" },
-  { href: "/admin/entreprises", label: "Entreprises" },
+  { href: "/admin/utilisateurs", label: "Utilisateurs" },
   { href: "/admin/plans", label: "Abonnements" },
   { href: "/admin/paiements", label: "Paiements" },
   { href: "/admin/astuces", label: "Contenu" },

@@ -1,15 +1,4 @@
-export type ContractType = "CDI" | "CDD" | "Stage" | "Freelance" | "Temps partiel" | "Bénévolat";
 export type ExperienceLevel = "debutant" | "1-3" | "3-5" | "5+";
-export type JobStatus = "brouillon" | "publie" | "archive";
-export type JobSectionKind =
-  | "missions"
-  | "profil"
-  | "competences"
-  | "formation"
-  | "experience"
-  | "avantages"
-  | "candidature";
-export type ApplicationStatus = "envoyee" | "consultee" | "en_cours" | "retenue" | "refusee";
 export type SubscriptionStatus = "active" | "cancelled" | "expired";
 export type PaymentStatus = "pending" | "paid" | "failed" | "expired" | "cancelled";
 export type PaymentMethod = "mobile_money" | "card" | "other";
@@ -25,51 +14,9 @@ export type Profile = {
   experience_level: ExperienceLevel | null;
   skills: string[];
   languages: string[];
-  pref_contracts: string[];
-  pref_cities: string[];
-  pref_categories: string[];
   onboarding_completed_at: string | null;
   is_admin: boolean;
   created_at: string;
-};
-
-export type Category = { id: string; name: string; slug: string; position: number };
-
-export type Company = {
-  id: string;
-  name: string;
-  logo_url: string | null;
-  description: string | null;
-  city: string | null;
-  website: string | null;
-};
-
-export type Job = {
-  id: string;
-  title: string;
-  company_id: string;
-  category_id: string | null;
-  city: string;
-  contract_type: ContractType;
-  experience_level: ExperienceLevel | null;
-  salary: string | null;
-  deadline: string | null;
-  summary: string;
-  skills: string[];
-  is_featured: boolean;
-  is_urgent: boolean;
-  status: JobStatus;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
-export type JobSection = {
-  id: string;
-  job_id: string;
-  kind: JobSectionKind;
-  content: string;
-  is_public: boolean;
 };
 
 export type Plan = {
@@ -78,7 +25,6 @@ export type Plan = {
   price: number;
   description: string | null;
   features: string[];
-  application_limit: number | null;
   badge: string | null;
   is_featured: boolean;
   is_available: boolean;
@@ -125,7 +71,19 @@ export type CvEntry = {
   description: string;
 };
 
-export type CvTemplate = "moderne" | "classique" | "epure";
+export type CvTemplate =
+  | "moderne"
+  | "classique"
+  | "epure"
+  | "executif"
+  | "elegance"
+  | "horizon"
+  | "parcours"
+  | "creatif"
+  | "prestige"
+  | "compact"
+  | "corporate"
+  | "mosaique";
 
 export type Cv = {
   id: string;
@@ -152,38 +110,6 @@ export type Cv = {
 
 /** Contenu éditable d'un CV (ce que l'éditeur envoie à l'enregistrement). */
 export type CvDraft = Omit<Cv, "id" | "user_id" | "updated_at">;
-
-export type CvFile = {
-  id: string;
-  user_id: string;
-  name: string;
-  path: string;
-  size: number;
-  created_at: string;
-};
-
-export type Application = {
-  id: string;
-  job_id: string;
-  user_id: string;
-  full_name: string;
-  email: string;
-  phone: string | null;
-  message: string | null;
-  cv_file_id: string | null;
-  include_online_cv: boolean;
-  cv_id: string | null;
-  status: ApplicationStatus;
-  created_at: string;
-  updated_at: string;
-};
-
-export type ApplicationEvent = {
-  id: number;
-  application_id: string;
-  status: ApplicationStatus;
-  created_at: string;
-};
 
 export type Tip = {
   id: string;

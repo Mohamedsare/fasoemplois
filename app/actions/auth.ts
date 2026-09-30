@@ -35,8 +35,8 @@ export async function signUp(_prev: ActionState, formData: FormData): Promise<Ac
   const lastName = str(formData, "last_name");
   const email = str(formData, "email");
   const password = str(formData, "password");
-  // Sans destination : onboarding. Avec destination (ex. offre) : on y retourne directement.
-  const next = safePath(str(formData, "suivant"), "/bienvenue");
+  // Sans destination : directement le créateur de CV.
+  const next = safePath(str(formData, "suivant"), "/cv");
 
   const fieldErrors: Record<string, string> = {};
   if (!lastName) fieldErrors.last_name = "Indiquez votre nom.";

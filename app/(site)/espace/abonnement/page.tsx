@@ -35,7 +35,7 @@ export default async function SubscriptionPage() {
       {!sub ? (
         <div className="card space-y-3 p-6">
           <p className="font-semibold">Vous n&apos;avez pas encore d&apos;abonnement.</p>
-          <p className="text-sm text-muted">Abonnez-vous pour consulter les offres complètes et postuler en ligne.</p>
+          <p className="text-sm text-muted">Abonnez-vous pour télécharger vos CV en PDF, en créer plusieurs et profiter davantage de l&apos;assistant IA.</p>
           <Link href="/abonnements" className="btn-primary">Voir les abonnements</Link>
         </div>
       ) : sub.isActive ? (
@@ -51,7 +51,7 @@ export default async function SubscriptionPage() {
             <div><dt className="text-xs text-muted">{sub.status === "cancelled" ? "Fin d'accès" : "Échéance"}</dt><dd className="font-semibold">{formatDate(sub.expires_at)}</dd></div>
           </dl>
           <div className="flex flex-col gap-2">
-            <Link href="/abonnements/choisir" className="btn-primary">Changer de plan / Renouveler</Link>
+            <Link href="/abonnements" className="btn-primary">Changer de plan / Renouveler</Link>
             {sub.status === "active" && (
               <form action={cancelSubscription}>
                 <SubmitButton className="btn-secondary w-full" pendingLabel="…">Ne pas renouveler</SubmitButton>
@@ -64,7 +64,7 @@ export default async function SubscriptionPage() {
           <SubscriptionBadge active={false} />
           <p className="text-lg font-bold">Votre abonnement a expiré</p>
           <p className="text-sm text-muted">
-            Profil, CV, favoris et candidatures sont conservés. Dernier plan : {sub.plan.name}, expiré le {formatDate(sub.expires_at)}.
+            Tous vos CV sont conservés. Dernier plan : {sub.plan.name}, expiré le {formatDate(sub.expires_at)}.
           </p>
           <Link href={`/paiement?plan=${sub.plan_id}`} className="btn-primary">Renouveler mon abonnement</Link>
         </div>

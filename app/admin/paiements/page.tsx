@@ -75,7 +75,7 @@ export default async function AdminPaymentsPage(props: PageProps<"/admin/paiemen
                   </div>
                   <div>
                     <dt className="text-xs text-muted">Utilisateur</dt>
-                    <dd><Link href={`/admin/candidats/${p.user_id}`} className="underline">{p.profile?.full_name || "—"}</Link></dd>
+                    <dd><Link href={`/admin/utilisateurs/${p.user_id}`} className="underline">{p.profile?.full_name || "—"}</Link></dd>
                   </div>
                   <div>
                     <dt className="text-xs text-muted">Plan</dt>
@@ -135,7 +135,7 @@ export default async function AdminPaymentsPage(props: PageProps<"/admin/paiemen
                   <td className="px-4 py-2">{formatDateTime(p.created_at)}</td>
                   <td className="px-4 py-2 font-mono text-xs">{p.reference}</td>
                   <td className="px-4 py-2">
-                    <Link href={`/admin/candidats/${p.user_id}`} className="hover:text-brand-700">{p.profile?.full_name || "—"}</Link>
+                    <Link href={`/admin/utilisateurs/${p.user_id}`} className="hover:text-brand-700">{p.profile?.full_name || "—"}</Link>
                   </td>
                   <td className="px-4 py-2">{p.plan?.name}</td>
                   <td className="px-4 py-2 text-muted">{methodLabel(p)}</td>

@@ -5,16 +5,16 @@
 
 | Modèle Supabase | Sujet | Fichier |
 | --- | --- | --- |
-| **Confirm signup** | `Confirmez votre adresse e-mail – Faso Emplois` | `confirmation.html` |
-| **Reset Password** | `Réinitialisez votre mot de passe – Faso Emplois` | `reinitialisation.html` |
-| **Change Email Address** | `Confirmez votre nouvelle adresse e-mail – Faso Emplois` | `changement-email.html` |
-| **Magic Link** | `Votre lien de connexion – Faso Emplois` | `lien-connexion.html` |
-| **Invite user** | `Vous êtes invité(e) à rejoindre Faso Emplois` | `invitation.html` |
-| **Reauthentication** | `Votre code de vérification – Faso Emplois` | `code-verification.html` |
+| **Confirm signup** | `Confirmez votre adresse e-mail – Votre CV` | `confirmation.html` |
+| **Reset Password** | `Réinitialisez votre mot de passe – Votre CV` | `reinitialisation.html` |
+| **Change Email Address** | `Confirmez votre nouvelle adresse e-mail – Votre CV` | `changement-email.html` |
+| **Magic Link** | `Votre lien de connexion – Votre CV` | `lien-connexion.html` |
+| **Invite user** | `Vous êtes invité(e) à rejoindre Votre CV` | `invitation.html` |
+| **Reauthentication** | `Votre code de vérification – Votre CV` | `code-verification.html` |
 
 Les liens pointent vers `/auth/confirm?token_hash=…&type=…` : la vérification se fait côté serveur
 et fonctionne même si l'e-mail est ouvert sur un autre appareil que celui de l'inscription.
-La destination d'origine (ex. une offre) est reprise depuis `redirect_to={{ .RedirectTo }}`.
+La destination d'origine (ex. l'éditeur de CV) est reprise depuis `redirect_to={{ .RedirectTo }}`.
 
 Variables Supabase utilisées : `{{ .SiteURL }}`, `{{ .TokenHash }}`, `{{ .RedirectTo }}`,
 `{{ .Email }}`, `{{ .NewEmail }}`, `{{ .Token }}`.

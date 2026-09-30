@@ -8,7 +8,7 @@ export default function NotFound() {
       <p className="mt-3 text-muted">Cette page n&apos;existe pas ou a été supprimée.</p>
       <div className="mt-8 flex justify-center gap-3">
         <Link href="/" className="btn-secondary">Accueil</Link>
-        <Link href="/offres" className="btn-primary">Voir les offres</Link>
+        <Link href="/cv" className="btn-primary">Créer mon CV</Link>
       </div>
     </div>
   );
