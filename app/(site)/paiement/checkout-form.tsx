@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { startCheckout } from "@/app/actions/payments";
 import { Field, FormAlert, SubmitButton, useFormAction } from "@/components/form";
-import { ORANGE_MONEY } from "@/lib/constants";
+import { ORANGE_MONEY, orangeMoneyUssd } from "@/lib/constants";
 import { formatNumber } from "@/lib/format";
 import type { PaymentMethod } from "@/lib/types";
 
@@ -44,6 +44,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
 function OrangeMoneyForm({ planId, amount, returnTo, defaultPhone }: Props) {
   const { state, onSubmit, pending } = useFormAction(startCheckout);
   const e = state?.fieldErrors ?? {};
+  const ussd = orangeMoneyUssd(amount);
 
   return (
     <div className="space-y-5">
@@ -69,9 +70,19 @@ function OrangeMoneyForm({ planId, amount, returnTo, defaultPhone }: Props) {
             <dd className="font-semibold">{ORANGE_MONEY.holder}</dd>
           </div>
         </dl>
+        <div className="space-y-2 rounded-xl bg-white p-4">
+          <p className="text-xs text-muted">Composez ce code sur votre téléphone Orange :</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-mono text-lg font-bold tracking-wide">{ussd}</span>
+            <CopyButton value={ussd} label="Copier le code USSD" />
+          </div>
+          {/* Sur mobile : ouvre le composeur avec le code prérempli (# doit être encodé) */}
+          <a href={`tel:${ussd.replace(/#/g, "%23")}`} className="btn inline-flex w-full bg-[#ff7900] text-white hover:bg-[#e66d00] sm:hidden">
+            Composer le code
+          </a>
+        </div>
         <p className="text-xs text-muted">
-          Composez <strong>{ORANGE_MONEY.ussd}</strong> sur votre téléphone (ou utilisez l&apos;application Orange Money),
-          choisissez le transfert d&apos;argent et vérifiez que le nom affiché est bien <strong>{ORANGE_MONEY.holder}</strong> avant de valider.
+          Vérifiez que le nom affiché est bien <strong>{ORANGE_MONEY.holder}</strong>, puis validez avec votre code secret Orange Money.
           Vous recevrez ensuite un SMS de confirmation contenant l&apos;<strong>ID de la transaction</strong>.
         </p>
       </section>

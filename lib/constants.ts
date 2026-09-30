@@ -89,5 +89,9 @@ export const WHATSAPP_SUBSCRIBE_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${e
 export const ORANGE_MONEY = {
   number: "64 71 20 44",
   holder: "SARE MOHAMED",
-  ussd: "*144#",
 };
+
+/** Code USSD Orange Money de transfert vers le compte Faso Emplois, montant inclus. */
+export function orangeMoneyUssd(amount: number) {
+  return `*144*10*${ORANGE_MONEY.number.replace(/\s/g, "")}*${amount}#`;
+}
