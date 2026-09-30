@@ -84,6 +84,20 @@ export function initials(name: string) {
 }
 
 /** Date ISO d'il y a `days` jours (calcul hors rendu). */
+/** Horodatage courant (calcul hors rendu, comme daysAgoIso). */
+export function nowTime() {
+  return Date.now();
+}
+
 export function daysAgoIso(days: number) {
   return new Date(Date.now() - days * 86_400_000).toISOString();
+}
+
+/** Lien WhatsApp vers un numéro burkinabè (8 chiffres) ou international. */
+export function whatsappLink(phone: string | null | undefined, text?: string) {
+  if (!phone) return null;
+  let digits = phone.replace(/\D/g, "").replace(/^00/, "");
+  if (digits.length === 8) digits = `226${digits}`;
+  if (digits.length < 10) return null;
+  return `https://wa.me/${digits}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
 }

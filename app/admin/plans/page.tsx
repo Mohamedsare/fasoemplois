@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { cancelSubscriptionAdmin, movePlan } from "@/app/actions/admin";
-import { formatDate, formatNumber, param } from "@/lib/format";
+import { daysAgoIso, formatDate, formatNumber, param } from "@/lib/format";
 import { SubscriptionBadge } from "@/components/status-badge";
 import type { Plan, Subscription } from "@/lib/types";
 import { PlanEditor } from "./plan-editor";
@@ -12,32 +12,38 @@ export const metadata: Metadata = { title: "Abonnements" };
 
 const TABS = [
   { key: "", label: "Plans" },
-  { key: "actifs", label: "Actifs" },
+  { key: "actifs", label: "Abonnés actifs" },
+  { key: "bientot", label: "Expirent sous 7 j" },
+  { key: "annules", label: "Non renouvelés" },
   { key: "expires", label: "Expirés" },
-  { key: "annules", label: "Annulés" },
 ];
 
-type SubRow = Subscription & { plan: { name: string } | null; profile: { full_name: string } | null };
+type SubRow = Subscription & { plan: { name: string } | null; profile: { full_name: string; email: string | null } | null };
 
 export default async function AdminPlansPage(props: PageProps<"/admin/plans">) {
   const sp = await props.searchParams;
   const tab = param(sp.onglet);
   const supabase = await createClient();
 
-  const { data: plans } = await supabase.from("plans").select("*").order("position").returns<Plan[]>();
+  const now = daysAgoIso(0);
+  const [{ data: plans }, { data: activeSubs }] = await Promise.all([
+    supabase.from("plans").select("*").order("position").returns<Plan[]>(),
+    supabase.from("subscriptions").select("plan_id").neq("status", "expired").gt("expires_at", now).limit(10000).returns<{ plan_id: string }[]>(),
+  ]);
+  const subscribers = (planId: string) => (activeSubs ?? []).filter((s) => s.plan_id === planId).length;
   const selectedId = param(sp.plan);
   const selected = selectedId === "nouveau" ? null : plans?.find((p) => p.id === selectedId) ?? plans?.[0] ?? null;
 
   let subs: SubRow[] = [];
   if (tab) {
-    const now = new Date().toISOString();
     let q = supabase
       .from("subscriptions")
-      .select("*, plan:plans(name), profile:profiles(full_name)")
-      .order("expires_at", { ascending: false })
-      .limit(100);
-    if (tab === "actifs") q = q.eq("status", "active").gt("expires_at", now);
-    if (tab === "annules") q = q.eq("status", "cancelled");
+      .select("*, plan:plans(name), profile:profiles(full_name, email)")
+      .order("expires_at", { ascending: tab === "bientot" })
+      .limit(200);
+    if (tab === "actifs") q = q.neq("status", "expired").gt("expires_at", now);
+    if (tab === "bientot") q = q.neq("status", "expired").gt("expires_at", now).lte("expires_at", daysAgoIso(-7));
+    if (tab === "annules") q = q.eq("status", "cancelled").gt("expires_at", now);
     if (tab === "expires") q = q.or(`status.eq.expired,expires_at.lte.${now}`);
     subs = (await q.returns<SubRow[]>()).data ?? [];
   }
@@ -51,7 +57,6 @@ export default async function AdminPlansPage(props: PageProps<"/admin/plans">) {
             {t.label}
           </Link>
         ))}
-        <Link href="/admin/paiements" className="chip">Paiements</Link>
         <Link href="/admin/plans?plan=nouveau" className="btn-primary">+ Créer un plan</Link>
       </div>
 
@@ -66,10 +71,13 @@ export default async function AdminPlansPage(props: PageProps<"/admin/plans">) {
             </thead>
             <tbody>
               {subs.map((s) => {
-                const active = s.status !== "expired" && new Date(s.expires_at) > new Date();
+                const active = s.status !== "expired" && s.expires_at > now;
                 return (
                   <tr key={s.id} className="border-b border-line last:border-0">
-                    <td className="px-4 py-2 font-medium">{s.profile?.full_name || "—"}</td>
+                    <td className="px-4 py-2">
+                      <Link href={`/admin/utilisateurs/${s.user_id}`} className="font-medium hover:text-brand-700">{s.profile?.full_name || "—"}</Link>
+                      <span className="block text-xs text-muted">{s.profile?.email}</span>
+                    </td>
                     <td className="px-4 py-2">{s.plan?.name}</td>
                     <td className="px-4 py-2">{formatDate(s.started_at)}</td>
                     <td className="px-4 py-2">{formatDate(s.expires_at)}</td>
@@ -104,7 +112,7 @@ export default async function AdminPlansPage(props: PageProps<"/admin/plans">) {
                 </div>
                 <Link href={`/admin/plans?plan=${p.id}`} className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold">{p.name}</span>
-                  <span className="text-xs text-muted">{formatNumber(p.price)} FCFA / mois</span>
+                  <span className="text-xs text-muted">{formatNumber(p.price)} FCFA · {subscribers(p.id)} abonné(s)</span>
                 </Link>
                 <span className="text-xs text-muted">{p.is_available ? "actif" : "masqué"}</span>
               </div>

@@ -40,8 +40,9 @@ function Axes({ width, ticks, yMax, points, x }: {
   width: number; ticks: number[]; yMax: number; points: Point[]; x: (i: number) => number;
 }) {
   const y = (v: number) => PAD.top + (H - PAD.top - PAD.bottom) * (1 - v / yMax);
-  // Étiquettes d'abscisse clairsemées (≈ 6 max)
-  const every = Math.max(1, Math.ceil(points.length / 6));
+  // Étiquettes d'abscisse clairsemées selon la largeur (≈ 55 px par date), alignées sur la dernière
+  const maxLabels = Math.max(2, Math.min(6, Math.floor((width - PAD.left - PAD.right) / 55)));
+  const every = Math.max(1, Math.ceil(points.length / maxLabels));
   return (
     <g fontSize={11} fill="var(--color-muted)">
       {ticks.map((t) => (
@@ -53,8 +54,8 @@ function Axes({ width, ticks, yMax, points, x }: {
         </g>
       ))}
       {points.map((p, i) =>
-        i % every === 0 || i === points.length - 1 ? (
-          <text key={i} x={x(i)} y={H - 6} textAnchor="middle">{p.label}</text>
+        (points.length - 1 - i) % every === 0 ? (
+          <text key={i} x={x(i)} y={H - 6} textAnchor={i === points.length - 1 ? "end" : "middle"}>{p.label}</text>
         ) : null,
       )}
     </g>

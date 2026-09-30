@@ -35,6 +35,7 @@ npm run dev
 | `20261002000000_cv_builder.sql` | CV multiples, quotas, bucket privé `photos`, suivi IA |
 | `20261003000000_pivot_saas_cv.sql` | **suppression définitive** des offres, candidatures, favoris, entreprises, catégories |
 | `20261004000000_modeles_premium.sql` | 12 modèles de CV (3 gratuits + 9 Premium), avantages des plans |
+| `20261005000000_backoffice_admin.sql` | back-office : e-mail des profils, journal des actions admin, suivi des PDF, vue `admin_users` |
 
 ⚠️ `20261003000000_pivot_saas_cv.sql` est **irréversible** : l'appliquer **après** avoir déployé le code
 de *Votre CV* (l'ancienne version du site lit encore ces tables).

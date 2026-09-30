@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { saveProfile } from "@/app/actions/candidate";
 import { Field, FormAlert, SubmitButton, useFormAction } from "@/components/form";
 import { CITIES } from "@/lib/constants";
@@ -33,12 +32,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         </div>
       </div>
       <div className="flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:items-center">
-        <SubmitButton pending={pending} className="btn-primary w-full py-3 sm:w-auto sm:py-2" pendingLabel="Enregistrement…">
+        <SubmitButton pending={pending} className="btn-primary h-12 w-full sm:h-auto sm:w-auto" pendingLabel="Enregistrement…">
           Enregistrer
         </SubmitButton>
-        <Link href="/mot-de-passe-oublie" className="text-center text-sm text-muted underline hover:text-ink sm:ml-auto">
-          Changer mon mot de passe
-        </Link>
       </div>
       <FormAlert state={state} />
     </form>

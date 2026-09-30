@@ -8,6 +8,8 @@ export type Profile = {
   first_name: string;
   last_name: string;
   full_name: string;
+  /** Recopié depuis auth.users (migration backoffice_admin). */
+  email: string | null;
   phone: string | null;
   city: string | null;
   headline: string | null;
@@ -129,3 +131,29 @@ export type ActionState = {
   success?: string;
   fieldErrors?: Record<string, string>;
 } | null;
+
+export type AdminLog = {
+  id: number;
+  admin_id: string | null;
+  user_id: string | null;
+  action: string;
+  details: Record<string, unknown>;
+  created_at: string;
+};
+
+/** Ligne de la vue admin_users (back-office). */
+export type AdminUserRow = {
+  id: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  city: string | null;
+  headline: string | null;
+  is_admin: boolean;
+  created_at: string;
+  cv_count: number;
+  plan_name: string | null;
+  subscription_status: SubscriptionStatus | null;
+  subscription_expires_at: string | null;
+  segment: "gratuit" | "abonne" | "expire";
+};

@@ -32,6 +32,11 @@ export default function PrivacyPage() {
           <li><strong>Assistant IA</strong> : les textes que vous soumettez à l&apos;assistant et le nombre de demandes effectuées.</li>
           <li><strong>Paiements</strong> : plan choisi, montant, numéro Orange Money utilisé, ID de transaction, référence et statut.</li>
           <li><strong>Technique</strong> : cookies de session indispensables à la connexion.</li>
+          <li>
+            <strong>Mesure d&apos;audience</strong> : le pixel Meta (Facebook) enregistre les pages visitées pour mesurer
+            l&apos;efficacité de nos publicités ; il dépose des cookies Meta et transmet à Meta votre adresse IP et des
+            informations sur votre navigateur.
+          </li>
         </ul>
       </section>
 
@@ -42,6 +47,7 @@ export default function PrivacyPage() {
           <li>Générer vos CV en PDF et vous proposer l&apos;aide de l&apos;assistant IA.</li>
           <li>Vérifier vos paiements et prévenir la fraude.</li>
           <li>Assurer la sécurité du Service et respecter nos obligations légales et comptables.</li>
+          <li>Mesurer l&apos;audience du site et l&apos;efficacité de nos campagnes publicitaires.</li>
         </ul>
       </section>
 
@@ -51,8 +57,8 @@ export default function PrivacyPage() {
           <li>L&apos;équipe {BRAND.name} habilitée (administration et vérification des paiements).</li>
           <li>
             Nos sous-traitants techniques : Supabase (base de données, stockage, authentification), Vercel (hébergement),
-            OpenAI (traitement des textes soumis à l&apos;assistant IA), Resend (e-mails) et Google si vous utilisez la
-            connexion Google.
+            OpenAI (traitement des textes soumis à l&apos;assistant IA), Resend (e-mails), Meta (mesure d&apos;audience
+            publicitaire) et Google si vous utilisez la connexion Google.
           </li>
         </ul>
         <p>Vos CV ne sont jamais publiés ni transmis à des tiers sans votre action. Vos données ne sont jamais vendues.</p>

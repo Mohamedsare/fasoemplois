@@ -2,6 +2,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { BottomNav } from "@/components/bottom-nav";
+import { MetaPixel } from "@/components/meta-pixel";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function SiteLayout({ children }: LayoutProps<"/">) {
@@ -13,6 +14,8 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       <SiteFooter />
       <WhatsAppButton />
       <BottomNav loggedIn={Boolean(user)} />
+      {/* Site public uniquement : ni l'admin ni les pages d'impression PDF des CV */}
+      <MetaPixel />
     </>
   );
 }

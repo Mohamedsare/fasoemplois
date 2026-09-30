@@ -37,13 +37,13 @@ export function SpaceNav({ name }: { name: string }) {
         aria-label="Mon espace"
         className="sticky top-16 z-20 -mx-4 -mt-2 border-b border-line bg-white/95 backdrop-blur lg:hidden"
       >
-        <ul className="flex snap-x scroll-px-4 gap-1.5 overflow-x-auto px-4 py-2.5 [scrollbar-width:none]">
+        <ul className="flex snap-x scroll-px-4 gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]">
           {LINKS.map((l) => (
             <li key={l.href} className="shrink-0 snap-start">
               <Link
                 href={l.href}
                 aria-current={active(l.href) ? "page" : undefined}
-                className={`chip py-1.5 ${active(l.href) ? "chip-active" : ""}`}
+                className={`chip h-10 px-4 text-sm ${active(l.href) ? "chip-active" : ""}`}
               >
                 {l.label}
               </Link>

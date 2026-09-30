@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { canDownloadPdf, getCurrentUser } from "@/lib/auth";
 import { createPrintToken, launchBrowser, pdfFileName } from "@/lib/pdf";
 
@@ -22,9 +23,9 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/cv/[id]/pdf"
   // La RLS ne renvoie le CV qu'à son propriétaire ou à un administrateur
   const { data: cv } = await supabase
     .from("cvs")
-    .select("id, full_name, title")
+    .select("id, user_id, full_name, title, template")
     .eq("id", id)
-    .maybeSingle<{ id: string; full_name: string; title: string }>();
+    .maybeSingle<{ id: string; user_id: string; full_name: string; title: string; template: string }>();
   if (!cv) return NextResponse.json({ error: "CV introuvable" }, { status: 404 });
 
   const target = `${request.nextUrl.origin}/cv-print/${cv.id}?token=${encodeURIComponent(createPrintToken(cv.id))}`;
@@ -37,6 +38,12 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/cv/[id]/pdf"
     // Polices et photo chargées avant l'impression
     await page.evaluate(() => document.fonts.ready);
     const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
+
+    // Statistiques (modèles les plus téléchargés) : les téléchargements faits par un admin ne comptent pas
+    if (cv.user_id === user.id) {
+      const { error } = await createAdminClient().from("pdf_downloads").insert({ user_id: user.id, cv_id: cv.id, template: cv.template });
+      if (error) console.error("[cv/pdf] suivi du téléchargement :", error.message);
+    }
 
     const filename = pdfFileName(cv.full_name, cv.title);
     return new NextResponse(Buffer.from(pdf), {
