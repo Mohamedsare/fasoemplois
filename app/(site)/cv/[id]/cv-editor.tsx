@@ -10,7 +10,6 @@ import {
   Eye,
   Lightbulb,
   Loader2,
-  PencilLine,
   Plus,
   Sparkles,
   Trash2,
@@ -22,6 +21,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { saveCvDraft } from "@/app/actions/cv";
 import { aiAssist, type AiFill, type AiRequest, type AiResult } from "@/app/actions/cv-ai";
 import { CvPreview } from "@/components/cv-preview";
+import { DownloadPdfButton } from "@/components/download-pdf-button";
 import { CV_ACCENTS, CV_TEMPLATES } from "@/lib/constants";
 import { uploadCvPhoto } from "@/lib/photo-upload";
 import type { CvDraft, CvEntry } from "@/lib/types";
@@ -96,59 +96,74 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled }: P
 
   const current = STEPS[step].key;
 
+  const isLast = step === STEPS.length - 1;
+
   return (
-    <div className="space-y-5">
-      {/* Barre du haut */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Link href="/cv" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink">
-          <ArrowLeft aria-hidden className="size-4" /> Mes CV
-        </Link>
+    <div className="space-y-4 pb-28 lg:space-y-5 lg:pb-0">
+      {/* Barre du haut : mobile d'abord (titre pleine largeur, actions dans la barre du bas) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <Link href="/cv" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink">
+            <ArrowLeft aria-hidden className="size-4" /> Mes CV
+          </Link>
+          <SaveBadge state={save} error={saveError} />
+          <div className="hidden items-center gap-2 lg:flex">
+            <Link
+              href={`/cv/${cvId}/apercu`}
+              onClick={() => save === "dirty" && void persist(cv, version.current)}
+              className="btn-secondary"
+            >
+              <Eye aria-hidden className="size-4" /> Aperçu
+            </Link>
+            <DownloadPdfButton cvId={cvId} />
+          </div>
+        </div>
         <input
           aria-label="Nom du CV (visible par vous seul)"
           value={cv.title}
           onChange={(e) => update({ title: e.target.value })}
-          className="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1 text-lg font-bold hover:border-line focus:border-brand-600 focus:outline-none"
+          className="w-full rounded-lg border border-transparent bg-transparent px-1 py-1 text-xl font-bold hover:border-line focus:border-brand-600 focus:outline-none sm:text-2xl"
         />
-        <SaveBadge state={save} error={saveError} />
-        <button type="button" onClick={() => setShowPreview((v) => !v)} className="btn-secondary lg:hidden">
-          {showPreview ? <PencilLine aria-hidden className="size-4" /> : <Eye aria-hidden className="size-4" />}
-          {showPreview ? "Modifier" : "Aperçu"}
-        </button>
-        <Link
-          href={`/cv/${cvId}/apercu`}
-          onClick={() => save === "dirty" && void persist(cv, version.current)}
-          className="btn-primary"
-        >
-          Aperçu et PDF
-        </Link>
       </div>
 
       {isNew && aiEnabled && <AiStart cv={cv} onFill={(fill) => update(mergeFill(cv, fill))} />}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,480px)]">
         {/* Formulaire guidé */}
-        <div className={`min-w-0 space-y-5 ${showPreview ? "hidden lg:block" : ""}`}>
-          <ol className="flex flex-wrap gap-1.5" aria-label="Étapes">
-            {STEPS.map((s, i) => (
-              <li key={s.key}>
-                <button
-                  type="button"
-                  onClick={() => setStep(i)}
-                  aria-current={i === step ? "step" : undefined}
-                  className={`chip ${i === step ? "chip-active" : "hover:border-ink"}`}
-                >
-                  <span className="font-mono text-[10px] opacity-70">{i + 1}</span> {s.label}
-                </button>
-              </li>
-            ))}
-          </ol>
+        <div className="min-w-0 space-y-4 lg:space-y-5">
+          {/* Étapes : bandeau défilant sur mobile, pastilles sur grand écran */}
+          <div>
+            <p className="mb-2 text-xs font-medium text-muted lg:hidden">
+              Étape {step + 1} / {STEPS.length} · <span className="text-ink">{STEPS[step].label}</span>
+            </p>
+            <ol
+              className="-mx-4 flex snap-x scroll-px-4 gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0"
+              aria-label="Étapes"
+            >
+              {STEPS.map((s, i) => (
+                <li key={s.key} className="shrink-0 snap-start">
+                  <button
+                    type="button"
+                    onClick={() => setStep(i)}
+                    aria-current={i === step ? "step" : undefined}
+                    className={`chip py-1.5 ${i === step ? "chip-active" : "hover:border-ink"}`}
+                  >
+                    <span className="font-mono text-[10px] opacity-70">{i + 1}</span> {s.label}
+                  </button>
+                </li>
+              ))}
+            </ol>
+            <div className="mt-2 h-1 overflow-hidden rounded-full bg-line lg:hidden" aria-hidden>
+              <div className="h-full rounded-full bg-brand-600 transition-all" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+            </div>
+          </div>
 
-          <p className="flex gap-2 rounded-xl bg-star-400/15 px-4 py-3 text-sm">
+          <p className="flex gap-2 rounded-xl bg-star-400/15 px-3 py-2.5 text-xs leading-relaxed sm:px-4 sm:py-3 sm:text-sm">
             <Lightbulb aria-hidden className="mt-0.5 size-4 shrink-0" />
             <span>{TIPS[current]}</span>
           </p>
 
-          <div className="card space-y-5 p-5 sm:p-6">
+          <div className="card space-y-5 p-4 sm:p-6">
             {current === "modele" && (
               <TemplateStep cv={cv} photoUrl={photoUrl} update={update} onPhoto={setPhotoUrl} />
             )}
@@ -189,28 +204,73 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled }: P
             {current === "finaliser" && <FinalStep cv={cv} cvId={cvId} aiEnabled={aiEnabled} />}
           </div>
 
-          <div className="flex items-center justify-between">
+          {/* Navigation grand écran */}
+          <div className="hidden items-center justify-between lg:flex">
             <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className="btn-secondary">
               <ArrowLeft aria-hidden className="size-4" /> Précédent
             </button>
-            {step < STEPS.length - 1 ? (
+            {!isLast && (
               <button type="button" onClick={() => setStep(step + 1)} className="btn-primary">
                 {STEPS[step + 1].label} <ArrowRight aria-hidden className="size-4" />
               </button>
-            ) : (
-              <Link href={`/cv/${cvId}/apercu`} className="btn-primary">Aperçu et PDF</Link>
             )}
           </div>
         </div>
 
-        {/* Aperçu en direct */}
-        <aside className={`${showPreview ? "" : "hidden lg:block"}`} aria-label="Aperçu du CV">
+        {/* Aperçu en direct (grand écran) */}
+        <aside className="hidden lg:block" aria-label="Aperçu du CV">
           <div className="lg:sticky lg:top-24">
             <p className="mb-2 text-xs text-muted">Aperçu en direct · format A4</p>
             <CvPreview cv={cv} photoUrl={photoUrl} />
           </div>
         </aside>
       </div>
+
+      {/* Mobile : barre d'actions fixe en bas, à portée de pouce */}
+      <nav
+        aria-label="Navigation de l'éditeur"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden"
+      >
+        <div className="mx-auto flex max-w-xl items-center gap-2">
+          <button
+            type="button"
+            disabled={step === 0}
+            onClick={() => setStep(step - 1)}
+            aria-label="Étape précédente"
+            className="btn-secondary size-12 shrink-0 p-0"
+          >
+            <ArrowLeft aria-hidden className="size-5" />
+          </button>
+          <button type="button" onClick={() => setShowPreview(true)} className="btn-secondary h-12 flex-1">
+            <Eye aria-hidden className="size-4" /> Aperçu
+          </button>
+          {isLast ? (
+            <div className="flex-1">
+              <DownloadPdfButton cvId={cvId} className="btn-primary h-12 w-full" label="PDF" />
+            </div>
+          ) : (
+            <button type="button" onClick={() => setStep(step + 1)} className="btn-primary h-12 flex-1">
+              Suivant <ArrowRight aria-hidden className="size-4" />
+            </button>
+          )}
+        </div>
+      </nav>
+
+      {/* Mobile : aperçu plein écran */}
+      {showPreview && (
+        <div role="dialog" aria-modal="true" aria-label="Aperçu du CV" className="fixed inset-0 z-50 flex flex-col bg-surface lg:hidden">
+          <div className="flex items-center gap-2 border-b border-line bg-white px-4 py-3">
+            <button type="button" onClick={() => setShowPreview(false)} className="btn-secondary size-10 shrink-0 p-0" aria-label="Fermer l'aperçu" autoFocus>
+              <X aria-hidden className="size-5" />
+            </button>
+            <p className="min-w-0 flex-1 truncate text-sm font-semibold">{cv.title}</p>
+            <DownloadPdfButton cvId={cvId} className="btn-primary" label="PDF" />
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <CvPreview cv={cv} photoUrl={photoUrl} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -384,13 +444,13 @@ function TemplateStep({ cv, photoUrl, update, onPhoto }: StepProps & { photoUrl:
     <>
       <fieldset>
         <legend className="label">Modèle</legend>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {CV_TEMPLATES.map((t) => (
-            <label key={t.value} className={`card cursor-pointer p-3 transition-colors ${cv.template === t.value ? "border-2 border-ink" : "hover:border-ink/30"}`}>
+            <label key={t.value} className={`card cursor-pointer p-2 transition-colors sm:p-3 ${cv.template === t.value ? "border-2 border-ink" : "hover:border-ink/30"}`}>
               <input type="radio" name="template" value={t.value} checked={cv.template === t.value} onChange={() => update({ template: t.value })} className="sr-only" />
               <TemplateThumb template={t.value} accent={cv.accent} />
-              <span className="mt-2 block text-sm font-semibold">{t.label}</span>
-              <span className="text-xs text-muted">{t.description}</span>
+              <span className="mt-2 block text-center text-xs font-semibold sm:text-left sm:text-sm">{t.label}</span>
+              <span className="hidden text-xs text-muted sm:block">{t.description}</span>
             </label>
           ))}
         </div>
@@ -667,7 +727,7 @@ function ChipsInput({ id, label, values, onChange, placeholder }: {
           }}
           onBlur={() => draft && add(draft)}
           placeholder={placeholder}
-          className="min-w-28 flex-1 bg-transparent text-sm outline-none"
+          className="min-w-28 flex-1 bg-transparent text-base outline-none sm:text-sm"
         />
       </div>
     </div>
@@ -747,7 +807,10 @@ function FinalStep({ cv, cvId, aiEnabled }: { cv: CvDraft; cvId: string; aiEnabl
         </div>
       )}
 
-      <Link href={`/cv/${cvId}/apercu`} className="btn-primary w-full py-3">Voir l&apos;aperçu et télécharger en PDF</Link>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <DownloadPdfButton cvId={cvId} className="btn-primary w-full py-3 sm:flex-1" />
+        <Link href={`/cv/${cvId}/apercu`} className="btn-secondary w-full py-3 sm:w-auto">Aperçu pleine page</Link>
+      </div>
     </div>
   );
 }

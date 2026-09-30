@@ -37,8 +37,24 @@
 }
 
 @layer base {
+  :root {
+    --tabbar-h: 0px;
+    --actionbar-h: 0px;
+  }
+  /* Barre d'onglets mobile (components/bottom-nav.tsx) : le contenu et les éléments fixes se placent au-dessus */
+  @media (max-width: 47.99rem) {
+    html:has(#tabbar) {
+      --tabbar-h: calc(4rem + env(safe-area-inset-bottom));
+    }
+    /* Barre d'actions de page (ex. « Débloquer l'offre ») : les boutons flottants passent au-dessus */
+    html:has(#mobile-actionbar) {
+      --actionbar-h: 4.75rem;
+    }
+  }
+
   body {
     @apply bg-white text-ink antialiased;
+    padding-bottom: var(--tabbar-h);
   }
 
   :focus-visible {
@@ -73,7 +89,7 @@
   }
 
   .input {
-    @apply block w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm placeholder:text-muted/70 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/20;
+    @apply block w-full rounded-lg border border-line bg-white px-3 py-2.5 text-base placeholder:text-muted/70 sm:text-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/20;
   }
 
   .chip {

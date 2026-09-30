@@ -215,7 +215,7 @@ export default async function JobPage(props: PageProps<"/offres/[id]">) {
 
       {/* Mobile : barre de déblocage collante */}
       {locked && minPrice !== null && (
-        <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-line bg-white p-3 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] lg:hidden">
+        <div id="mobile-actionbar" className="fixed inset-x-0 bottom-(--tabbar-h) z-30 flex items-center gap-3 border-t border-line bg-white p-3 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] lg:hidden">
           <div className="flex-1">
             <p className="text-sm font-bold">{formatNumber(minPrice)} FCFA / mois</p>
             <p className="text-xs text-muted">mensuel · sans engagement</p>

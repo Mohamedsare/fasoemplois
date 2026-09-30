@@ -88,6 +88,60 @@ function Contact({ cv, color, iconColor, stacked }: { cv: CvDraft; color: string
 }
 
 // ---------------------------------------------------------------------------
+// Compétences : s'adapte au contenu (catégories « Catégorie : éléments », mots-clés courts, phrases)
+// ---------------------------------------------------------------------------
+function parseSkills(skills: string[]) {
+  const categorized: { category: string; detail: string }[] = [];
+  const plain: string[] = [];
+  for (const s of skills) {
+    const i = s.indexOf(":");
+    if (i > 0 && i <= 45 && s.slice(i + 1).trim()) categorized.push({ category: s.slice(0, i).trim(), detail: s.slice(i + 1).trim() });
+    else plain.push(s);
+  }
+  return { categorized, plain, allShort: plain.every((p) => p.length <= 28) };
+}
+
+/** Variante « main » (pleine largeur) ou « side » (colonne étroite du modèle Moderne). */
+function SkillsBlock({ skills, accent, variant }: { skills: string[]; accent: string; variant: "main" | "side" }) {
+  const { categorized, plain, allShort } = parseSkills(skills);
+  const side = variant === "side";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: side ? "2.2mm" : "1.6mm", fontSize: side ? "8.5pt" : "9pt" }}>
+      {categorized.map(({ category, detail }) => (
+        <div
+          key={category + detail}
+          style={side ? { breakInside: "avoid" } : { display: "grid", gridTemplateColumns: "52mm 1fr", gap: "4mm", breakInside: "avoid" }}
+        >
+          <span style={{ fontWeight: 700, color: side ? accent : "#1c1f23" }}>{category}</span>
+          <span style={{ display: "block", color: "#3a4048" }}>{detail}</span>
+        </div>
+      ))}
+      {plain.length > 0 &&
+        (side && allShort ? (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5mm", marginTop: categorized.length ? "1mm" : 0 }}>
+            {plain.map((s) => (
+              <span key={s} style={{ background: "#fff", border: `0.25mm solid color-mix(in srgb, ${accent} 30%, white)`, borderRadius: "1.5mm", padding: "0.6mm 2mm", fontSize: "8pt" }}>
+                {s}
+              </span>
+            ))}
+          </div>
+        ) : allShort ? (
+          <p style={{ margin: 0 }}>{plain.join("  ·  ")}</p>
+        ) : (
+          <ul style={{ margin: 0, padding: 0, listStyle: "none", columns: side ? 1 : 2, columnGap: "8mm" }}>
+            {plain.map((s) => (
+              <li key={s} style={{ display: "flex", gap: "2mm", marginBottom: "1mm", breakInside: "avoid" }}>
+                <span style={{ color: accent, flexShrink: 0 }}>•</span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ul>
+        ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Modèle « Moderne » : colonne latérale teintée avec photo
 // ---------------------------------------------------------------------------
 function SideTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
@@ -149,11 +203,7 @@ function Moderne({ cv, photoUrl }: Props) {
         {cv.skills.length > 0 && (
           <section>
             <SideTitle accent={a}>Compétences</SideTitle>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5mm" }}>
-              {cv.skills.map((s) => (
-                <span key={s} style={{ background: "#fff", border: `0.25mm solid color-mix(in srgb, ${a} 30%, white)`, borderRadius: "1.5mm", padding: "0.6mm 2mm", fontSize: "8pt" }}>{s}</span>
-              ))}
-            </div>
+            <SkillsBlock skills={cv.skills} accent={a} variant="side" />
           </section>
         )}
         {cv.languages.length > 0 && (
@@ -268,14 +318,14 @@ function Classique({ cv, photoUrl }: Props) {
           <ClassiqueEntries accent={a} items={cv.certifications} />
         </section>
       )}
-      {(cv.skills.length > 0 || cv.languages.length > 0 || cv.interests.length > 0) && (
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(50mm, 1fr))", gap: "6mm", breakInside: "avoid" }}>
-          {cv.skills.length > 0 && (
-            <div>
-              <ClassiqueTitle accent={a}>Compétences</ClassiqueTitle>
-              <p style={{ margin: 0 }}>{cv.skills.join(" · ")}</p>
-            </div>
-          )}
+      {cv.skills.length > 0 && (
+        <section>
+          <ClassiqueTitle accent={a}>Compétences</ClassiqueTitle>
+          <SkillsBlock skills={cv.skills} accent={a} variant="main" />
+        </section>
+      )}
+      {(cv.languages.length > 0 || cv.interests.length > 0) && (
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(60mm, 1fr))", gap: "8mm", breakInside: "avoid" }}>
           {cv.languages.length > 0 && (
             <div>
               <ClassiqueTitle accent={a}>Langues</ClassiqueTitle>
@@ -348,7 +398,7 @@ function Epure({ cv, photoUrl }: Props) {
       {cv.certifications.length > 0 && <EpureRow accent={a} label="Certifications"><EpureEntries items={cv.certifications} /></EpureRow>}
       {cv.skills.length > 0 && (
         <EpureRow accent={a} label="Compétences">
-          <p style={{ margin: 0 }}>{cv.skills.join("  ·  ")}</p>
+          <SkillsBlock skills={cv.skills} accent={a} variant="main" />
         </EpureRow>
       )}
       {cv.languages.length > 0 && (

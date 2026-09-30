@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { WHATSAPP_SUBSCRIBE_URL } from "@/lib/constants";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -9,13 +12,16 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export function WhatsAppButton() {
+  const pathname = usePathname();
+  // Mobile : pas de bouton flottant dans l'éditeur de CV (barre d'actions en bas)
+  const hideOnMobile = /^\/cv\/.+/.test(pathname);
   return (
     <a
       href={WHATSAPP_SUBSCRIBE_URL}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Besoin d'aide pour vous abonner ? Contactez-nous sur WhatsApp"
-      className="no-print fixed right-4 bottom-4 z-50 flex items-center gap-2 rounded-full bg-[#25d366] p-3.5 text-white shadow-lg shadow-black/20 transition hover:bg-[#1ebe5b] sm:right-6 sm:bottom-6 sm:py-3 sm:pr-5 sm:pl-4"
+      className={`no-print fixed right-4 z-50 ${hideOnMobile ? "hidden md:flex" : "flex"} bottom-[calc(var(--tabbar-h)+var(--actionbar-h)+1rem)] md:bottom-6 items-center gap-2 rounded-full bg-[#25d366] p-3.5 text-white shadow-lg shadow-black/20 transition hover:bg-[#1ebe5b] sm:right-6 sm:py-3 sm:pr-5 sm:pl-4`}
     >
       <WhatsAppIcon className="size-7 shrink-0" />
       <span className="hidden text-sm font-semibold sm:inline">Besoin d&apos;aide pour vous abonner ?</span>

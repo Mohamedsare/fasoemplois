@@ -106,7 +106,7 @@ Laisse vides les champs non fournis dans le texte. Texte :
             summary: text(out.summary, 1200) || null,
             experiences: entries(out.experiences),
             education: entries(out.education),
-            skills: list(out.skills, 20),
+            skills: list(out.skills, 20, 150),
             languages: list(out.languages, 8),
             certifications: entries(out.certifications, 8),
             interests: list(out.interests, 6),

@@ -40,7 +40,7 @@ export function PlanPicker({ plans, jobId }: { plans: Plan[]; jobId: string | nu
         ))}
       </fieldset>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white p-3 lg:static lg:border-0 lg:p-0">
+      <div id="mobile-actionbar" className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white p-3 lg:static lg:border-0 lg:p-0">
         <Link href={href} className="btn-primary w-full py-3" aria-disabled={!plan}>
           Continuer{plan ? ` · ${formatNumber(plan.price)} FCFA / mois` : ""}
         </Link>

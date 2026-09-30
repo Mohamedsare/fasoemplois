@@ -10,6 +10,7 @@ import { FREE_CV_LIMIT } from "@/lib/constants";
 import { formatDate, param } from "@/lib/format";
 import { createCv, deleteCv, duplicateCv } from "@/app/actions/cv";
 import { CvPreview } from "@/components/cv-preview";
+import { DownloadPdfButton } from "@/components/download-pdf-button";
 import { SubmitButton } from "@/components/form";
 import { ConfirmSubmit } from "@/components/confirm-submit";
 import type { Cv, CvFile } from "@/lib/types";
@@ -35,19 +36,19 @@ export default async function CvPage(props: PageProps<"/cv">) {
     return (
       <div className="container-page py-16">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-3xl font-bold sm:text-4xl">Créez un CV professionnel, guidé par l&apos;IA</h1>
-          <p className="mt-3 text-muted">Un CV clair et bien mis en page, prêt à être envoyé aux recruteurs du Burkina Faso.</p>
-          <div className="mt-8 flex justify-center gap-3">
-            <Link href="/inscription?suivant=%2Fcv" className="btn-primary">Créer mon CV gratuitement</Link>
-            <Link href="/connexion?suivant=/cv" className="btn-secondary">Connexion</Link>
+          <h1 className="text-[1.75rem] leading-tight font-bold sm:text-4xl">Créez un CV professionnel, guidé par l&apos;IA</h1>
+          <p className="mt-3 text-muted">Un CV clair et bien mis en page, prêt à être envoyé aux recruteurs.</p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Link href="/inscription?suivant=%2Fcv" className="btn-primary w-full py-3 sm:w-auto sm:py-2">Créer mon CV gratuitement</Link>
+            <Link href="/connexion?suivant=/cv" className="btn-secondary w-full py-3 sm:w-auto sm:py-2">Connexion</Link>
           </div>
         </div>
-        <ul className="mx-auto mt-14 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-3 sm:mt-14 sm:gap-4 lg:grid-cols-4">
           {FEATURES.map((f) => (
-            <li key={f.title} className="card p-6">
-              <f.icon aria-hidden className="size-6 text-brand-600" />
-              <h2 className="mt-3 font-semibold">{f.title}</h2>
-              <p className="mt-1 text-sm text-muted">{f.text}</p>
+            <li key={f.title} className="card p-4 sm:p-6">
+              <f.icon aria-hidden className="size-5 text-brand-600 sm:size-6" />
+              <h2 className="mt-2 text-sm font-semibold sm:mt-3 sm:text-base">{f.title}</h2>
+              <p className="mt-1 text-xs text-muted sm:text-sm">{f.text}</p>
             </li>
           ))}
         </ul>
@@ -81,8 +82,8 @@ export default async function CvPage(props: PageProps<"/cv">) {
           </p>
         </div>
         {canCreate && (
-          <form action={createCv}>
-            <SubmitButton pendingLabel="Création…"><Plus aria-hidden className="size-4" /> Créer un CV</SubmitButton>
+          <form action={createCv} className="w-full sm:w-auto">
+            <SubmitButton className="btn-primary w-full py-3 sm:py-2" pendingLabel="Création…"><Plus aria-hidden className="size-4" /> Créer un CV</SubmitButton>
           </form>
         )}
       </div>
@@ -119,7 +120,8 @@ export default async function CvPage(props: PageProps<"/cv">) {
                 </div>
                 <div className="mt-auto flex flex-wrap gap-2">
                   <Link href={`/cv/${cv.id}`} className="btn-primary px-3 py-1.5 text-xs"><PencilLine aria-hidden className="size-3.5" /> Modifier</Link>
-                  <Link href={`/cv/${cv.id}/apercu`} className="btn-secondary px-3 py-1.5 text-xs"><Eye aria-hidden className="size-3.5" /> PDF</Link>
+                  <DownloadPdfButton cvId={cv.id} className="btn-secondary px-3 py-1.5 text-xs" label="PDF" />
+                  <Link href={`/cv/${cv.id}/apercu`} className="btn-secondary px-3 py-1.5 text-xs"><Eye aria-hidden className="size-3.5" /> Aperçu</Link>
                   {canCreate && (
                     <form action={duplicateCv.bind(null, cv.id)}>
                       <SubmitButton className="btn-secondary px-3 py-1.5 text-xs" pendingLabel="…"><Copy aria-hidden className="size-3.5" /> Dupliquer</SubmitButton>

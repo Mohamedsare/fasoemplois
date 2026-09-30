@@ -35,18 +35,24 @@ export function SpaceNav({ name }: { name: string }) {
         </div>
       </nav>
 
-      {/* Mobile : barre de navigation en bas */}
-      <nav aria-label="Mon espace" className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-line bg-white py-2 lg:hidden">
-        {LINKS.filter((l) => l.short).map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            aria-current={active(l.href) ? "page" : undefined}
-            className={`px-2 py-1 text-xs ${active(l.href) ? "font-bold text-brand-700" : "text-muted"}`}
-          >
-            {l.short}
-          </Link>
-        ))}
+      {/* Mobile : onglets défilants en haut (la barre du bas est la navigation principale) */}
+      <nav
+        aria-label="Mon espace"
+        className="sticky top-16 z-20 -mx-4 -mt-2 border-b border-line bg-white/95 backdrop-blur lg:hidden"
+      >
+        <ul className="flex snap-x scroll-px-4 gap-1.5 overflow-x-auto px-4 py-2.5 [scrollbar-width:none]">
+          {LINKS.filter((l) => l.href !== "/offres").map((l) => (
+            <li key={l.href} className="shrink-0 snap-start">
+              <Link
+                href={l.href}
+                aria-current={active(l.href) ? "page" : undefined}
+                className={`chip py-1.5 ${active(l.href) ? "chip-active" : ""}`}
+              >
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </nav>
     </>
   );

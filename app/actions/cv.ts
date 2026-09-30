@@ -51,7 +51,8 @@ function sanitize(draft: CvDraft, userId: string) {
     experiences: entries(draft.experiences),
     education: entries(draft.education),
     certifications: entries(draft.certifications, 10),
-    skills: list(draft.skills, 30),
+    // Jusqu'à 150 caractères : « Catégorie : élément, élément… »
+    skills: list(draft.skills, 30, 150),
     languages: list(draft.languages, 10),
     interests: list(draft.interests, 8),
   };
