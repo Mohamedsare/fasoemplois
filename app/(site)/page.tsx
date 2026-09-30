@@ -8,8 +8,6 @@ import { JobSearchForm } from "@/components/job-search-form";
 import { JOB_SUMMARY_COLUMNS, JobCard, type JobSummary } from "@/components/job-card";
 import { TIP_SUMMARY_COLUMNS, TipCard, type TipSummary } from "@/components/tip-card";
 
-type Stats = { jobs: number; new_jobs: number; companies: number; candidates: number };
-
 const STEPS = [
   { title: "Recherchez", text: "Parcourez les offres par métier, ville ou catégorie." },
   { title: "Consultez l'aperçu", text: "Découvrez le poste, l'entreprise et les compétences attendues." },
@@ -19,7 +17,7 @@ const STEPS = [
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const [user, categories, minPrice, { data: jobs }, { data: tips }, stats] = await Promise.all([
+  const [user, categories, minPrice, { data: jobs }, { data: tips }] = await Promise.all([
     getCurrentUser(),
     getCategories(),
     getMinPrice(),
@@ -36,16 +34,8 @@ export default async function HomePage() {
       .order("published_at", { ascending: false })
       .limit(3)
       .returns<TipSummary[]>(),
-    supabase.rpc("public_stats").then((r) => r.data as Stats | null),
   ]);
   const favorites = await getFavoriteIds(user?.id);
-
-  const figures = [
-    { label: "Offres disponibles", value: stats?.jobs },
-    { label: "Nouvelles offres (7 j)", value: stats?.new_jobs },
-    { label: "Entreprises", value: stats?.companies },
-    { label: "Candidats", value: stats?.candidates },
-  ];
 
   return (
     <>
@@ -73,18 +63,6 @@ export default async function HomePage() {
             </ul>
           )}
         </div>
-      </section>
-
-      {/* Chiffres */}
-      <section className="border-y border-dashed border-line">
-        <dl className="container-page grid grid-cols-2 gap-6 py-8 text-center sm:grid-cols-4">
-          {figures.map((f) => (
-            <div key={f.label}>
-              <dd className="text-2xl font-bold">{f.value !== undefined ? formatNumber(f.value) : "—"}</dd>
-              <dt className="text-xs text-muted">{f.label}</dt>
-            </div>
-          ))}
-        </dl>
       </section>
 
       {/* Offres récentes */}
