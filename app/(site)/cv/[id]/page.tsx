@@ -37,6 +37,7 @@ export default async function CvEditorPage(props: PageProps<"/cv/[id]">) {
         aiEnabled={isAiConfigured()}
         canDownload={canDownloadPdf(user)}
         templates={await getTemplateCatalog()}
+        viewerLabel={user.email || user.profile.full_name}
       />
     </div>
   );

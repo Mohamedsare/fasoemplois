@@ -22,6 +22,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { saveCvDraft } from "@/app/actions/cv";
 import { aiAssist, type AiFill, type AiRequest, type AiResult } from "@/app/actions/cv-ai";
 import { CvPreview } from "@/components/cv-preview";
+import { LockedPreview } from "@/components/locked-preview";
 import { DownloadPdfButton } from "@/components/download-pdf-button";
 import { CV_ACCENTS } from "@/lib/constants";
 import { uploadCvPhoto } from "@/lib/photo-upload";
@@ -61,11 +62,13 @@ type Props = {
   canDownload: boolean;
   /** Catalogue des modèles (code + modèles IA publiés). */
   templates: CatalogTemplate[];
+  /** E-mail affiché dans le filigrane de l'aperçu (utilisateurs sans abonnement). */
+  viewerLabel: string;
 };
 
 type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
 
-export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, canDownload, templates }: Props) {
+export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, canDownload, templates, viewerLabel }: Props) {
   const [cv, setCv] = useState<CvDraft>(initial);
   const [photoUrl, setPhotoUrl] = useState(initialPhotoUrl);
   const [step, setStep] = useState(0);
@@ -228,7 +231,9 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, can
         <aside className="hidden lg:block" aria-label="Aperçu du CV">
           <div className="lg:sticky lg:top-24">
             <p className="mb-2 text-xs text-muted">Aperçu en direct · format A4</p>
-            <CvPreview cv={cv} photoUrl={photoUrl} />
+            <LockedPreview locked={!canDownload} label={viewerLabel}>
+              <CvPreview cv={cv} photoUrl={photoUrl} />
+            </LockedPreview>
           </div>
         </aside>
       </div>
@@ -274,7 +279,9 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, can
             <DownloadPdfButton cvId={cvId} locked={!canDownload} className="btn-primary" label="PDF" />
           </div>
           <div className="flex-1 overflow-y-auto p-4">
-            <CvPreview cv={cv} photoUrl={photoUrl} />
+            <LockedPreview locked={!canDownload} label={viewerLabel}>
+              <CvPreview cv={cv} photoUrl={photoUrl} />
+            </LockedPreview>
           </div>
         </div>
       )}
