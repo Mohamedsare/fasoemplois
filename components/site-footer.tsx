@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
+import { CITIES_BF, cityPath } from "@/lib/seo-burkina";
 import { Logo } from "./logo";
 
 const COLUMNS = [
@@ -10,6 +11,14 @@ const COLUMNS = [
       { href: "/abonnements", label: "Tarifs" },
       { href: "/#comment-ca-marche", label: "Comment ça marche" },
       { href: "/modeles", label: "Modèles de CV" },
+    ],
+  },
+  {
+    title: "CV au Burkina Faso",
+    links: [
+      { href: "/cv-burkina-faso", label: "Créer un CV au Burkina Faso" },
+      { href: "/modele-cv-burkina-faso", label: "Modèles de CV Burkina" },
+      { href: "/exemple-cv-burkina-faso", label: "Exemples de CV par métier" },
     ],
   },
   {
@@ -48,7 +57,7 @@ export function SiteFooter() {
       >
         {BRAND.logoFirst} <span className="text-brand-600/15">{BRAND.logoSecond}</span>
       </span>
-      <div className="container-page relative grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+      <div className="container-page relative grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-[1.3fr_repeat(5,1fr)]">
         <div className="space-y-3">
           <Logo />
           <p className="max-w-xs text-sm text-muted">
@@ -68,6 +77,18 @@ export function SiteFooter() {
           </div>
         ))}
       </div>
+      {/* Pages « CV à <ville> » : maillage interne vers les 48 villes du pays */}
+      <nav aria-label="Créer un CV dans votre ville" className="container-page relative border-t border-line py-6">
+        <h2 className="mb-2 text-xs font-semibold text-ink">Créer un CV dans votre ville</h2>
+        <ul className="flex flex-wrap gap-x-1 gap-y-1.5 text-xs text-muted">
+          {CITIES_BF.map((c, i) => (
+            <li key={c.slug}>
+              <Link href={cityPath(c)} className="hover:text-ink hover:underline">CV {c.name}</Link>
+              {i < CITIES_BF.length - 1 && <span aria-hidden className="ml-1 text-line">·</span>}
+            </li>
+          ))}
+        </ul>
+      </nav>
       <div className="relative border-t border-line py-4 text-center text-xs text-muted">
         © {new Date().getFullYear()} {BRAND.name}. Tous droits réservés.
       </div>
