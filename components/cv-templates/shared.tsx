@@ -16,6 +16,9 @@ export const FONTS = {
 
 export type TemplateProps = { cv: CvDraft; photoUrl: string | null };
 
+// Les titres des CV sont des <div role="heading"> et non des <h1>/<h2> : un CV affiché en exemple sur une page
+// (accueil, galerie, guides) ne doit pas concurrencer les vrais titres de la page pour les moteurs de recherche.
+
 export const INK = "#1c1f23";
 export const BODY = "#3a4048";
 export const MUTED = "#5b6470";

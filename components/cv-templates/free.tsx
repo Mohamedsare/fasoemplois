@@ -7,16 +7,16 @@ import { Contact, Description, FONTS, PAGE, Photo, SkillsBlock, period, tint, ty
 // ---------------------------------------------------------------------------
 function SideTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h3 style={{ margin: "0 0 2.5mm", fontSize: "8pt", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: accent }}>{children}</h3>
+    <div role="heading" aria-level={3} style={{ margin: "0 0 2.5mm", fontSize: "8pt", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: accent }}>{children}</div>
   );
 }
 
 function MainTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 3mm", display: "flex", alignItems: "center", gap: "3mm", fontSize: "10pt", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: accent }}>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 3mm", display: "flex", alignItems: "center", gap: "3mm", fontSize: "10pt", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: accent }}>
       {children}
       <span style={{ flex: 1, height: "0.3mm", background: `color-mix(in srgb, ${accent} 35%, white)` }} />
-    </h2>
+    </div>
   );
 }
 
@@ -85,7 +85,7 @@ export function Moderne({ cv, photoUrl }: TemplateProps) {
 
       <main style={{ padding: "14mm 12mm 12mm 10mm", display: "flex", flexDirection: "column", gap: "7mm" }}>
         <header>
-          <h1 style={{ margin: 0, fontSize: "24pt", lineHeight: 1.1, fontWeight: 800, letterSpacing: "-0.01em" }}>{cv.full_name || "Votre nom"}</h1>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontSize: "24pt", lineHeight: 1.1, fontWeight: 800, letterSpacing: "-0.01em" }}>{cv.full_name || "Votre nom"}</div>
           {cv.headline && <p style={{ margin: "2mm 0 0", fontSize: "12pt", color: a, fontWeight: 600 }}>{cv.headline}</p>}
           {cv.summary && <p style={{ margin: "4mm 0 0", color: "#3a4048" }}>{cv.summary}</p>}
         </header>
@@ -117,9 +117,9 @@ export function Moderne({ cv, photoUrl }: TemplateProps) {
 // ---------------------------------------------------------------------------
 function ClassiqueTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 2.5mm", paddingBottom: "1mm", borderBottom: `0.4mm solid ${accent}`, fontFamily: FONTS.classic, fontSize: "11.5pt", fontWeight: 700, color: "#1c1f23" }}>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 2.5mm", paddingBottom: "1mm", borderBottom: `0.4mm solid ${accent}`, fontFamily: FONTS.classic, fontSize: "11.5pt", fontWeight: 700, color: "#1c1f23" }}>
       {children}
-    </h2>
+    </div>
   );
 }
 
@@ -148,7 +148,7 @@ export function Classique({ cv, photoUrl }: TemplateProps) {
       <header style={{ display: "flex", alignItems: "center", gap: "7mm", justifyContent: photoUrl ? "flex-start" : "center", textAlign: photoUrl ? "left" : "center" }}>
         {photoUrl && <Photo url={photoUrl} size="30mm" />}
         <div style={{ flex: photoUrl ? 1 : undefined }}>
-          <h1 style={{ margin: 0, fontFamily: FONTS.classic, fontSize: "25pt", fontWeight: 700, letterSpacing: "0.02em" }}>{cv.full_name || "Votre nom"}</h1>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontFamily: FONTS.classic, fontSize: "25pt", fontWeight: 700, letterSpacing: "0.02em" }}>{cv.full_name || "Votre nom"}</div>
           {cv.headline && <p style={{ margin: "1.5mm 0 3mm", fontSize: "11.5pt", color: a, letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>{cv.headline}</p>}
           <div style={{ display: "flex", justifyContent: photoUrl ? "flex-start" : "center" }}>
             <Contact cv={cv} color="#3a4048" iconColor={a} />
@@ -211,7 +211,7 @@ export function Classique({ cv, photoUrl }: TemplateProps) {
 function EpureRow({ label, accent, children }: { label: string; accent: string; children: React.ReactNode }) {
   return (
     <section style={{ display: "grid", gridTemplateColumns: "36mm 1fr", gap: "6mm", breakInside: "avoid" }}>
-      <h2 style={{ margin: "0.6mm 0 0", fontSize: "8pt", fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: accent }}>{label}</h2>
+      <div role="heading" aria-level={2} style={{ margin: "0.6mm 0 0", fontSize: "8pt", fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: accent }}>{label}</div>
       <div>{children}</div>
     </section>
   );
@@ -241,9 +241,9 @@ export function Epure({ cv, photoUrl }: TemplateProps) {
     <div style={{ ...PAGE, padding: "18mm 18mm 14mm", display: "flex", flexDirection: "column", gap: "8mm" }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8mm", paddingBottom: "7mm", borderBottom: "0.25mm solid #e3e6ea" }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: "28pt", lineHeight: 1.05, fontWeight: 300, letterSpacing: "-0.02em" }}>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontSize: "28pt", lineHeight: 1.05, fontWeight: 300, letterSpacing: "-0.02em" }}>
             {cv.full_name || "Votre nom"}
-          </h1>
+          </div>
           {cv.headline && <p style={{ margin: "2.5mm 0 4mm", fontSize: "11pt", color: a, fontWeight: 500 }}>{cv.headline}</p>}
           <Contact cv={cv} color="#5b6470" iconColor="#8a929c" />
         </div>

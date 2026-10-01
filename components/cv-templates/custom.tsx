@@ -82,47 +82,47 @@ function SectionTitle({ ctx, n, children, inSidebar }: { ctx: Ctx; n: number; ch
   const style = inSidebar && spec.sectionTitle !== "plain" ? "underline" : spec.sectionTitle;
   switch (style) {
     case "underline":
-      return <h2 style={{ ...base, paddingBottom: "1.2mm", borderBottom: `0.35mm solid ${onDark ? lineColor : a}` }}>{children}</h2>;
+      return <div role="heading" aria-level={2} style={{ ...base, paddingBottom: "1.2mm", borderBottom: `0.35mm solid ${onDark ? lineColor : a}` }}>{children}</div>;
     case "bar":
       return (
-        <h2 style={{ ...base, display: "flex", alignItems: "center", gap: "2.5mm" }}>
+        <div role="heading" aria-level={2} style={{ ...base, display: "flex", alignItems: "center", gap: "2.5mm" }}>
           <span style={{ width: "1.2mm", height: "4.5mm", background: a, borderRadius: "0.5mm", flexShrink: 0 }} />
           {children}
-        </h2>
+        </div>
       );
     case "line":
       return (
-        <h2 style={{ ...base, display: "flex", alignItems: "center", gap: "3mm" }}>
+        <div role="heading" aria-level={2} style={{ ...base, display: "flex", alignItems: "center", gap: "3mm" }}>
           {children}
           <span style={{ flex: 1, height: "0.3mm", background: lineColor }} />
-        </h2>
+        </div>
       );
     case "filled":
-      return <h2 style={{ ...base, background: tint(a, 12), color: shade(a, 75), padding: "1.3mm 3mm", borderRadius: "1.5mm" }}>{children}</h2>;
+      return <div role="heading" aria-level={2} style={{ ...base, background: tint(a, 12), color: shade(a, 75), padding: "1.3mm 3mm", borderRadius: "1.5mm" }}>{children}</div>;
     case "diamond":
       return (
-        <h2 style={{ ...base, display: "flex", alignItems: "center", gap: "2.5mm" }}>
+        <div role="heading" aria-level={2} style={{ ...base, display: "flex", alignItems: "center", gap: "2.5mm" }}>
           <span style={{ width: "2.4mm", height: "2.4mm", background: a, transform: "rotate(45deg)", flexShrink: 0 }} />
           {children}
-        </h2>
+        </div>
       );
     case "numbered":
       return (
-        <h2 style={{ ...base, display: "flex", alignItems: "baseline", gap: "2.5mm" }}>
+        <div role="heading" aria-level={2} style={{ ...base, display: "flex", alignItems: "baseline", gap: "2.5mm" }}>
           <span style={{ color: tint(a, 65), fontSize: "0.85em" }}>{String(n).padStart(2, "0")}</span>
           {children}
-        </h2>
+        </div>
       );
     case "centered":
       return (
-        <h2 style={{ ...base, display: "flex", alignItems: "center", gap: "4mm" }}>
+        <div role="heading" aria-level={2} style={{ ...base, display: "flex", alignItems: "center", gap: "4mm" }}>
           <span style={{ flex: 1, height: "0.25mm", background: lineColor }} />
           {children}
           <span style={{ flex: 1, height: "0.25mm", background: lineColor }} />
-        </h2>
+        </div>
       );
     default:
-      return <h2 style={base}>{children}</h2>;
+      return <div role="heading" aria-level={2} style={base}>{children}</div>;
   }
 }
 
@@ -285,7 +285,7 @@ function NameBlock({ ctx, cv, light, center, withContact }: { ctx: Ctx; cv: CvDr
   const headlineColor = light ? "rgba(255,255,255,0.85)" : spec.headlineStyle === "accent" ? a : MUTED;
   return (
     <div style={{ minWidth: 0, textAlign: center ? "center" : "left" }}>
-      <h1
+      <div role="heading" aria-level={1}
         style={{
           margin: 0,
           fontFamily: heading,
@@ -298,7 +298,7 @@ function NameBlock({ ctx, cv, light, center, withContact }: { ctx: Ctx; cv: CvDr
         }}
       >
         {displayName(cv)}
-      </h1>
+      </div>
       {cv.headline && (
         <p
           style={{

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { siteUrl } from "@/lib/supabase/env";
+import { CITIES_BF, cityPath } from "@/lib/seo-burkina";
 
 // Régénéré au plus toutes les heures
 export const revalidate = 3600;
@@ -9,6 +10,10 @@ const STATIC_PAGES = [
   { path: "", priority: 1, changeFrequency: "daily" },
   { path: "/cv", priority: 0.9, changeFrequency: "monthly" },
   { path: "/modeles", priority: 0.9, changeFrequency: "monthly" },
+  // Guides SEO « CV au Burkina Faso » (hors navigation)
+  { path: "/cv-burkina-faso", priority: 0.9, changeFrequency: "monthly" },
+  { path: "/modele-cv-burkina-faso", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/exemple-cv-burkina-faso", priority: 0.8, changeFrequency: "monthly" },
   { path: "/abonnements", priority: 0.8, changeFrequency: "monthly" },
   { path: "/astuces", priority: 0.6, changeFrequency: "weekly" },
   { path: "/inscription", priority: 0.5, changeFrequency: "yearly" },
@@ -25,6 +30,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: p.changeFrequency,
     priority: p.priority,
   }));
+
+  // Une page par ville du Burkina Faso
+  for (const c of CITIES_BF) {
+    entries.push({ url: `${base}${cityPath(c)}`, changeFrequency: "monthly", priority: c.major ? 0.8 : 0.6 });
+  }
 
   try {
     // Client anonyme sans cookies : la RLS ne renvoie que les contenus publics

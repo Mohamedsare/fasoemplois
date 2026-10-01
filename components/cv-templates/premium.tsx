@@ -35,10 +35,10 @@ function mainSections(cv: CvDraft) {
 // ---------------------------------------------------------------------------
 function ExecTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 3mm", display: "flex", alignItems: "center", gap: "2.5mm", fontFamily: FONTS.heading, fontSize: "10pt", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: INK }}>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 3mm", display: "flex", alignItems: "center", gap: "2.5mm", fontFamily: FONTS.heading, fontSize: "10pt", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: INK }}>
       <span style={{ width: "2.6mm", height: "2.6mm", background: accent, transform: "rotate(45deg)", flexShrink: 0 }} />
       {children}
-    </h2>
+    </div>
   );
 }
 
@@ -73,7 +73,7 @@ export function Executif({ cv, photoUrl }: TemplateProps) {
       <header style={{ background: shade(a, 28), color: "#fff", padding: "12mm 14mm 11mm", display: "flex", alignItems: "center", gap: "8mm" }}>
         <Portrait cv={cv} url={photoUrl} size="34mm" ring={a} bg={shade(a, 45)} color="#fff" font={FONTS.heading} />
         <div style={{ minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontFamily: FONTS.heading, fontSize: "25pt", lineHeight: 1.08, fontWeight: 800, letterSpacing: "0.01em", textTransform: "uppercase" }}>{displayName(cv)}</h1>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontFamily: FONTS.heading, fontSize: "25pt", lineHeight: 1.08, fontWeight: 800, letterSpacing: "0.01em", textTransform: "uppercase" }}>{displayName(cv)}</div>
           {cv.headline && <p style={{ margin: "2.5mm 0 0", fontSize: "10pt", fontWeight: 600, letterSpacing: "0.18em", textTransform: "uppercase", color: tint(a, 55) }}>{cv.headline}</p>}
           <div style={{ marginTop: "5mm" }}>
             <Contact cv={cv} color="rgba(255,255,255,0.85)" iconColor={tint(a, 60)} />
@@ -136,11 +136,11 @@ function Ornament({ accent }: { accent: string }) {
 
 function EleganceTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 3.5mm", display: "flex", alignItems: "center", gap: "4mm", fontFamily: FONTS.display, fontSize: "11.5pt", fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: INK }}>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 3.5mm", display: "flex", alignItems: "center", gap: "4mm", fontFamily: FONTS.display, fontSize: "11.5pt", fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: INK }}>
       <span style={{ flex: 1, height: "0.25mm", background: tint(accent, 45) }} />
       {children}
       <span style={{ flex: 1, height: "0.25mm", background: tint(accent, 45) }} />
-    </h2>
+    </div>
   );
 }
 
@@ -171,7 +171,7 @@ export function Elegance({ cv, photoUrl }: TemplateProps) {
             <Portrait cv={cv} url={photoUrl} size="28mm" bg={a} color="#fff" />
           </div>
         )}
-        <h1 style={{ margin: 0, fontFamily: FONTS.display, fontSize: "29pt", lineHeight: 1.1, fontWeight: 600, letterSpacing: "0.03em" }}>{displayName(cv)}</h1>
+        <div role="heading" aria-level={1} style={{ margin: 0, fontFamily: FONTS.display, fontSize: "29pt", lineHeight: 1.1, fontWeight: 600, letterSpacing: "0.03em" }}>{displayName(cv)}</div>
         {cv.headline && <p style={{ margin: "2.5mm 0 0", fontSize: "9pt", letterSpacing: "0.3em", textTransform: "uppercase", color: a }}>{cv.headline}</p>}
         <div style={{ marginTop: "4mm", display: "flex", justifyContent: "center" }}>
           <Contact cv={cv} color={MUTED} iconColor={a} />
@@ -216,18 +216,18 @@ export function Elegance({ cv, photoUrl }: TemplateProps) {
 // ---------------------------------------------------------------------------
 function HorizonSideTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 style={{ margin: "0 0 2.8mm", paddingBottom: "1.5mm", borderBottom: "0.3mm solid rgba(255,255,255,0.35)", fontFamily: FONTS.heading, fontSize: "8.5pt", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#fff" }}>
+    <div role="heading" aria-level={3} style={{ margin: "0 0 2.8mm", paddingBottom: "1.5mm", borderBottom: "0.3mm solid rgba(255,255,255,0.35)", fontFamily: FONTS.heading, fontSize: "8.5pt", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#fff" }}>
       {children}
-    </h3>
+    </div>
   );
 }
 
 function HorizonTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 3.5mm", fontFamily: FONTS.heading, fontSize: "12pt", fontWeight: 800, color: INK }}>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 3.5mm", fontFamily: FONTS.heading, fontSize: "12pt", fontWeight: 800, color: INK }}>
       {children}
       <span style={{ display: "block", width: "12mm", height: "0.9mm", background: accent, marginTop: "1.5mm", borderRadius: "1mm" }} />
-    </h2>
+    </div>
   );
 }
 
@@ -279,7 +279,7 @@ export function Horizon({ cv, photoUrl }: TemplateProps) {
       </aside>
       <main style={{ padding: "16mm 12mm 12mm 11mm", display: "flex", flexDirection: "column", gap: "7mm" }}>
         <header>
-          <h1 style={{ margin: 0, fontFamily: FONTS.heading, fontSize: "26pt", lineHeight: 1.05, fontWeight: 800, letterSpacing: "-0.01em" }}>{displayName(cv)}</h1>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontFamily: FONTS.heading, fontSize: "26pt", lineHeight: 1.05, fontWeight: 800, letterSpacing: "-0.01em" }}>{displayName(cv)}</div>
           {cv.headline && <p style={{ margin: "2.5mm 0 0", fontFamily: FONTS.heading, fontSize: "11.5pt", fontWeight: 600, color: a }}>{cv.headline}</p>}
           {cv.summary && (
             <p style={{ margin: "5mm 0 0", paddingLeft: "4mm", borderLeft: `0.9mm solid ${tint(a, 45)}`, color: BODY }}>{cv.summary}</p>
@@ -319,7 +319,7 @@ function Timeline({ items, accent }: { items: CvEntry[]; accent: string }) {
 
 function ParcoursTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 3.5mm", fontFamily: FONTS.heading, fontSize: "10.5pt", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: accent }}>{children}</h2>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 3.5mm", fontFamily: FONTS.heading, fontSize: "10.5pt", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: accent }}>{children}</div>
   );
 }
 
@@ -330,7 +330,7 @@ export function Parcours({ cv, photoUrl }: TemplateProps) {
       <header style={{ background: tint(a, 8), borderRadius: "4mm", padding: "7mm 8mm", display: "flex", alignItems: "center", gap: "7mm" }}>
         {photoUrl && <Portrait cv={cv} url={photoUrl} size="30mm" radius="3.5mm" bg={a} color="#fff" />}
         <div style={{ minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontFamily: FONTS.heading, fontSize: "23pt", lineHeight: 1.08, fontWeight: 800 }}>{displayName(cv)}</h1>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontFamily: FONTS.heading, fontSize: "23pt", lineHeight: 1.08, fontWeight: 800 }}>{displayName(cv)}</div>
           {cv.headline && <p style={{ margin: "1.5mm 0 3.5mm", fontSize: "11pt", fontWeight: 600, color: a }}>{cv.headline}</p>}
           <Contact cv={cv} color={BODY} iconColor={a} />
         </div>
@@ -378,15 +378,15 @@ export function Parcours({ cv, photoUrl }: TemplateProps) {
 // ---------------------------------------------------------------------------
 function CreatifTitle({ accent, n, children }: { accent: string; n: number; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 3.5mm", display: "flex", alignItems: "baseline", gap: "2.5mm", fontFamily: FONTS.heading, fontSize: "12.5pt", fontWeight: 800, color: INK }}>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 3.5mm", display: "flex", alignItems: "baseline", gap: "2.5mm", fontFamily: FONTS.heading, fontSize: "12.5pt", fontWeight: 800, color: INK }}>
       <span style={{ fontSize: "9pt", fontWeight: 800, color: tint(accent, 70) }}>{String(n).padStart(2, "0")}</span>
       {children}
-    </h2>
+    </div>
   );
 }
 
 function CreatifSideTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
-  return <h3 style={{ margin: "0 0 2.5mm", fontFamily: FONTS.heading, fontSize: "9pt", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: accent }}>{children}</h3>;
+  return <div role="heading" aria-level={3} style={{ margin: "0 0 2.5mm", fontFamily: FONTS.heading, fontSize: "9pt", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: accent }}>{children}</div>;
 }
 
 export function Creatif({ cv, photoUrl }: TemplateProps) {
@@ -398,7 +398,7 @@ export function Creatif({ cv, photoUrl }: TemplateProps) {
       <header style={{ position: "relative", overflow: "hidden", background: a, color: "#fff", padding: "14mm 60mm 13mm 14mm", borderBottomRightRadius: "22mm" }}>
         <span aria-hidden style={{ position: "absolute", right: "-18mm", top: "-24mm", width: "70mm", height: "70mm", borderRadius: "50%", background: "rgba(255,255,255,0.1)" }} />
         <span aria-hidden style={{ position: "absolute", right: "30mm", bottom: "-20mm", width: "34mm", height: "34mm", borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
-        <h1 style={{ position: "relative", margin: 0, fontSize: "28pt", lineHeight: 1.02, fontWeight: 800, letterSpacing: "-0.02em" }}>{displayName(cv)}</h1>
+        <div role="heading" aria-level={1} style={{ position: "relative", margin: 0, fontSize: "28pt", lineHeight: 1.02, fontWeight: 800, letterSpacing: "-0.02em" }}>{displayName(cv)}</div>
         {cv.headline && <p style={{ position: "relative", margin: "3mm 0 0", fontSize: "11pt", fontWeight: 500, color: "rgba(255,255,255,0.88)" }}>{cv.headline}</p>}
         <div style={{ position: "absolute", right: "14mm", top: "50%", transform: "translateY(-50%)" }}>
           <Portrait cv={cv} url={photoUrl} size="38mm" ring="#fff" bg={shade(a, 60)} color="#fff" font={FONTS.heading} />
@@ -466,19 +466,19 @@ const PRESTIGE_DARK = "#17191e";
 
 function PrestigeSideTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h3 style={{ margin: "0 0 3mm", fontFamily: FONTS.display, fontSize: "11.5pt", fontWeight: 600, color: tint(accent, 55) }}>
+    <div role="heading" aria-level={3} style={{ margin: "0 0 3mm", fontFamily: FONTS.display, fontSize: "11.5pt", fontWeight: 600, color: tint(accent, 55) }}>
       {children}
       <span style={{ display: "block", width: "10mm", height: "0.3mm", background: tint(accent, 55), marginTop: "1.5mm" }} />
-    </h3>
+    </div>
   );
 }
 
 function PrestigeTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 3.5mm", display: "flex", alignItems: "center", gap: "3mm", fontFamily: FONTS.display, fontSize: "14pt", fontWeight: 600, color: INK }}>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 3.5mm", display: "flex", alignItems: "center", gap: "3mm", fontFamily: FONTS.display, fontSize: "14pt", fontWeight: 600, color: INK }}>
       {children}
       <span style={{ flex: 1, height: "0.25mm", background: tint(accent, 40) }} />
-    </h2>
+    </div>
   );
 }
 
@@ -518,7 +518,7 @@ export function Prestige({ cv, photoUrl }: TemplateProps) {
       </aside>
       <main style={{ padding: "16mm 13mm 12mm 11mm", display: "flex", flexDirection: "column", gap: "7mm" }}>
         <header>
-          <h1 style={{ margin: 0, fontFamily: FONTS.display, fontSize: "28pt", lineHeight: 1.08, fontWeight: 700 }}>{displayName(cv)}</h1>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontFamily: FONTS.display, fontSize: "28pt", lineHeight: 1.08, fontWeight: 700 }}>{displayName(cv)}</div>
           {cv.headline && <p style={{ margin: "2.5mm 0 0", fontSize: "9pt", fontWeight: 600, letterSpacing: "0.24em", textTransform: "uppercase", color: MUTED }}>{cv.headline}</p>}
           <span style={{ display: "block", width: "18mm", height: "0.8mm", background: a, marginTop: "5mm" }} />
           {cv.summary && <p style={{ margin: "5mm 0 0", color: BODY }}>{cv.summary}</p>}
@@ -550,9 +550,9 @@ export function Prestige({ cv, photoUrl }: TemplateProps) {
 // ---------------------------------------------------------------------------
 function CompactTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 2.5mm", paddingBottom: "1mm", borderBottom: `0.5mm solid ${accent}`, fontSize: "9pt", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: INK }}>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 2.5mm", paddingBottom: "1mm", borderBottom: `0.5mm solid ${accent}`, fontSize: "9pt", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: INK }}>
       {children}
-    </h2>
+    </div>
   );
 }
 
@@ -580,7 +580,7 @@ export function Compact({ cv, photoUrl }: TemplateProps) {
       <header style={{ display: "flex", alignItems: "center", gap: "6mm" }}>
         {photoUrl && <Portrait cv={cv} url={photoUrl} size="24mm" bg={a} color="#fff" />}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: "21pt", lineHeight: 1.1, fontWeight: 800 }}>{displayName(cv)}</h1>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontSize: "21pt", lineHeight: 1.1, fontWeight: 800 }}>{displayName(cv)}</div>
           {cv.headline && <p style={{ margin: "1mm 0 0", fontSize: "10.5pt", fontWeight: 600, color: a }}>{cv.headline}</p>}
         </div>
         <div style={{ maxWidth: "70mm" }}>
@@ -639,10 +639,10 @@ export function Compact({ cv, photoUrl }: TemplateProps) {
 // ---------------------------------------------------------------------------
 function CorporateTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
   return (
-    <h2 style={{ margin: "0 0 3mm", paddingBottom: "1.5mm", borderBottom: `0.25mm solid ${LINE}`, display: "flex", alignItems: "center", gap: "2.5mm", fontSize: "10.5pt", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: INK }}>
+    <div role="heading" aria-level={2} style={{ margin: "0 0 3mm", paddingBottom: "1.5mm", borderBottom: `0.25mm solid ${LINE}`, display: "flex", alignItems: "center", gap: "2.5mm", fontSize: "10.5pt", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: INK }}>
       <span style={{ width: "1.2mm", height: "4.5mm", background: accent, borderRadius: "0.5mm" }} />
       {children}
-    </h2>
+    </div>
   );
 }
 
@@ -669,7 +669,7 @@ export function Corporate({ cv, photoUrl }: TemplateProps) {
     <div style={PAGE}>
       <header style={{ background: tint(a, 8), borderBottom: `1mm solid ${a}`, padding: "12mm 16mm 10mm", display: "flex", alignItems: "center", gap: "8mm" }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: "24pt", lineHeight: 1.08, fontWeight: 800, letterSpacing: "-0.01em" }}>{displayName(cv)}</h1>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontSize: "24pt", lineHeight: 1.08, fontWeight: 800, letterSpacing: "-0.01em" }}>{displayName(cv)}</div>
           {cv.headline && <p style={{ margin: "2mm 0 4.5mm", fontSize: "11.5pt", fontWeight: 600, color: a }}>{cv.headline}</p>}
           <Contact cv={cv} color={BODY} iconColor={a} />
         </div>
@@ -727,7 +727,7 @@ const CARD: React.CSSProperties = {
 };
 
 function MosaiqueTitle({ accent, children }: { accent: string; children: React.ReactNode }) {
-  return <h2 style={{ margin: "0 0 3mm", fontFamily: FONTS.heading, fontSize: "8.5pt", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: accent }}>{children}</h2>;
+  return <div role="heading" aria-level={2} style={{ margin: "0 0 3mm", fontFamily: FONTS.heading, fontSize: "8.5pt", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: accent }}>{children}</div>;
 }
 
 export function Mosaique({ cv, photoUrl }: TemplateProps) {
@@ -736,7 +736,7 @@ export function Mosaique({ cv, photoUrl }: TemplateProps) {
     <div style={{ ...PAGE, background: "#f3f4f6", padding: "10mm", display: "flex", flexDirection: "column", gap: "4mm" }}>
       <header style={{ ...CARD, background: a, color: "#fff", padding: "8mm 9mm", display: "flex", alignItems: "center", gap: "7mm" }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontFamily: FONTS.heading, fontSize: "24pt", lineHeight: 1.05, fontWeight: 800, letterSpacing: "-0.01em" }}>{displayName(cv)}</h1>
+          <div role="heading" aria-level={1} style={{ margin: 0, fontFamily: FONTS.heading, fontSize: "24pt", lineHeight: 1.05, fontWeight: 800, letterSpacing: "-0.01em" }}>{displayName(cv)}</div>
           {cv.headline && <p style={{ margin: "2mm 0 0", fontSize: "11pt", fontWeight: 500, color: "rgba(255,255,255,0.9)" }}>{cv.headline}</p>}
         </div>
         <Portrait cv={cv} url={photoUrl} size="30mm" ring="rgba(255,255,255,0.85)" bg="rgba(255,255,255,0.18)" color="#fff" font={FONTS.heading} />
