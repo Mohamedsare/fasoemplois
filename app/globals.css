@@ -113,3 +113,36 @@
     display: none !important;
   }
 }
+
+/*
+ * CV (components/cv-document.tsx) : règles communes à tous les modèles.
+ * Elles corrigent la mise en page sur plusieurs pages du PDF, que les modèles ignorent.
+ */
+/* Ajustement sur une page (--cv-fit < 1) : la page garde exactement le format A4 */
+.cv-doc-zoom > * {
+  width: calc(210mm / var(--cv-fit, 1)) !important;
+  min-height: calc((297mm - (1 - var(--cv-fit, 1)) * 1mm) / var(--cv-fit, 1)) !important;
+}
+/* Chaque page reprend les marges intérieures des colonnes (sinon la page 2 commence collée en haut) */
+.cv-doc,
+.cv-doc * {
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+/* Un titre de section n'est jamais laissé seul en bas de page */
+.cv-doc [role="heading"] {
+  break-after: avoid;
+}
+.cv-doc li {
+  break-inside: avoid;
+}
+@media print {
+  /* Fond du modèle (colonne colorée, fond gris…) répété sur toute la hauteur de chaque page */
+  .cv-doc-zoom > *::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: inherit;
+  }
+}

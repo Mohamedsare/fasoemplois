@@ -160,6 +160,14 @@ export function Portrait(props: {
   return url ? <Photo url={url} size={size} radius={radius} ring={ring} /> : <Initials {...props} />;
 }
 
+/**
+ * Adresse e-mail ou lien coupés proprement quand la colonne est étroite :
+ * avant « @ » et après « . » ou « / » (jamais au milieu d'un mot).
+ */
+function breakable(value: string) {
+  return value.split(/(?<=[./])|(?=@)/).flatMap((part, i) => (i ? [<wbr key={i} />, part] : [part]));
+}
+
 export function Contact({
   cv,
   color,
@@ -183,9 +191,9 @@ export function Contact({
   return (
     <div style={{ display: "flex", flexDirection: stacked ? "column" : "row", flexWrap: "wrap", gap: stacked ? "1.8mm" : "1mm 5mm", color, fontSize: size }}>
       {items.map(({ icon: Icon, value }) => (
-        <span key={value} style={{ display: "flex", alignItems: "center", gap: "1.8mm", wordBreak: "break-word" }}>
+        <span key={value} style={{ display: "flex", alignItems: "center", gap: "1.8mm", minWidth: 0 }}>
           <Icon aria-hidden style={{ width: "3.2mm", height: "3.2mm", color: iconColor, flexShrink: 0 }} />
-          {value}
+          <span style={{ minWidth: 0, overflowWrap: "anywhere" }}>{breakable(value)}</span>
         </span>
       ))}
     </div>

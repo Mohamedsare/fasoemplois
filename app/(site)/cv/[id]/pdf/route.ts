@@ -37,6 +37,9 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/cv/[id]/pdf"
     await page.goto(target, { waitUntil: "networkidle0", timeout: 30_000 });
     // Polices et photo chargées avant l'impression
     await page.evaluate(() => document.fonts.ready);
+    // Ajustement sur une page calculé dans le navigateur (components/cv-document.tsx)
+    await page.waitForSelector(".cv-doc[data-ready]", { timeout: 5_000 }).catch(() => null);
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
 
     // Statistiques (modèles les plus téléchargés) : les téléchargements faits par un admin ne comptent pas

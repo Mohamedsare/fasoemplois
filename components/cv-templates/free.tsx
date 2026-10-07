@@ -210,8 +210,10 @@ export function Classique({ cv, photoUrl }: TemplateProps) {
 // ---------------------------------------------------------------------------
 function EpureRow({ label, accent, children }: { label: string; accent: string; children: React.ReactNode }) {
   return (
-    <section style={{ display: "grid", gridTemplateColumns: "36mm 1fr", gap: "6mm", breakInside: "avoid" }}>
-      <div role="heading" aria-level={2} style={{ margin: "0.6mm 0 0", fontSize: "8pt", fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: accent }}>{label}</div>
+    // Pas de « breakInside: avoid » sur toute la ligne : une longue section doit pouvoir continuer page suivante.
+    // Le libellé est en marge (même ligne que le contenu) : la règle « titre jamais seul » ne s'y applique pas.
+    <section style={{ display: "grid", gridTemplateColumns: "36mm 1fr", gap: "6mm" }}>
+      <div role="heading" aria-level={2} style={{ margin: "0.6mm 0 0", fontSize: "8pt", fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: accent, breakAfter: "auto" }}>{label}</div>
       <div>{children}</div>
     </section>
   );

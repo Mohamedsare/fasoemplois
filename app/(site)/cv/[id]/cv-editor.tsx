@@ -864,6 +864,9 @@ function FinalStep({ cv, cvId, aiEnabled, canDownload }: { cv: CvDraft; cvId: st
     !cv.education.length && "votre formation",
     cv.skills.length < 4 && "quelques compétences",
   ].filter(Boolean) as string[];
+  // Repères laissés par l'IA : ils apparaîtraient tels quels dans le PDF
+  const toCheck = JSON.stringify(cv).split("[à préciser]").length - 1;
+  if (toCheck) missing.push(`${toCheck} information${toCheck > 1 ? "s" : ""} « [à préciser] » à remplacer`);
 
   return (
     <div className="space-y-5">
