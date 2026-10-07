@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getTemplateCatalog } from "@/lib/template-catalog";
-import { createCv } from "@/app/actions/cv";
-import { SubmitButton } from "@/components/form";
 import { TemplateCard } from "@/components/template-card";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -65,14 +63,12 @@ export default async function TemplatesPage(props: PageProps<"/modeles">) {
         {templates.map((t) => (
           <li key={t.value}>
             <TemplateCard template={t}>
-              {user ? (
-                <form action={createCv}>
-                  <input type="hidden" name="template" value={t.value} />
-                  <SubmitButton className="btn-primary w-full" pendingLabel="Création…"><UseLabel /></SubmitButton>
-                </form>
-              ) : (
-                <Link href="/inscription?suivant=%2Fmodeles" className="btn-primary w-full"><UseLabel /></Link>
-              )}
+              <Link
+                href={user ? `/cv/nouveau?modele=${t.value}` : `/inscription?suivant=${encodeURIComponent(`/cv/nouveau?modele=${t.value}`)}`}
+                className="btn-primary w-full"
+              >
+                <UseLabel />
+              </Link>
             </TemplateCard>
           </li>
         ))}

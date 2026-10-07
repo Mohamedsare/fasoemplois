@@ -1,14 +1,14 @@
 import { Camera, Copy, Eye, FileText, LayoutTemplate, PencilLine, Plus, Sparkles, Trash2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { canDownloadPdf, getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getAvailablePlans } from "@/lib/queries";
 import { signedPhotoUrls } from "@/lib/cv-photos";
-import { isAiConfigured } from "@/lib/ai";
 import { FREE_CV_LIMIT } from "@/lib/constants";
 import { formatDate, param } from "@/lib/format";
-import { createCv, deleteCv, duplicateCv } from "@/app/actions/cv";
+import { deleteCv, duplicateCv } from "@/app/actions/cv";
 import { CvPreview } from "@/components/cv-preview";
 import { DownloadPdfButton } from "@/components/download-pdf-button";
 import { SubmitButton } from "@/components/form";
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 const FEATURES = [
-  { icon: Sparkles, title: "Guidé par l'IA", text: "L'assistant rédige votre résumé, reformule vos expériences et suggère vos compétences." },
+  { icon: Sparkles, title: "Rédigé par l'IA", text: "Importez votre ancien CV ou racontez votre parcours à voix haute : l'IA rédige tout." },
   { icon: LayoutTemplate, title: "Mise en page soignée", text: "Des modèles A4 gratuits et Premium, prêts pour les recruteurs." },
   { icon: Camera, title: "Photo de profil", text: "Ajoutez votre photo, recadrée automatiquement." },
   { icon: FileText, title: "PDF en un clic", text: "Téléchargez votre CV au format A4, prêt à envoyer aux recruteurs." },
@@ -62,6 +62,8 @@ export default async function CvPage(props: PageProps<"/cv">) {
     getAvailablePlans(),
   ]);
   const list = cvs ?? [];
+  // Aucun CV : on va droit au parcours de création (import, voix ou texte)
+  if (!list.length && !sp.erreur) redirect("/cv/nouveau");
   const photos = await signedPhotoUrls(list.map((c) => c.photo_path));
 
   const limit = user.subscription?.isActive ? user.subscription.plan.cv_limit ?? FREE_CV_LIMIT : FREE_CV_LIMIT;
@@ -89,9 +91,7 @@ export default async function CvPage(props: PageProps<"/cv">) {
           </p>
         </div>
         {canCreate && (
-          <form action={createCv} className="w-full sm:w-auto">
-            <SubmitButton className="btn-primary w-full py-3 sm:py-2" pendingLabel="Création…"><Plus aria-hidden className="size-4" /> Créer un CV</SubmitButton>
-          </form>
+          <Link href="/cv/nouveau" className="btn-primary w-full py-3 sm:w-auto sm:py-2"><Plus aria-hidden className="size-4" /> Créer un CV</Link>
         )}
       </div>
 
@@ -160,14 +160,10 @@ export default async function CvPage(props: PageProps<"/cv">) {
           <div>
             <p className="text-lg font-semibold">Créez votre premier CV</p>
             <p className="mt-1 max-w-md text-sm text-muted">
-              {isAiConfigured()
-                ? "Décrivez votre parcours en quelques phrases : l'assistant IA remplit votre CV, vous n'avez plus qu'à relire."
-                : "Remplissez votre CV étape par étape et téléchargez-le en PDF."}
+              Importez votre ancien CV, racontez votre parcours à voix haute ou écrivez quelques lignes : l&apos;IA rédige votre CV.
             </p>
           </div>
-          <form action={createCv}>
-            <SubmitButton pendingLabel="Création…"><Plus aria-hidden className="size-4" /> Créer mon CV</SubmitButton>
-          </form>
+          <Link href="/cv/nouveau" className="btn-primary"><Plus aria-hidden className="size-4" /> Créer mon CV</Link>
         </div>
       )}
     </div>

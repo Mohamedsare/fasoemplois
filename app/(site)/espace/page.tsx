@@ -7,9 +7,7 @@ import { getMinPrice } from "@/lib/queries";
 import { signedPhotoUrls } from "@/lib/cv-photos";
 import { AI_DAILY_LIMIT, FREE_CV_LIMIT } from "@/lib/constants";
 import { daysAgoIso, formatDate, formatNumber, formatRelative, formatShortDate } from "@/lib/format";
-import { createCv } from "@/app/actions/cv";
 import { CvPreview } from "@/components/cv-preview";
-import { SubmitButton } from "@/components/form";
 import { ProgressBar } from "@/components/ui";
 import type { Cv } from "@/lib/types";
 
@@ -29,7 +27,8 @@ export default async function DashboardPage(props: PageProps<"/espace">) {
       .order("updated_at", { ascending: false })
       .limit(3)
       .returns<Cv[]>(),
-    supabase.from("ai_usage").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", since),
+    // Les dictées vocales ont leur propre limite : seules les demandes à l'assistant sont comptées ici
+    supabase.from("ai_usage").select("id", { count: "exact", head: true }).eq("user_id", user.id).neq("kind", "transcription").gte("created_at", since),
     getMinPrice(),
   ]);
   const photos = await signedPhotoUrls((cvs ?? []).map((c) => c.photo_path));
@@ -68,11 +67,9 @@ export default async function DashboardPage(props: PageProps<"/espace">) {
               <PencilLine aria-hidden className="size-4" /> Reprendre
             </Link>
             {canCreate && (
-              <form action={createCv}>
-                <SubmitButton className="btn h-12 w-full border border-white/25 text-white hover:bg-white/10 sm:h-auto" pendingLabel="Création…">
-                  <Plus aria-hidden className="size-4" /> Nouveau CV
-                </SubmitButton>
-              </form>
+              <Link href="/cv/nouveau" className="btn h-12 w-full border border-white/25 text-white hover:bg-white/10 sm:h-auto">
+                <Plus aria-hidden className="size-4" /> Nouveau CV
+              </Link>
             )}
           </div>
         </div>
@@ -82,14 +79,12 @@ export default async function DashboardPage(props: PageProps<"/espace">) {
           <div>
             <p className="text-lg font-semibold">Créez votre premier CV</p>
             <p className="mx-auto mt-1 max-w-sm text-sm text-white/70">
-              Décrivez votre parcours en quelques phrases : l&apos;assistant IA rédige votre CV, vous n&apos;avez plus qu&apos;à relire.
+              Importez votre ancien CV ou racontez votre parcours à voix haute : l&apos;IA rédige votre CV, vous n&apos;avez plus qu&apos;à relire.
             </p>
           </div>
-          <form action={createCv} className="w-full sm:w-auto">
-            <SubmitButton className="btn h-12 w-full bg-star-400 px-6 text-ink hover:bg-star-400/90" pendingLabel="Création…">
-              <Plus aria-hidden className="size-4" /> Créer mon CV
-            </SubmitButton>
-          </form>
+          <Link href="/cv/nouveau" className="btn h-12 w-full bg-star-400 px-6 text-ink hover:bg-star-400/90 sm:w-auto">
+            <Plus aria-hidden className="size-4" /> Créer mon CV
+          </Link>
         </div>
       )}
 

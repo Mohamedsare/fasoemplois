@@ -26,6 +26,9 @@ export default async function CvEditorPage(props: PageProps<"/cv/[id]">) {
   const { id: _id, user_id: _u, updated_at: _up, ...draft } = cv;
   void _id; void _u; void _up;
   const isEmpty = !cv.summary && !cv.experiences.length && !cv.education.length;
+  // ?pret=1 : CV rédigé par l'IA depuis /cv/nouveau ; ?nouveau=1 : page vierge choisie volontairement
+  const welcome = sp.pret === "1";
+  const blank = sp.nouveau === "1";
 
   return (
     <div className="container-page py-8">
@@ -33,7 +36,9 @@ export default async function CvEditorPage(props: PageProps<"/cv/[id]">) {
         cvId={cv.id}
         initial={draft as CvDraft}
         initialPhotoUrl={await signedPhotoUrl(cv.photo_path)}
-        isNew={sp.nouveau === "1" || isEmpty}
+        initialStep={welcome ? 1 : 0}
+        welcome={welcome}
+        aiPanelOpen={isEmpty && !blank && !welcome}
         aiEnabled={isAiConfigured()}
         canDownload={canDownloadPdf(user)}
         templates={await getTemplateCatalog()}

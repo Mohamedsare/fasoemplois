@@ -86,10 +86,23 @@ créez-la chez votre registrar ou un service de redirection (ex. ImprovMX, Zoho 
 
 - **Quotas** : 1 CV sans abonnement, puis selon le plan (4 / 6 / 8), modifiable dans *Admin > Abonnements*
   (« Nombre de CV »). Appliqué aussi par un trigger Postgres.
-- **Assistant IA (OpenAI)** : remplissage à partir d'un texte libre, résumé, reformulation des expériences,
-  suggestions de compétences, relecture notée. Il n'invente ni employeur, ni date, ni chiffre.
-  `OPENAI_API_KEY` (secrète) et, facultatif, `OPENAI_MODEL` (défaut `gpt-6.1-sol`). Sans clé, l'éditeur
-  fonctionne sans les boutons IA. Limites : 15 demandes / jour sans abonnement, 60 avec (`AI_DAILY_LIMIT`).
+- **Parcours de création** (`/cv/nouveau`) : après l'inscription (e-mail ou Google), l'utilisateur arrive directement
+  sur le choix de la méthode :
+  - **importer son ancien CV** (PDF, Word .docx, photos d'un CV papier jusqu'à 4 pages, 4 Mo max) : l'IA le lit et en
+    rédige un nouveau, avec les mêmes faits ; il peut ajouter ses nouveautés à l'écrit ou à la voix ;
+  - **raconter son parcours à voix haute** (micro du navigateur, transcription OpenAI) ;
+  - **écrire quelques lignes** (avec bouton « Dicter ») ;
+  - ou partir d'une page vierge.
+
+  Pendant la rédaction, il choisit son modèle, puis voit son propre CV dans chaque modèle. Le CV s'ouvre dans l'éditeur
+  avec un bandeau « Votre CV est prêt » et le nombre de « [à préciser] » à compléter. Les fichiers et enregistrements ne
+  sont pas conservés. Bouton « Dicter » aussi dans l'éditeur (résumé, expériences) et « Remplir avec l'IA » (texte, voix, import).
+- **Assistant IA (OpenAI)** : remplissage à partir d'un texte libre, d'une dictée ou d'un ancien CV, résumé, reformulation
+  des expériences, suggestions de compétences, relecture notée. Il n'invente ni employeur, ni date, ni chiffre.
+  `OPENAI_API_KEY` (secrète) et, facultatifs, `OPENAI_MODEL` (défaut `gpt-6.1-sol`, doit accepter PDF et images pour
+  l'import) et `OPENAI_TRANSCRIBE_MODEL` (défaut `gpt-4o-transcribe`, repli automatique sur `whisper-1`). Sans clé,
+  l'éditeur fonctionne sans les boutons IA. Limites : 15 demandes / jour sans abonnement, 60 avec (`AI_DAILY_LIMIT`) ;
+  dictées comptées à part : 40 / 150 (`TRANSCRIBE_DAILY_LIMIT`).
 - **PDF (abonnés uniquement)** : `/cv/[id]/pdf` vérifie l'abonnement, signe un jeton de 2 minutes, puis
   Chromium (`@sparticuz/chromium` sur Vercel, Chrome/Edge en local) imprime `/cv-print/[id]` en A4.
   Sans abonnement, les boutons « Télécharger en PDF » mènent aux abonnements et l'aperçu porte un filigrane.
@@ -106,7 +119,7 @@ créez-la chez votre registrar ou un service de redirection (ex. ImprovMX, Zoho 
 
 1. Déployer le code (push sur `main`).
 2. Appliquer `20261003000000_pivot_saas_cv.sql` sur la base de production.
-3. Vérifier : inscription e-mail + Google, création d'un CV avec l'IA, paiement Orange Money puis validation
+3. Vérifier : inscription e-mail + Google, création d'un CV avec l'IA (import d'un PDF, d'une photo, dictée vocale), paiement Orange Money puis validation
    admin, téléchargement du PDF.
 
 ### Configuration du projet Vercel

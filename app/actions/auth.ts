@@ -35,17 +35,15 @@ export async function signUp(_prev: ActionState, formData: FormData): Promise<Ac
   const lastName = str(formData, "last_name");
   const email = str(formData, "email");
   const password = str(formData, "password");
-  // Sans destination : directement le créateur de CV.
-  const next = safePath(str(formData, "suivant"), "/cv");
+  // Sans destination : directement le parcours de création du premier CV.
+  const next = safePath(str(formData, "suivant"), "/cv/nouveau");
 
   const fieldErrors: Record<string, string> = {};
   if (!lastName) fieldErrors.last_name = "Indiquez votre nom.";
   if (!firstName) fieldErrors.first_name = "Indiquez votre prénom.";
   if (!EMAIL_RE.test(email)) fieldErrors.email = "Adresse e-mail invalide.";
   if (password.length < 8) fieldErrors.password = "8 caractères minimum.";
-  if (password !== str(formData, "password_confirm"))
-    fieldErrors.password_confirm = "Les mots de passe ne correspondent pas.";
-  if (formData.get("terms") !== "on") fieldErrors.terms = "Vous devez accepter les conditions d'utilisation.";
+  // Acceptation des conditions : mention sous le bouton « Créer mon compte » (comme pour Google)
   if (Object.keys(fieldErrors).length) return { fieldErrors };
 
   const supabase = await createClient();
@@ -76,6 +74,23 @@ export async function signUp(_prev: ActionState, formData: FormData): Promise<Ac
   return {
     success: `Compte créé ! Un e-mail de confirmation a été envoyé à ${email}. Cliquez sur le lien pour activer votre compte et continuer.`,
   };
+}
+
+/** Renvoie l'e-mail de confirmation d'inscription (lien perdu ou arrivé dans les indésirables). */
+export async function resendConfirmation(email: string, next: string): Promise<ActionState> {
+  if (!EMAIL_RE.test(email)) return { error: "Adresse e-mail invalide." };
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${siteUrl()}/auth/confirm?suivant=${encodeURIComponent(safePath(next, "/cv"))}` },
+  });
+  if (error) {
+    return {
+      error: error.status === 429 ? "Patientez une minute avant de redemander un e-mail." : "Impossible de renvoyer l'e-mail. Réessayez.",
+    };
+  }
+  return { success: "E-mail renvoyé. Pensez à regarder dans vos courriers indésirables." };
 }
 
 /** Connexion / inscription avec Google (OAuth PKCE, retour sur /auth/confirm). */

@@ -87,3 +87,14 @@ export const CV_ACCENTS = [
 /** Appels à l'assistant IA par jour et par utilisateur (maîtrise des coûts). */
 export const AI_DAILY_LIMIT = { free: 15, subscribed: 60 };
 
+/** Dictées vocales transcrites par jour (comptées à part : une dictée n'est pas une demande à l'assistant). */
+export const TRANSCRIBE_DAILY_LIMIT = { free: 40, subscribed: 150 };
+
+/** Import d'un ancien CV : formats acceptés et taille maximale (limite des fonctions Vercel : 4,5 Mo). */
+export const CV_IMPORT_MAX_BYTES = 4 * 1024 * 1024;
+export const CV_IMPORT_MAX_FILES = 4;
+export const CV_IMPORT_ACCEPT = ".pdf,.docx,.txt,image/jpeg,image/png,image/webp,application/pdf";
+
+/** Dictée : durée maximale d'un enregistrement (au-delà, il s'arrête et est transcrit). */
+export const VOICE_MAX_SECONDS = 300;
+

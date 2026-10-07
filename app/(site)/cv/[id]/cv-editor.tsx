@@ -9,8 +9,10 @@ import {
   Check,
   Crown,
   Eye,
+  FileUp,
   Lightbulb,
   Loader2,
+  PartyPopper,
   Plus,
   Sparkles,
   Trash2,
@@ -20,13 +22,15 @@ import {
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { saveCvDraft } from "@/app/actions/cv";
-import { aiAssist, type AiFill, type AiRequest, type AiResult } from "@/app/actions/cv-ai";
+import { aiAssist, aiImport, type AiFill, type AiRequest, type AiResult } from "@/app/actions/cv-ai";
 import { CvPreview } from "@/components/cv-preview";
 import { LockedPreview } from "@/components/locked-preview";
 import { DownloadPdfButton } from "@/components/download-pdf-button";
-import { CV_ACCENTS } from "@/lib/constants";
+import { DictateButton } from "@/components/dictate-button";
+import { TemplatePicker } from "@/components/template-picker";
+import { CV_ACCENTS, CV_IMPORT_ACCEPT } from "@/lib/constants";
+import { prepareImportFiles } from "@/lib/cv-import-client";
 import { uploadCvPhoto } from "@/lib/photo-upload";
-import { sampleForTemplate } from "@/lib/sample-cvs";
 import type { CatalogTemplate } from "@/lib/template-spec";
 import type { CvDraft, CvEntry } from "@/lib/types";
 
@@ -56,7 +60,12 @@ type Props = {
   cvId: string;
   initial: CvDraft;
   initialPhotoUrl: string | null;
-  isNew: boolean;
+  /** Étape ouverte à l'arrivée (1 = Infos, après le parcours de création assisté). */
+  initialStep: number;
+  /** CV tout juste rédigé par l'IA (parcours /cv/nouveau) : bandeau de bienvenue. */
+  welcome: boolean;
+  /** Ouvre le panneau « Remplir avec l'IA » (CV vide). */
+  aiPanelOpen: boolean;
   aiEnabled: boolean;
   /** Téléchargement PDF inclus (abonné) */
   canDownload: boolean;
@@ -68,10 +77,12 @@ type Props = {
 
 type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
 
-export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, canDownload, templates, viewerLabel }: Props) {
+export function CvEditor({ cvId, initial, initialPhotoUrl, initialStep, welcome, aiPanelOpen, aiEnabled, canDownload, templates, viewerLabel }: Props) {
   const [cv, setCv] = useState<CvDraft>(initial);
   const [photoUrl, setPhotoUrl] = useState(initialPhotoUrl);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(initialStep);
+  const [showAi, setShowAi] = useState(aiPanelOpen);
+  const [showWelcome, setShowWelcome] = useState(welcome);
   const [save, setSave] = useState<SaveState>("idle");
   const [saveError, setSaveError] = useState("");
   const [showPreview, setShowPreview] = useState(false);
@@ -118,6 +129,11 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, can
           </Link>
           <SaveBadge state={save} error={saveError} />
           <div className="hidden items-center gap-2 lg:flex">
+            {aiEnabled && !showAi && (
+              <button type="button" onClick={() => setShowAi(true)} className="btn-secondary">
+                <Wand2 aria-hidden className="size-4 text-violet-600" /> Remplir avec l&apos;IA
+              </button>
+            )}
             <Link
               href={`/cv/${cvId}/apercu`}
               onClick={() => save === "dirty" && void persist(cv, version.current)}
@@ -136,7 +152,14 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, can
         />
       </div>
 
-      {isNew && aiEnabled && <AiStart cv={cv} onFill={(fill) => update(mergeFill(cv, fill))} />}
+      {showWelcome && <WelcomeBanner cv={cv} onClose={() => setShowWelcome(false)} onPreview={() => setShowPreview(true)} />}
+
+      {aiEnabled && !showAi && (
+        <button type="button" onClick={() => setShowAi(true)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-700 lg:hidden">
+          <Wand2 aria-hidden className="size-4" /> Remplir avec l&apos;IA (ancien CV, dictée ou texte)
+        </button>
+      )}
+      {aiEnabled && showAi && <AiStart cv={cv} onFill={(fill) => update(mergeFill(cv, fill))} onClose={() => setShowAi(false)} />}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,480px)]">
         {/* Formulaire guidé */}
@@ -296,6 +319,11 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, isNew, aiEnabled, can
 /** Remplit le CV avec la proposition de l'IA sans écraser ce qui est déjà saisi. */
 function mergeFill(cv: CvDraft, fill: AiFill): Partial<CvDraft> {
   return {
+    full_name: cv.full_name || fill.contact.full_name,
+    email: cv.email || fill.contact.email,
+    phone: cv.phone || fill.contact.phone,
+    city: cv.city || fill.contact.city,
+    website: cv.website || fill.contact.website,
     headline: cv.headline || fill.headline,
     summary: cv.summary || fill.summary,
     experiences: cv.experiences.length ? cv.experiences : fill.experiences,
@@ -375,21 +403,63 @@ function TextField({
 }
 
 // ---------------------------------------------------------------------------
-// Démarrage assisté
+// Bandeau d'arrivée et remplissage assisté
 // ---------------------------------------------------------------------------
-function AiStart({ cv, onFill }: { cv: CvDraft; onFill: (fill: AiFill) => void }) {
-  const [open, setOpen] = useState(true);
+
+/** Après le parcours de création : rassure et indique quoi relire. */
+function WelcomeBanner({ cv, onClose, onPreview }: { cv: CvDraft; onClose: () => void; onPreview: () => void }) {
+  const toCheck = JSON.stringify(cv).split("[à préciser]").length - 1;
+  return (
+    <section className="relative flex flex-col gap-3 rounded-2xl border border-brand-600/30 bg-brand-50/70 p-4 pr-10 sm:flex-row sm:items-center sm:p-5 sm:pr-12">
+      <button type="button" onClick={onClose} aria-label="Fermer" className="absolute top-3 right-3 rounded-full p-1 text-muted hover:bg-white">
+        <X aria-hidden className="size-4" />
+      </button>
+      <PartyPopper aria-hidden className="hidden size-8 shrink-0 text-brand-700 sm:block" />
+      <div className="min-w-0 flex-1 text-sm">
+        <p className="text-base font-bold">Votre CV est prêt !</p>
+        <p className="mt-0.5 text-ink/80">
+          Relisez chaque étape (dates, coordonnées) et ajoutez une photo si vous le souhaitez.
+          {toCheck > 0 && <> Complétez les <strong>{toCheck} « [à préciser] »</strong> laissés par l&apos;IA.</>}
+        </p>
+      </div>
+      <button type="button" onClick={onPreview} className="btn-primary h-11 lg:hidden">
+        <Eye aria-hidden className="size-4" /> Voir mon CV
+      </button>
+    </section>
+  );
+}
+
+function AiStart({ cv, onFill, onClose }: { cv: CvDraft; onFill: (fill: AiFill) => void; onClose: () => void }) {
   const [text, setText] = useState("");
   const [done, setDone] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState("");
+  const fileInput = useRef<HTMLInputElement>(null);
   const { pending, error, run } = useAi();
-  if (!open) return null;
+
+  async function onFiles(list: FileList | null) {
+    if (!list?.length) return;
+    setImportError("");
+    const prepared = await prepareImportFiles(Array.from(list));
+    if ("error" in prepared) return setImportError(prepared.error);
+    setImporting(true);
+    const form = new FormData();
+    prepared.files.forEach((f) => form.append("files", f));
+    const res = await aiImport(form).catch(() => ({ ok: false as const, error: "Connexion perdue pendant l'envoi. Réessayez." }));
+    setImporting(false);
+    if (!res.ok) return setImportError(res.error);
+    if (res.kind === "fill") {
+      onFill(res.data);
+      setDone(true);
+    }
+  }
 
   return (
     <section className="relative space-y-3 rounded-2xl border-2 border-violet-200 bg-linear-to-br from-violet-50 to-fuchsia-50 p-5">
-      <button type="button" onClick={() => setOpen(false)} aria-label="Fermer" className="absolute top-3 right-3 rounded-full p-1 text-muted hover:bg-white">
+      <button type="button" onClick={onClose} aria-label="Fermer" className="absolute top-3 right-3 rounded-full p-1 text-muted hover:bg-white">
         <X aria-hidden className="size-4" />
       </button>
-      <h2 className="flex items-center gap-2 font-bold"><Wand2 aria-hidden className="size-5 text-violet-600" /> Démarrer avec l&apos;assistant IA</h2>
+      <h2 className="flex items-center gap-2 pr-8 font-bold"><Wand2 aria-hidden className="size-5 text-violet-600" /> Remplir avec l&apos;IA</h2>
       {done ? (
         <p className="text-sm">
           C&apos;est prêt ! Vérifiez chaque étape : l&apos;assistant n&apos;invente rien, mais relisez les dates et complétez les
@@ -398,10 +468,13 @@ function AiStart({ cv, onFill }: { cv: CvDraft; onFill: (fill: AiFill) => void }
       ) : (
         <>
           <p className="text-sm text-muted">
-            Décrivez votre parcours avec vos mots (postes, entreprises, dates, diplômes, compétences), ou collez le texte de
+            Racontez votre parcours, à l&apos;écrit ou à la voix (postes, entreprises, dates, diplômes, compétences), ou importez
             votre ancien CV. L&apos;assistant remplit votre CV à votre place.
           </p>
-          <label htmlFor="ai-start" className="sr-only">Votre parcours</label>
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <label htmlFor="ai-start" className="text-sm font-medium">Votre parcours</label>
+            <DictateButton onText={(t) => setText((v) => (v.trim() ? `${v.trim()}\n${t}` : t))} />
+          </div>
           <textarea
             id="ai-start"
             rows={5}
@@ -422,11 +495,23 @@ function AiStart({ cv, onFill }: { cv: CvDraft; onFill: (fill: AiFill) => void }
             >
               Remplir mon CV
             </AiButton>
+            <button type="button" onClick={() => fileInput.current?.click()} disabled={pending || importing} className="btn-secondary px-3.5 py-1.5 text-xs">
+              {importing ? <Loader2 aria-hidden className="size-3.5 animate-spin" /> : <FileUp aria-hidden className="size-3.5" />}
+              {importing ? "Lecture de votre CV…" : "Importer un ancien CV"}
+            </button>
+            <input
+              ref={fileInput}
+              type="file"
+              accept={CV_IMPORT_ACCEPT}
+              multiple
+              className="hidden"
+              onChange={(e) => { void onFiles(e.target.files); e.target.value = ""; }}
+            />
             <span className="text-xs text-muted">
-              {cv.experiences.length ? "Les sections déjà remplies ne seront pas remplacées." : "Prend environ 10 secondes."}
+              {cv.experiences.length ? "Les sections déjà remplies ne seront pas remplacées." : "PDF, Word ou photo · environ 20 secondes."}
             </span>
           </div>
-          <AiError message={error} />
+          <AiError message={error || importError} />
         </>
       )}
     </section>
@@ -472,25 +557,7 @@ function TemplateStep({
     <>
       <fieldset>
         <legend className="label">Modèle</legend>
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          {templates.map((t) => (
-            <label
-              key={t.value}
-              className={`card relative cursor-pointer p-1.5 transition-colors has-focus-visible:ring-2 has-focus-visible:ring-brand-600 sm:p-2 ${cv.template === t.value ? "border-2 border-ink" : "hover:border-ink/30"}`}
-            >
-              <input type="radio" name="template" value={t.value} checked={cv.template === t.value} onChange={() => update({ template: t.value, template_spec: t.spec })} className="sr-only" />
-              <TemplateThumb template={t} accent={cv.accent} />
-              {t.premium && (
-                <span className="absolute top-2.5 right-2.5 grid size-5 place-items-center rounded-full bg-ink text-star-400 shadow-sm sm:size-6" title="Modèle Premium">
-                  <Crown aria-hidden className="size-3 sm:size-3.5" />
-                  <span className="sr-only">Premium</span>
-                </span>
-              )}
-              <span className="mt-1.5 block truncate text-center text-xs font-semibold sm:text-left sm:text-sm">{t.label}</span>
-              <span className="hidden truncate text-xs text-muted sm:block">{t.description}</span>
-            </label>
-          ))}
-        </div>
+        <TemplatePicker templates={templates} value={cv.template} accent={cv.accent} onChange={(t) => update({ template: t.value, template_spec: t.spec })} />
         {selected?.premium && !subscribed && (
           <p className="mt-3 flex gap-2 rounded-xl border border-dashed border-ink/30 bg-cream px-3 py-2.5 text-sm">
             <Crown aria-hidden className="mt-0.5 size-4 shrink-0 text-star-400" />
@@ -547,16 +614,6 @@ function TemplateStep({
   );
 }
 
-/** Vignette : le CV d'exemple du modèle, dans la couleur choisie. */
-function TemplateThumb({ template, accent }: { template: CatalogTemplate; accent: string }) {
-  const sample = sampleForTemplate(template);
-  return (
-    <span className="pointer-events-none block" aria-hidden>
-      <CvPreview cv={{ ...sample.cv, accent }} photoUrl={sample.photo} />
-    </span>
-  );
-}
-
 function InfoStep({ cv, update }: StepProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -581,9 +638,12 @@ function ProfileStep({ cv, update, aiEnabled }: StepProps & { aiEnabled: boolean
       <div className="flex flex-wrap items-center justify-between gap-2">
         <label htmlFor="summary" className="label mb-0">Résumé de profil</label>
         {aiEnabled && (
-          <AiButton pending={pending} onClick={() => run({ kind: "summary", cv }, (r) => r.kind === "summary" && r.summary && update({ summary: r.summary }))}>
-            {cv.summary ? "Réécrire avec l'IA" : "Rédiger avec l'IA"}
-          </AiButton>
+          <div className="flex flex-wrap items-start gap-2">
+            <DictateButton onText={(t) => update({ summary: cv.summary?.trim() ? `${cv.summary.trim()} ${t}` : t })} />
+            <AiButton pending={pending} onClick={() => run({ kind: "summary", cv }, (r) => r.kind === "summary" && r.summary && update({ summary: r.summary }))}>
+              {cv.summary ? "Réécrire avec l'IA" : "Rédiger avec l'IA"}
+            </AiButton>
+          </div>
         )}
       </div>
       <textarea id="summary" rows={6} value={cv.summary ?? ""} onChange={(e) => update({ summary: e.target.value || null })} className="input" placeholder="Comptable avec 3 ans d'expérience en cabinet…" />
@@ -695,12 +755,15 @@ function EntryCard({
           <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
             <label htmlFor={id("desc")} className="text-sm font-medium">Missions et réalisations</label>
             {ai && (
-              <AiButton
-                pending={pending}
-                onClick={() => run({ kind: "experience", entry, headline: ai.headline }, (r) => r.kind === "experience" && r.description && onSet({ description: r.description }))}
-              >
-                {entry.description ? "Améliorer avec l'IA" : "Rédiger avec l'IA"}
-              </AiButton>
+              <div className="flex flex-wrap items-start gap-2">
+                <DictateButton onText={(t) => onSet({ description: entry.description.trim() ? `${entry.description.trim()}\n${t}` : t })} />
+                <AiButton
+                  pending={pending}
+                  onClick={() => run({ kind: "experience", entry, headline: ai.headline }, (r) => r.kind === "experience" && r.description && onSet({ description: r.description }))}
+                >
+                  {entry.description ? "Améliorer avec l'IA" : "Rédiger avec l'IA"}
+                </AiButton>
+              </div>
             )}
           </div>
           <textarea
@@ -711,7 +774,7 @@ function EntryCard({
             placeholder={"- Tenue de la comptabilité de 40 PME clientes\n- Préparation des déclarations fiscales mensuelles"}
             className="input"
           />
-          <p className="mt-1 text-xs text-muted">Une ligne par point, commencez par « - ».</p>
+          <p className="mt-1 text-xs text-muted">Une ligne par point, commencez par « - ». Vous pouvez aussi dicter, puis améliorer avec l&apos;IA.</p>
           <AiError message={error} />
         </div>
       )}

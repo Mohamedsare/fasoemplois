@@ -29,7 +29,7 @@ export default function PrivacyPage() {
         <ul>
           <li><strong>Compte</strong> : nom, prénom, e-mail, téléphone, mot de passe (chiffré) ; photo et nom si vous vous connectez avec Google.</li>
           <li><strong>CV</strong> : le contenu de vos CV (coordonnées, expériences, formations, compétences…) et votre photo de profil.</li>
-          <li><strong>Assistant IA</strong> : les textes que vous soumettez à l&apos;assistant et le nombre de demandes effectuées.</li>
+          <li><strong>Assistant IA</strong> : les textes que vous soumettez à l&apos;assistant, les fichiers d&apos;ancien CV que vous importez (PDF, Word, photos) et vos enregistrements vocaux (dictée), ainsi que le nombre de demandes effectuées. Les fichiers importés et les enregistrements vocaux ne sont pas conservés : ils servent uniquement à remplir votre CV.</li>
           <li><strong>Paiements</strong> : plan choisi, montant, numéro Orange Money utilisé, ID de transaction, référence et statut.</li>
           <li><strong>Technique</strong> : cookies de session indispensables à la connexion.</li>
           <li>
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
           <li>L&apos;équipe {BRAND.name} habilitée (administration et vérification des paiements).</li>
           <li>
             Nos sous-traitants techniques : Supabase (base de données, stockage, authentification), Vercel (hébergement),
-            OpenAI (traitement des textes soumis à l&apos;assistant IA), Resend (e-mails), Meta (mesure d&apos;audience
+            OpenAI (traitement des textes, fichiers importés et enregistrements vocaux soumis à l&apos;assistant IA), Resend (e-mails), Meta (mesure d&apos;audience
             publicitaire) et Google si vous utilisez la connexion Google.
           </li>
         </ul>

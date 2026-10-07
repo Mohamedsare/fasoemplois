@@ -38,9 +38,15 @@ Règles impératives :
 - Pas d'emojis, pas de superlatifs creux (« passionné », « dynamique » en boucle), pas de première personne excessive.
 - Réponds uniquement avec un objet JSON valide respectant le format demandé.`;
 
+/** Contenu d'un message : texte seul, ou texte + fichiers (PDF, images) pour l'import d'un ancien CV. */
+export type ContentPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string; detail?: "low" | "high" | "auto" } }
+  | { type: "file"; file: { filename: string; file_data: string } };
+
 export async function askJson<T>(
-  userPrompt: string,
-  options: { maxTokens?: number; temperature?: number; effort?: ReasoningEffort; system?: string } = {},
+  userPrompt: string | ContentPart[],
+  options: { maxTokens?: number; temperature?: number; effort?: ReasoningEffort; system?: string; timeoutMs?: number } = {},
 ): Promise<T> {
   const key = process.env.OPENAI_API_KEY;
   if (!key) throw new AiError("Assistant IA non configuré", "not_configured");
@@ -70,7 +76,7 @@ export async function askJson<T>(
         ],
       }),
       // Sous la limite de 60 s de la page (maxDuration)
-      signal: AbortSignal.timeout(55_000),
+      signal: AbortSignal.timeout(options.timeoutMs ?? 55_000),
     });
   } catch (e) {
     if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError"))
@@ -91,4 +97,61 @@ export async function askJson<T>(
   } catch {
     throw new AiError("Réponse de l'assistant illisible", "invalid_output");
   }
+}
+
+// ---------------------------------------------------------------------------
+// Transcription de la voix (dictée du parcours)
+// ---------------------------------------------------------------------------
+
+/**
+ * Variables : OPENAI_TRANSCRIBE_MODEL (facultatif). Par défaut gpt-4o-transcribe, plus fiable que
+ * whisper-1 sur les accents et les noms propres ; repli automatique sur whisper-1 s'il est refusé.
+ */
+const DEFAULT_TRANSCRIBE_MODEL = "gpt-4o-transcribe";
+
+/** Vocabulaire local donné au modèle : villes, écoles, sigles et métiers fréquents dans les CV. */
+const TRANSCRIBE_PROMPT =
+  "Parcours professionnel pour un CV, au Burkina Faso. Ouagadougou, Bobo-Dioulasso, Koudougou, Ouahigouya, Banfora, Kaya, " +
+  "Université Joseph Ki-Zerbo, Université Nazi Boni, ISGE, 2iE, BTS, licence, master, baccalauréat, BEPC, SYSCOHADA, " +
+  "ONG, Sonabel, Onea, Coris Bank, Orange Burkina, Moov Africa, Excel, Word, Sage. Mooré, dioula, fulfuldé.";
+
+export async function transcribeAudio(audio: Blob, filename: string): Promise<string> {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw new AiError("Assistant IA non configuré", "not_configured");
+
+  const configured = process.env.OPENAI_TRANSCRIBE_MODEL;
+  const models = configured ? [configured] : [DEFAULT_TRANSCRIBE_MODEL, "whisper-1"];
+
+  for (const [i, model] of models.entries()) {
+    const form = new FormData();
+    form.append("file", audio, filename);
+    form.append("model", model);
+    form.append("language", "fr");
+    form.append("prompt", TRANSCRIBE_PROMPT);
+    form.append("response_format", "json");
+
+    let res: Response;
+    try {
+      res = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}` },
+        body: form,
+        signal: AbortSignal.timeout(50_000),
+      });
+    } catch (e) {
+      if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError"))
+        throw new AiError("La transcription a pris trop de temps", "timeout");
+      throw new AiError("Assistant injoignable", "provider");
+    }
+
+    if (!res.ok) {
+      console.error("[ai] transcription", model, res.status, (await res.text()).slice(0, 500));
+      // Modèle inconnu ou refusé pour ce compte : on tente le suivant
+      if ((res.status === 400 || res.status === 404 || res.status === 403) && i < models.length - 1) continue;
+      throw new AiError("La transcription est momentanément indisponible", "provider");
+    }
+    const body = (await res.json()) as { text?: string };
+    return (body.text ?? "").trim();
+  }
+  throw new AiError("La transcription est momentanément indisponible", "provider");
 }

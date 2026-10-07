@@ -3,8 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      // Logos d'entreprise (1 Mo) ; les CV PDF sont envoyés directement à Supabase Storage
-      bodySizeLimit: "2mb",
+      // Import d'un ancien CV (PDF, Word, photos : 4 Mo max) et dictées vocales, envoyés aux Server Actions
+      bodySizeLimit: "5mb",
     },
   },
   // Génération des CV en PDF : Chromium et Puppeteer utilisent des fonctionnalités Node natives

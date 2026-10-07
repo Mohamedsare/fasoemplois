@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { resolveTemplate } from "@/lib/template-catalog";
 import type { ActionState, Cv, CvDraft, CvEntry } from "@/lib/types";
+import type { AiFill } from "./cv-ai";
 
 // ---------------------------------------------------------------------------
 // Validation du contenu envoyé par l'éditeur (jamais de confiance côté client)
@@ -65,34 +66,89 @@ function revalidateCv() {
 // CV en ligne (créateur)
 // ---------------------------------------------------------------------------
 
-/** Crée un CV (le quota du plan est vérifié par la base) puis ouvre l'éditeur, avec le modèle choisi s'il y en a un. */
-export async function createCv(formData?: FormData) {
-  const user = await requireUser("/cv");
-  const chosen = formData?.get("template");
-  const { template, template_spec } = await resolveTemplate(typeof chosen === "string" ? chosen : "moderne");
+/**
+ * Crée un CV (le quota du plan est vérifié par la base) avec le modèle choisi et, s'il y en a un,
+ * le contenu rédigé par l'IA (ancien CV importé, récit dicté ou écrit). Les coordonnées manquantes
+ * sont reprises du profil.
+ */
+export async function createCvFromStart(input: {
+  template: string;
+  fill?: AiFill | null;
+}): Promise<{ id: string } | { error: string; limit?: boolean }> {
+  const user = await requireUser("/cv/nouveau");
+  const { template, template_spec } = await resolveTemplate(String(input.template ?? "moderne"));
   const supabase = await createClient();
   const { count } = await supabase.from("cvs").select("id", { count: "exact", head: true }).eq("user_id", user.id);
+
+  const fill = input.fill;
+  const p = user.profile;
+  const content = sanitize(
+    {
+      title: count ? `CV ${count + 1}` : "Mon CV",
+      template,
+      template_spec,
+      accent: "#009e49",
+      photo_path: null,
+      full_name: fill?.contact?.full_name || p.full_name,
+      headline: fill?.headline || p.headline,
+      email: fill?.contact?.email || user.email || null,
+      phone: fill?.contact?.phone || p.phone,
+      city: fill?.contact?.city || p.city,
+      website: fill?.contact?.website || null,
+      summary: fill?.summary ?? null,
+      experiences: fill?.experiences ?? [],
+      education: fill?.education ?? [],
+      certifications: fill?.certifications ?? [],
+      skills: fill?.skills?.length ? fill.skills : p.skills,
+      languages: fill?.languages?.length ? fill.languages : p.languages,
+      interests: fill?.interests ?? [],
+    },
+    user.id,
+  );
+
   const { data, error } = await supabase
     .from("cvs")
     .insert({
+      ...content,
       user_id: user.id,
-      title: count ? `CV ${count + 1}` : "Mon CV",
       template,
       // Colonne ajoutée par la migration modeles_ia : envoyée seulement pour un modèle IA
       ...(template_spec ? { template_spec } : {}),
-      full_name: user.profile.full_name,
-      headline: user.profile.headline,
-      email: user.email,
-      phone: user.profile.phone,
-      city: user.profile.city,
-      skills: user.profile.skills,
-      languages: user.profile.languages,
     })
     .select("id")
     .single<{ id: string }>();
-  if (error || !data) redirect(`/cv?erreur=${error?.message.includes("cv_limit_reached") ? "limite" : "creation"}`);
+  if (error || !data) {
+    return error?.message.includes("cv_limit_reached")
+      ? { error: "Vous avez atteint le nombre de CV de votre plan.", limit: true }
+      : { error: "Impossible de créer le CV. Réessayez." };
+  }
   revalidateCv();
-  redirect(`/cv/${data.id}?nouveau=1`);
+  return { id: data.id };
+}
+
+/** Change le modèle d'un CV (choisi pendant que l'IA rédigeait). */
+export async function setCvTemplate(cvId: string, requested: string): Promise<ActionState> {
+  const user = await requireUser(`/cv/${cvId}`);
+  const supabase = await createClient();
+  const { data: previous } = await supabase
+    .from("cvs")
+    .select("template, template_spec")
+    .eq("id", cvId)
+    .eq("user_id", user.id)
+    .maybeSingle<Pick<Cv, "template" | "template_spec">>();
+  if (!previous) return { error: "CV introuvable." };
+  const { template, template_spec } = await resolveTemplate(requested, previous);
+  const { error } = await supabase
+    .from("cvs")
+    .update({
+      template,
+      ...(template_spec || previous.template_spec ? { template_spec } : {}),
+    })
+    .eq("id", cvId)
+    .eq("user_id", user.id);
+  if (error) return { error: "Impossible de changer de modèle." };
+  revalidateCv();
+  return { success: "Modèle enregistré." };
 }
 
 export async function saveCvDraft(cvId: string, draft: CvDraft): Promise<ActionState> {
