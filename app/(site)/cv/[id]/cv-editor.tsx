@@ -41,6 +41,7 @@ const STEPS = [
   { key: "experiences", label: "Expériences" },
   { key: "formation", label: "Formation" },
   { key: "competences", label: "Compétences" },
+  { key: "langues", label: "Langues" },
   { key: "finaliser", label: "Finaliser" },
 ] as const;
 
@@ -50,7 +51,8 @@ const TIPS: Record<(typeof STEPS)[number]["key"], string> = {
   profil: "En 3 à 4 phrases : qui vous êtes, ce que vous savez faire de mieux, ce que vous recherchez. Adaptez-le à chaque offre.",
   experiences: "Commencez par la plus récente. Pour chaque poste, 3 à 5 puces avec des verbes d'action et, si possible, des chiffres (volumes, résultats, délais).",
   formation: "Indiquez le diplôme, l'établissement et l'année d'obtention. Les stages peuvent aussi figurer dans les expériences.",
-  competences: "8 à 12 compétences maximum, en reprenant les mots-clés des offres qui vous intéressent. Précisez votre niveau pour chaque langue.",
+  competences: "8 à 12 compétences maximum, en reprenant les mots-clés des offres qui vous intéressent.",
+  langues: "Indiquez toutes les langues que vous parlez, y compris les langues nationales (mooré, dioula, fulfuldé…) : c'est un vrai atout pour les postes de terrain, de vente ou d'accueil. Soyez honnête sur le niveau.",
   finaliser: "Relisez-vous, demandez l'avis de l'assistant, puis téléchargez votre CV en PDF depuis l'aperçu.",
 };
 
@@ -235,6 +237,7 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, initialStep, welcome,
               </>
             )}
             {current === "competences" && <SkillsStep cv={cv} update={update} aiEnabled={aiEnabled} />}
+            {current === "langues" && <LanguagesStep cv={cv} update={update} />}
             {current === "finaliser" && <FinalStep cv={cv} cvId={cvId} aiEnabled={aiEnabled} canDownload={canDownload} />}
           </div>
 
@@ -847,8 +850,103 @@ function SkillsStep({ cv, update, aiEnabled }: StepProps & { aiEnabled: boolean 
           <AiError message={error} />
         </div>
       )}
-      <ChipsInput id="languages" label="Langues" values={cv.languages} onChange={(languages) => update({ languages })} placeholder="Français (courant), Mooré (natif)…" />
       <ChipsInput id="interests" label="Centres d'intérêt (facultatif)" values={cv.interests} onChange={(interests) => update({ interests })} placeholder="Football, lecture, bénévolat…" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Langues parlées : « Langue (niveau) », format lu par tous les modèles
+// ---------------------------------------------------------------------------
+const COMMON_LANGUAGES = ["Français", "Mooré", "Dioula", "Fulfuldé", "Anglais", "Gourmantché", "Bissa", "Dagara", "San", "Lobiri", "Bobo", "Arabe", "Espagnol", "Allemand"];
+const LANGUAGE_LEVELS = ["Langue maternelle", "Courant", "Bon niveau", "Intermédiaire", "Notions"];
+
+function splitLanguage(value: string) {
+  const m = /^(.*?)\s*\(([^)]*)\)\s*$/.exec(value);
+  return m ? { name: m[1].trim(), level: m[2].trim() } : { name: value.trim(), level: "" };
+}
+const joinLanguage = (name: string, level: string) => (level ? `${name} (${level})` : name);
+
+function LanguagesStep({ cv, update }: StepProps) {
+  const [draft, setDraft] = useState("");
+  const rows = cv.languages.map(splitLanguage);
+  const has = (name: string) => rows.some((r) => r.name.toLowerCase() === name.toLowerCase());
+  const set = (next: { name: string; level: string }[]) => update({ languages: next.map((r) => joinLanguage(r.name, r.level)) });
+  const add = (name: string) => {
+    const clean = name.trim().replace(/[(),]/g, "");
+    if (clean && !has(clean)) set([...rows, { name: clean, level: rows.length ? "" : "Courant" }]);
+    setDraft("");
+  };
+  const levels = (current: string) => (current && !LANGUAGE_LEVELS.includes(current) ? [current, ...LANGUAGE_LEVELS] : LANGUAGE_LEVELS);
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="label">Langues parlées</p>
+        {rows.length > 0 ? (
+          <ul className="space-y-2">
+            {rows.map((r, i) => (
+              <li key={`${r.name}-${i}`} className="flex flex-wrap items-center gap-2 rounded-xl border border-line bg-white p-2 pl-3 sm:flex-nowrap">
+                <span className="min-w-0 flex-1 truncate font-medium">{r.name}</span>
+                <select
+                  aria-label={`Niveau en ${r.name}`}
+                  value={r.level}
+                  onChange={(e) => set(rows.map((x, j) => (j === i ? { ...x, level: e.target.value } : x)))}
+                  className="input w-auto py-1.5"
+                >
+                  <option value="">Niveau…</option>
+                  {levels(r.level).map((l) => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
+                <span className="flex">
+                  <button type="button" disabled={i === 0} onClick={() => set(rows.map((x, j) => (j === i ? rows[i - 1] : j === i - 1 ? rows[i] : x)))} className="rounded-lg p-1.5 text-muted hover:bg-surface disabled:opacity-30" aria-label={`Monter ${r.name}`}>
+                    <ArrowUp aria-hidden className="size-4" />
+                  </button>
+                  <button type="button" onClick={() => set(rows.filter((_, j) => j !== i))} className="rounded-lg p-1.5 text-accent-600 hover:bg-accent-500/5" aria-label={`Retirer ${r.name}`}>
+                    <Trash2 aria-hidden className="size-4" />
+                  </button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="rounded-xl border border-dashed border-line px-4 py-3 text-sm text-muted">Aucune langue pour l&apos;instant. Ajoutez-en une ci-dessous.</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-xs text-muted">Ajout rapide :</p>
+        <div className="flex flex-wrap gap-1.5">
+          {COMMON_LANGUAGES.filter((l) => !has(l)).map((l) => (
+            <button key={l} type="button" onClick={() => add(l)} className="chip hover:border-ink">
+              <Plus aria-hidden className="size-3" /> {l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="language-other" className="label">Autre langue</label>
+        <div className="flex gap-2">
+          <input
+            id="language-other"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                add(draft);
+              }
+            }}
+            placeholder="Ex. Gulmancéma, Portugais…"
+            className="input flex-1"
+          />
+          <button type="button" onClick={() => add(draft)} disabled={!draft.trim()} className="btn-secondary">
+            <Plus aria-hidden className="size-4" /> Ajouter
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -864,6 +962,7 @@ function FinalStep({ cv, cvId, aiEnabled, canDownload }: { cv: CvDraft; cvId: st
     !cv.experiences.length && "au moins une expérience",
     !cv.education.length && "votre formation",
     cv.skills.length < 4 && "quelques compétences",
+    !cv.languages.length && "les langues que vous parlez",
   ].filter(Boolean) as string[];
   // Repères laissés par l'IA : ils apparaîtraient tels quels dans le PDF
   const toCheck = JSON.stringify(cv).split("[à préciser]").length - 1;
