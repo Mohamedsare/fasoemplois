@@ -141,6 +141,7 @@ export function CvEditor({ cvId, initial, initialPhotoUrl, initialStep, welcome,
             >
               <Eye aria-hidden className="size-4" /> Aperçu
             </Link>
+            <DownloadPdfButton cvId={cvId} locked={!canDownload} format="docx" className="btn-secondary" label="Word" />
             <DownloadPdfButton cvId={cvId} locked={!canDownload} />
           </div>
         </div>
@@ -898,13 +899,14 @@ function FinalStep({ cv, cvId, aiEnabled, canDownload }: { cv: CvDraft; cvId: st
 
       {!canDownload && (
         <p className="rounded-xl border border-dashed border-brand-600/50 bg-cream px-4 py-3 text-sm">
-          <strong>Votre CV est prêt !</strong> Le téléchargement en PDF est inclus dans les{" "}
+          <strong>Votre CV est prêt !</strong> Le téléchargement en PDF et en Word est inclus dans les{" "}
           <Link href="/abonnements" className="font-semibold text-brand-700 underline">abonnements</Link>.
         </p>
       )}
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <DownloadPdfButton cvId={cvId} locked={!canDownload} className="btn-primary w-full py-3 sm:flex-1" />
+        <DownloadPdfButton cvId={cvId} locked={!canDownload} format="docx" className="btn-secondary w-full py-3 sm:flex-1" />
         <Link href={`/cv/${cvId}/apercu`} className="btn-secondary w-full py-3 sm:w-auto">Aperçu pleine page</Link>
       </div>
     </div>

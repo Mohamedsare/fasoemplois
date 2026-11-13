@@ -138,6 +138,7 @@ export default async function CvPage(props: PageProps<"/cv">) {
                 <div className="mt-auto flex flex-wrap gap-2">
                   <Link href={`/cv/${cv.id}`} className="btn-primary px-3 py-1.5 text-xs"><PencilLine aria-hidden className="size-3.5" /> Modifier</Link>
                   <DownloadPdfButton cvId={cv.id} locked={!canDownload} className="btn-secondary px-3 py-1.5 text-xs" label="PDF" />
+                  <DownloadPdfButton cvId={cv.id} locked={!canDownload} format="docx" className="btn-secondary px-3 py-1.5 text-xs" label="Word" />
                   <Link href={`/cv/${cv.id}/apercu`} className="btn-secondary px-3 py-1.5 text-xs"><Eye aria-hidden className="size-3.5" /> Aperçu</Link>
                   {canCreate && (
                     <form action={duplicateCv.bind(null, cv.id)}>

@@ -57,12 +57,12 @@ export async function launchBrowser() {
 }
 
 /** Nom de fichier propre : « CV-Awa-Ouedraogo.pdf ». */
-export function pdfFileName(fullName: string, title: string) {
+export function pdfFileName(fullName: string, title: string, extension: "pdf" | "docx" = "pdf") {
   const base = (fullName || title || "CV")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
     .slice(0, 60);
-  return `CV-${base || "Votre-CV"}.pdf`;
+  return `CV-${base || "Votre-CV"}.${extension}`;
 }

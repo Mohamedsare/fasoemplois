@@ -163,6 +163,7 @@ export default async function AdminUserPage(props: PageProps<"/admin/utilisateur
                     {t && <TemplateBadge premium={t.premium} />}
                     <Link href={`/cv/${c.id}/apercu`} target="_blank" className="btn-secondary px-3 py-1.5 text-xs"><Eye aria-hidden className="size-3.5" /> Aperçu</Link>
                     <a href={`/cv/${c.id}/pdf`} className="btn-secondary px-3 py-1.5 text-xs"><FileDown aria-hidden className="size-3.5" /> PDF</a>
+                    <a href={`/cv/${c.id}/word`} className="btn-secondary px-3 py-1.5 text-xs"><FileDown aria-hidden className="size-3.5" /> Word</a>
                   </li>
                 );
               })}

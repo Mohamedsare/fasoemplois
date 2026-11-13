@@ -41,6 +41,7 @@ export default async function CvPrintPage(props: PageProps<"/cv/[id]/apercu">) {
         </Link>
         <div className="flex items-center gap-2">
           <DownloadPdfButton cvId={cv.id} locked={!canDownload} className="btn-primary w-full py-3 sm:w-auto sm:py-2" />
+          <DownloadPdfButton cvId={cv.id} locked={!canDownload} format="docx" className="btn-secondary w-full py-3 sm:w-auto sm:py-2" label="Word" />
           {canDownload && <PrintButton />}
         </div>
       </div>
