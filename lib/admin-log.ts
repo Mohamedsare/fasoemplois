@@ -12,6 +12,7 @@ export const ADMIN_ACTION_LABELS: Record<string, string> = {
   admin_granted: "Droits administrateur accordés",
   admin_revoked: "Droits administrateur retirés",
   user_deleted: "Compte supprimé",
+  email_confirmed: "Inscription validée (e-mail non confirmé)",
   template_created: "Modèle IA créé",
   template_updated: "Modèle IA modifié",
   template_published: "Modèle IA publié",

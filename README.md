@@ -37,6 +37,7 @@ npm run dev
 | `20261004000000_modeles_premium.sql` | 12 modèles de CV (3 gratuits + 9 Premium), avantages des plans |
 | `20261005000000_backoffice_admin.sql` | back-office : e-mail des profils, journal des actions admin, suivi des PDF, vue `admin_users` |
 | `20261006000000_modeles_ia.sql` | modèles de CV créés par l'IA (table `cv_templates`, fiche de style copiée dans chaque CV) |
+| `20261008000000_validation_inscription_admin.sql` | statut de confirmation de l'e-mail dans `admin_users` (validation manuelle des inscriptions par l'admin) |
 
 ⚠️ `20261003000000_pivot_saas_cv.sql` est **irréversible** : l'appliquer **après** avoir déployé le code
 de *Votre CV* (l'ancienne version du site lit encore ces tables).

@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
   if (segment === "admin") query = query.eq("is_admin", true);
   else {
     query = query.eq("is_admin", false);
-    if (segment in SEGMENT_LABELS) query = query.eq("segment", segment);
+    if (segment === "non_confirme") query = query.eq("email_confirmed", false);
+    else if (segment in SEGMENT_LABELS) query = query.eq("segment", segment);
   }
   if (q) query = query.or(`full_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%,city.ilike.%${q}%`);
   const { data } = await query.returns<AdminUserRow[]>();

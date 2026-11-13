@@ -162,4 +162,6 @@ export type AdminUserRow = {
   subscription_status: SubscriptionStatus | null;
   subscription_expires_at: string | null;
   segment: "gratuit" | "abonne" | "expire";
+  /** Absent tant que la migration 20261008 n'est pas appliquée. */
+  email_confirmed?: boolean;
 };

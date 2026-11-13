@@ -281,6 +281,22 @@ export async function setAdminRole(userId: string, makeAdmin: boolean) {
   revalidateUser(userId);
 }
 
+/** Valide une inscription sans attendre le clic sur le lien de confirmation (e-mail non reçu, adresse erronée…). */
+export async function confirmUserEmail(userId: string) {
+  const admin = await requireAdmin();
+  if (!UUID.test(userId)) return;
+  const db = createAdminClient();
+  const { data } = await db.auth.admin.getUserById(userId);
+  if (!data.user || data.user.email_confirmed_at) return;
+  const { error } = await db.auth.admin.updateUserById(userId, { email_confirm: true });
+  if (error) {
+    console.error("[admin] validation de l'inscription impossible :", error);
+    redirect(`/admin/utilisateurs/${userId}?erreur=validation`);
+  }
+  await logAdminAction(admin.id, "email_confirmed", userId, { email: data.user.email });
+  revalidateUser(userId);
+}
+
 /** Suppression définitive d'un compte (demande RGPD) : photos, CV, paiements, abonnements, accès. */
 export async function deleteUserAccount(userId: string) {
   const admin = await requireAdmin();

@@ -15,6 +15,7 @@ const SEGMENTS = [
   { key: "abonne", label: "Abonnés" },
   { key: "gratuit", label: "Gratuits" },
   { key: "expire", label: "Expirés" },
+  { key: "non_confirme", label: "Non confirmés" },
   { key: "admin", label: "Admins" },
 ] as const;
 
@@ -31,19 +32,27 @@ export default async function AdminUsersPage(props: PageProps<"/admin/utilisateu
   if (segment === "admin") query = query.eq("is_admin", true);
   else {
     query = query.eq("is_admin", false);
-    if (segment) query = query.eq("segment", segment);
+    if (segment === "non_confirme") query = query.eq("email_confirmed", false);
+    else if (segment) query = query.eq("segment", segment);
   }
   if (q) query = query.or(`full_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%,city.ilike.%${q}%`);
 
   const count = (s: string) =>
     supabase.from("admin_users").select("id", { count: "exact", head: true }).eq("is_admin", false).eq("segment", s).then((r) => r.count ?? 0);
-  const [{ data: users, count: total }, subscribed, free, expired] = await Promise.all([
+  const pendingCount = supabase
+    .from("admin_users")
+    .select("id", { count: "exact", head: true })
+    .eq("is_admin", false)
+    .eq("email_confirmed", false)
+    .then((r) => r.count ?? 0);
+  const [{ data: users, count: total }, subscribed, free, expired, pending] = await Promise.all([
     query.range((page - 1) * PER_PAGE, page * PER_PAGE - 1).returns<AdminUserRow[]>(),
     count("abonne"),
     count("gratuit"),
     count("expire"),
+    pendingCount,
   ]);
-  const counts: Record<string, number | undefined> = { "": subscribed + free + expired, abonne: subscribed, gratuit: free, expire: expired };
+  const counts: Record<string, number | undefined> = { "": subscribed + free + expired, abonne: subscribed, gratuit: free, expire: expired, non_confirme: pending };
   const href = (params: { page?: number; segment?: string }) =>
     buildHref("/admin/utilisateurs", { q, segment: params.segment ?? segment, page: params.page });
 
@@ -52,6 +61,12 @@ export default async function AdminUsersPage(props: PageProps<"/admin/utilisateu
       <PageHeader title="Utilisateurs" description="Comptes, abonnements et CV de chaque utilisateur.">
         <ExportLink href={buildHref("/admin/utilisateurs/export", { q, segment })} />
       </PageHeader>
+
+      {segment === "non_confirme" && (
+        <p className="rounded-xl border border-star-400 bg-star-400/10 px-4 py-3 text-sm">
+          Comptes qui n&apos;ont pas cliqué sur le lien de confirmation reçu par e-mail. Ouvrez une fiche pour valider l&apos;inscription manuellement.
+        </p>
+      )}
 
       {sp.supprime === "1" && (
         <p role="status" className="rounded-xl border border-brand-600/30 bg-brand-50 px-4 py-3 text-sm text-brand-800">Le compte a été supprimé définitivement.</p>
@@ -76,6 +91,7 @@ export default async function AdminUsersPage(props: PageProps<"/admin/utilisateu
                 <span className="block truncate text-xs text-muted">{u.email ?? u.phone ?? "—"}</span>
                 <span className="mt-1 flex items-center gap-2 text-xs">
                   <SegmentBadge row={u} />
+                  {u.email_confirmed === false && <PendingBadge />}
                   <span className="text-muted">{u.cv_count} CV</span>
                 </span>
               </span>
@@ -110,6 +126,7 @@ export default async function AdminUsersPage(props: PageProps<"/admin/utilisateu
                         {u.is_admin && <ShieldCheck aria-label="Administrateur" className="size-3.5 text-brand-600" />}
                       </span>
                       <span className="block max-w-64 truncate text-xs text-muted">{u.email ?? "—"}</span>
+                      {u.email_confirmed === false && <PendingBadge />}
                     </span>
                   </Link>
                 </td>
@@ -129,4 +146,8 @@ export default async function AdminUsersPage(props: PageProps<"/admin/utilisateu
       <Pagination page={page} perPage={PER_PAGE} total={total ?? 0} href={(p) => href({ page: p })} />
     </div>
   );
+}
+
+function PendingBadge() {
+  return <span className="inline-flex w-fit rounded-full border border-star-400 bg-star-400/15 px-2 py-0.5 text-xs font-medium">E-mail non confirmé</span>;
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { Gift, RotateCcw, ShieldCheck, ShieldOff, Trash2, XCircle } from "lucide-react";
-import { deleteUserAccount, grantSubscription, resetAiQuota, revokeSubscription, setAdminRole } from "@/app/actions/admin";
+import { Gift, MailCheck, RotateCcw, ShieldCheck, ShieldOff, Trash2, XCircle } from "lucide-react";
+import { confirmUserEmail, deleteUserAccount, grantSubscription, resetAiQuota, revokeSubscription, setAdminRole } from "@/app/actions/admin";
 import { ConfirmSubmit } from "@/components/confirm-submit";
 import { Field, FormAlert, SubmitButton, useFormAction } from "@/components/form";
 
@@ -16,6 +16,16 @@ type Props = {
 };
 
 const DURATIONS = [7, 30, 60, 90, 180, 365];
+
+export function ConfirmEmailButton({ userId, name }: Pick<Props, "userId" | "name">) {
+  return (
+    <form action={confirmUserEmail.bind(null, userId)}>
+      <ConfirmSubmit message={`Valider l'inscription de ${name} sans confirmation de l'e-mail ? Il pourra se connecter immédiatement.`} className="btn-primary">
+        <MailCheck aria-hidden className="size-4" /> Valider l&apos;inscription
+      </ConfirmSubmit>
+    </form>
+  );
+}
 
 export function GrantSubscriptionForm({ userId, plans, defaultPlanId }: Pick<Props, "userId" | "plans" | "defaultPlanId">) {
   const { state, onSubmit, pending } = useFormAction(grantSubscription.bind(null, userId));

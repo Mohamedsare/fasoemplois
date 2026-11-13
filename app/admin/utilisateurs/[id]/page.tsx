@@ -1,4 +1,4 @@
-import { ArrowLeft, Bot, Crown, Eye, FileDown, FileText, Mail, MessageCircle, Phone, ShieldCheck, Wallet } from "lucide-react";
+import { ArrowLeft, Bot, Crown, MailWarning, Eye, FileDown, FileText, Mail, MessageCircle, Phone, ShieldCheck, Wallet } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,7 +14,7 @@ import { PaymentBadge, SubscriptionBadge } from "@/components/status-badge";
 import { TemplateBadge } from "@/components/template-card";
 import type { AdminLog, Cv, Payment, Plan, Profile, Subscription } from "@/lib/types";
 import { StatCard } from "../../ui";
-import { GrantSubscriptionForm, UserQuickActions } from "./user-actions";
+import { ConfirmEmailButton, GrantSubscriptionForm, UserQuickActions } from "./user-actions";
 
 export const metadata: Metadata = { title: "Fiche utilisateur" };
 
@@ -62,6 +62,7 @@ export default async function AdminUserPage(props: PageProps<"/admin/utilisateur
   const totalPaid = (payments ?? []).filter((p) => p.status === "paid").reduce((n, p) => n + p.amount, 0);
   const providers = (authUser?.app_metadata?.providers as string[] | undefined) ?? [authUser?.app_metadata?.provider].filter(Boolean);
   const name = profile.full_name || profile.email || "Cet utilisateur";
+  const emailPending = Boolean(authUser && !authUser.email_confirmed_at);
   const wa = whatsappLink(profile.phone, `Bonjour${profile.first_name ? ` ${profile.first_name}` : ""}, c'est l'équipe ${BRAND.name}.`);
   const catalog = await getTemplateCatalog(true);
   const templateLabel = (t: string) => catalog.find((x) => x.value === t);
@@ -76,6 +77,25 @@ export default async function AdminUserPage(props: PageProps<"/admin/utilisateur
         <p role="alert" className="rounded-xl border border-accent-500/30 bg-accent-500/5 px-4 py-3 text-sm text-accent-600">
           La suppression du compte a échoué. Réessayez.
         </p>
+      )}
+
+      {sp.erreur === "validation" && (
+        <p role="alert" className="rounded-xl border border-accent-500/30 bg-accent-500/5 px-4 py-3 text-sm text-accent-600">
+          La validation de l&apos;inscription a échoué. Réessayez.
+        </p>
+      )}
+
+      {emailPending && (
+        <section className="flex flex-col gap-3 rounded-xl border border-star-400 bg-star-400/10 p-4 sm:flex-row sm:items-center">
+          <MailWarning aria-hidden className="size-5 shrink-0 text-ink" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">E-mail non confirmé</p>
+            <p className="text-xs text-muted">
+              {name} n&apos;a pas encore cliqué sur le lien de confirmation et ne peut pas se connecter. Vous pouvez valider son inscription manuellement.
+            </p>
+          </div>
+          <ConfirmEmailButton userId={id} name={name} />
+        </section>
       )}
 
       {/* Identité */}
